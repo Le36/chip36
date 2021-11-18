@@ -1,17 +1,19 @@
 package com.chip8.emulator;
 
-import com.chip8.display.ConsoleDisplay;
+import com.chip8.ui.PixelManager;
 
 public class Decoder {
 
     private ConsoleDisplay display;
     private Memory m;
     private Fetcher fetcher;
+    private PixelManager pixels;
 
-    public Decoder(Memory m, Fetcher fetcher) {
+    public Decoder(Memory m, Fetcher fetcher, PixelManager pixels) {
         this.display = new ConsoleDisplay();
         this.m = m;
         this.fetcher = fetcher;
+        this.pixels = pixels;
     }
 
     public void decode(short opcode) {
@@ -63,6 +65,7 @@ public class Decoder {
                             }
                             // draws pixel by flipping it
                             display.drawPixel(xx, yy);
+                            pixels.draw(xx, yy);
                         }
                     }
                 }

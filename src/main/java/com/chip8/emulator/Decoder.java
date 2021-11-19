@@ -1,5 +1,6 @@
 package com.chip8.emulator;
 
+import com.chip8.ui.ConsoleDisplay;
 import com.chip8.ui.PixelManager;
 
 public class Decoder {
@@ -20,7 +21,7 @@ public class Decoder {
         switch (opcode) {
             case 0x00E0: // clears display
                 display.clearDisplay();
-                //System.out.println("clear");
+                pixels.clearDisplay();
                 return;
         }
 

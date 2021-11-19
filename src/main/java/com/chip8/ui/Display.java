@@ -7,6 +7,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -43,7 +44,7 @@ public class Display extends Application {
 
             public void handle(long l) {
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(10);
                 } catch (Exception e) {
                     System.out.println(e.getStackTrace());
                 }
@@ -70,7 +71,7 @@ public class Display extends Application {
                 for (int x = 0; x < fadeMap.size(); x++) {
                     for (int y = 0; y < fadeMap.get(x).size(); y++) {
                         if (fadeMap.get(x).get(y) > 0.0) {
-                            double fading = Math.min(1.0, fadeMap.get(x).get(y));
+                            double fading = Math.min(0.95, fadeMap.get(x).get(y));
 
                             Color color = new Color(fading, fading, fading, 1);
 
@@ -79,6 +80,10 @@ public class Display extends Application {
                         }
                     }
                 }
+                // press any key and it clears the screen for testing purposes
+                scene.addEventFilter(KeyEvent.ANY, keyEvent -> {
+                    executer.forceOpcode((short) 0x00E0);
+                });
             }
         }.start();
         stage.show();

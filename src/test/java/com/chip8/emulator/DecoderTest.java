@@ -20,6 +20,7 @@ public class DecoderTest {
         this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1));
     }
 
+
     @Test
     public void jump1NNN() {
         decoder.decode((byte) 0x1200);

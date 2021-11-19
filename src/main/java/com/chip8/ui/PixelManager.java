@@ -14,15 +14,12 @@ public class PixelManager {
 
     public PixelManager(int width, int height) {
         this.fadeMap = new HashMap<>();
-        int x = 0;
-        while (x < width) {
+
+        for (int x = 0; x < width; x++) {
             this.fadeMap.putIfAbsent(x, new HashMap<>());
-            int y = 0;
-            while (y < height) {
+            for (int y = 0; y < height; y++) {
                 this.fadeMap.get(x).put(y, 0.0);
-                y++;
             }
-            x++;
         }
         this.display = new boolean[width][height];
     }
@@ -34,7 +31,7 @@ public class PixelManager {
             for (int y = 0; y < this.fadeMap.get(x).size(); y++) {
                 double d = this.fadeMap.get(x).get(y);
                 if (d > 0) {
-                    d -= 0.004; // basically how fast the fade is
+                    d -= 0.04; // basically how fast the fade is
                 }
                 this.fadeMap.get(x).put(y, d);
             }
@@ -45,10 +42,20 @@ public class PixelManager {
     // we are going to add it to a fade map, that lets the pixel fade out slowly
     public void draw(int x, int y) {
         if (this.display[x][y]) {
-            this.fadeMap.get(this.x).put(this.y, 0.95);
             this.x = x;
             this.y = y;
+            this.fadeMap.get(this.x).put(this.y, 0.95);
         }
         this.display[x][y] = !this.display[x][y];
+    }
+
+    public void clearDisplay() {
+        for (int hei = 0; hei < 32; hei++) {
+            for (int wid = 0; wid < 64; wid++) {
+                if (this.display[wid][hei]) {
+                    this.draw(wid, hei);
+                }
+            }
+        }
     }
 }

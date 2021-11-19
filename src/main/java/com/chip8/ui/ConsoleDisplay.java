@@ -1,4 +1,4 @@
-package com.chip8.emulator;
+package com.chip8.ui;
 
 import lombok.Data;
 

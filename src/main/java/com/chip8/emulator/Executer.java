@@ -8,11 +8,9 @@ public class Executer {
     private Memory memory;
     private Fetcher fetcher;
     private Decoder decoder;
-    private PixelManager pixels;
 
     public Executer(String rom, PixelManager pixels) {
         this.memory = new Memory();
-        this.pixels = pixels;
 
         Loader loader = new Loader(rom, memory);
 
@@ -28,5 +26,10 @@ public class Executer {
     public void execute() {
         fetcher.fetch();
         decoder.decode(fetcher.getOpcode());
+    }
+
+    // used to testing
+    public void forceOpcode(short opcode) {
+        decoder.decode(opcode);
     }
 }

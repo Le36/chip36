@@ -9,8 +9,15 @@ Very good emulator
 Use this command when in root folder to launch the program
 
 ```
-mvn compile exec:java -Dexec.mainClass=com.chip8.ui.Display
+mvn compile exec:java -Dexec.mainClass=com.chip8.Main
 ```
+
+or build
+
+```
+mvn package
+```
+
 
 ### Testing
 

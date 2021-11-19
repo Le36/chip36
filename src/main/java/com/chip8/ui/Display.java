@@ -59,6 +59,7 @@ public class Display extends Application {
             if (selectedFile == null || selectedFile.length() > 4096 || selectedFile.length() < 2) return;
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels);
             fileChosen = true;
+            pixels.clearDisplay();
         });
 
         resetRom.setOnAction(e -> {
@@ -66,6 +67,11 @@ public class Display extends Application {
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels);
             fileChosen = true;
             pixels.clearDisplay();
+        });
+
+        // press any key and it clears the screen for testing purposes
+        scene.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            executer.forceOpcode((short) 0x00E0);
         });
 
         // currently AnimationTimer handling everything
@@ -112,10 +118,6 @@ public class Display extends Application {
                         }
                     }
                 }
-                // press any key and it clears the screen for testing purposes
-                scene.addEventFilter(KeyEvent.ANY, keyEvent -> {
-                    executer.forceOpcode((short) 0x00E0);
-                });
             }
         }.start();
         stage.show();

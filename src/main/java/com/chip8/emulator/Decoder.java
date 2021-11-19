@@ -18,13 +18,46 @@ public class Decoder {
     }
 
     public void decode(short opcode) {
-        switch (opcode) {
-            case 0x00E0: // clears display
-                display.clearDisplay();
-                pixels.clearDisplay();
-                return;
+        if (opcode == 0x00E0) { // clears display
+            display.clearDisplay();
+            pixels.clearDisplay();
+            return;
         }
 
+        switch (opcode & 0xF0FF) {
+            case 0xF029: // Font Fx29, x points to the character in V[x]
+                // then I is set RAM address that contains data for that character
+                int x = ((opcode & 0x0F00) >> 8); // 0 - F
+                m.setI((short) (0x50 + (5 * m.getV()[x])));
+                return;
+            case 0xF033: // converts value in Vx to decimal 0 - 255 and then inserts
+                // the decimal in BCD format to RAM pointed by I
+                // first decimal going to I + 2, second to I + 1 and third to I
+                int decimal = Byte.toUnsignedInt(m.getV()[((opcode & 0x0F00) >> 8)]);
+                byte[] RAM = m.getRAM();
+                RAM[m.getI() + 2] = (byte) (decimal % 10);
+                decimal = decimal / 10;
+                RAM[m.getI() + 1] = (byte) (decimal % 10);
+                decimal = decimal / 10;
+                RAM[m.getI()] = (byte) (decimal % 10);
+                m.setRAM(RAM);
+                return;
+            case 0xF055: // dumps registers from V0 to Vx to RAM at I
+                int tempI = m.getI();
+                RAM = m.getRAM();
+                for (int i = 0; i < ((opcode & 0x0F00) >> 8); i++, tempI++) {
+                    RAM[tempI] = m.getV()[i];
+                }
+                m.setRAM(RAM);
+                return;
+            case 0xF065: // fills registers V0 to Vx from RAM at I
+                tempI = m.getI();
+                RAM = m.getRAM();
+                for (int i = 0; i < ((opcode & 0x0F00) >> 8); i++, tempI++) {
+                    m.varReg(i, RAM[tempI]);
+                }
+                return;
+        }
         switch (opcode & 0xF000) {
             case 0x1000: // jump, sets the PC to NNN | 1NNN
                 m.setPC((short) (opcode & 0x0FFF));
@@ -72,6 +105,7 @@ public class Decoder {
                 }
                 display.printDisplay();
                 return;
+
         }
     }
 }

@@ -1,0 +1,27 @@
+# CHIP8 Emulator made with Java #
+
+Very good emulator
+
+## How to run ##
+
+### Start
+
+Use this command when in root folder to launch the program
+
+```
+mvn compile exec:java -Dexec.mainClass=com.chip8.ui.Display
+```
+
+### Testing
+
+Execute all tests
+
+```
+mvn test
+```
+
+Jacoco code coverage report
+
+```
+mvn test jacoco:report
+```

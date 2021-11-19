@@ -8,6 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -30,14 +32,13 @@ public class Display extends Application {
 
         stage.setTitle("Chip8 Emulator: " + rom);
 
-        Group root = new Group();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
 
         Canvas canvas = new Canvas(width, height);
-        root.getChildren().add(canvas);
-
         GraphicsContext paint = canvas.getGraphicsContext2D();
+        BorderPane bp = new BorderPane();
+        bp.setCenter(canvas);
+        Scene scene = new Scene(bp);
+        stage.setScene(scene);
 
         // currently AnimationTimer handling everything
         new AnimationTimer() {

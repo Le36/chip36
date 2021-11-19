@@ -3,49 +3,80 @@ package com.chip8.ui;
 import com.chip8.emulator.Executer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.Group;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.HashMap;
 
 public class Display extends Application {
 
     private Executer executer;
+    private boolean fileChosen;
+    private File selectedFile;
+    private double gameSpeed;
 
     public void start(Stage stage) {
-
-        PixelManager pixels = new PixelManager(64, 32);
-        // craft file chooser here etc... or below actually
-        // IBM test rom, prints just IBM-logo
-        String rom = "IBM";
-        this.executer = new Executer(rom, pixels);
 
         final int width = 640;
         final int height = 320;
 
-        stage.setTitle("Chip8 Emulator: " + rom);
+        PixelManager pixels = new PixelManager(64, 32);
+        FileChooser fileChooser = new FileChooser();
 
+        Button selectRom = new Button("Select ROM");
+        Button resetRom = new Button("Reset ROM");
+        Slider slider = new Slider(0, 100, 20);
+        Label label = new Label("Game Speed: ");
+
+        stage.setTitle("Chip8 Emulator");
+        HBox hboxLeft = new HBox(4, selectRom, resetRom, slider);
+        HBox hboxRight = new HBox(4, label, slider);
+        HBox hbox = new HBox(260, hboxLeft, hboxRight);
 
         Canvas canvas = new Canvas(width, height);
         GraphicsContext paint = canvas.getGraphicsContext2D();
-        BorderPane bp = new BorderPane();
-        bp.setCenter(canvas);
-        Scene scene = new Scene(bp);
+        BorderPane root = new BorderPane();
+        root.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+        root.setTop(hbox);
+        root.setCenter(canvas);
+        Scene scene = new Scene(root);
         stage.setScene(scene);
+
+        selectRom.setOnAction(e -> {
+            selectedFile = fileChooser.showOpenDialog(stage);
+            if (selectedFile == null || selectedFile.length() > 4096 || selectedFile.length() < 2) return;
+            this.executer = new Executer(selectedFile.getAbsolutePath(), pixels);
+            fileChosen = true;
+        });
+
+        resetRom.setOnAction(e -> {
+            if (selectedFile == null) return;
+            this.executer = new Executer(selectedFile.getAbsolutePath(), pixels);
+            fileChosen = true;
+            pixels.clearDisplay();
+        });
 
         // currently AnimationTimer handling everything
         new AnimationTimer() {
 
             public void handle(long l) {
+                gameSpeed = slider.getValue();
+                if (!fileChosen) return;
+
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep((long) gameSpeed);
                 } catch (Exception e) {
                     System.out.println(e.getStackTrace());
                 }

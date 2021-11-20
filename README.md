@@ -18,7 +18,6 @@ or build
 mvn package
 ```
 
-
 ### Testing
 
 Execute all tests
@@ -31,4 +30,10 @@ Jacoco code coverage report
 
 ```
 mvn test jacoco:report
+```
+
+Checkstyle report
+
+```
+mvn jxr:jxr checkstyle:checkstyle
 ```

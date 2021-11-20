@@ -23,11 +23,11 @@ public class FetcherTest {
     @Test
     public void incrementPC() {
         fetcher.incrementPC();
-        assertEquals(0x202, m.getPC());
+        assertEquals(0x202, m.getPc());
         fetcher.incrementPC();
         fetcher.incrementPC();
         fetcher.incrementPC();
-        assertEquals(0x208, m.getPC());
+        assertEquals(0x208, m.getPc());
     }
 
     @Test
@@ -38,7 +38,7 @@ public class FetcherTest {
         fetcher.fetch();
         decoder.decode(fetcher.getOpcode());
         assertEquals(0x0A, m.getV()[0xD]);
-        assertEquals(0x202, m.getPC());
+        assertEquals(0x202, m.getPc());
     }
 
 }

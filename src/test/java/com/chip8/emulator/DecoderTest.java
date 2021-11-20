@@ -24,10 +24,10 @@ public class DecoderTest {
     @Test
     public void jump1NNN() {
         decoder.decode((byte) 0x1200);
-        assertEquals(0x200, m.getPC());
+        assertEquals(0x200, m.getPc());
 
         decoder.decode((short) 0x1954);
-        assertEquals(0x954, m.getPC());
+        assertEquals(0x954, m.getPc());
     }
 
     @Test
@@ -63,9 +63,9 @@ public class DecoderTest {
         decoder.decode((short) 0xA411); // Index to 0x411
         decoder.decode((short) 0xF033); // Convert to BCD
         // now we expect to have BCD 159 in RAM as
-        assertEquals(9, m.getRAM()[m.getI() + 2]);
-        assertEquals(5, m.getRAM()[m.getI() + 1]);
-        assertEquals(1, m.getRAM()[m.getI()]);
+        assertEquals(9, m.getRam()[m.getI() + 2]);
+        assertEquals(5, m.getRam()[m.getI() + 1]);
+        assertEquals(1, m.getRam()[m.getI()]);
     }
 
     @Test
@@ -75,19 +75,19 @@ public class DecoderTest {
         m.varReg(5, 11);
         m.setI((short) 0x202);
         decoder.decode((short) 0xF755);
-        assertEquals(30, m.getRAM()[m.getI()]);
-        assertEquals(0, m.getRAM()[m.getI() + 1]);
-        assertEquals(60, m.getRAM()[m.getI() + 2]);
-        assertEquals(11, m.getRAM()[m.getI() + 5]);
+        assertEquals(30, m.getRam()[m.getI()]);
+        assertEquals(0, m.getRam()[m.getI() + 1]);
+        assertEquals(60, m.getRam()[m.getI() + 2]);
+        assertEquals(11, m.getRam()[m.getI() + 5]);
     }
 
     @Test
     public void fillRegistersFx65() {
-        byte[] RAM = m.getRAM();
+        byte[] RAM = m.getRam();
         RAM[0xBB8] = 0x50;
         RAM[0xBB9] = 0x30;
         RAM[0xBBA] = 0x1F;
-        m.setRAM(RAM);
+        m.setRam(RAM);
         m.setI((short) 0xBB8);
         decoder.decode((short) 0xF365);
         assertEquals(0x50, m.getV()[0]);
@@ -104,21 +104,21 @@ public class DecoderTest {
         // we can expect I to be pointing into 0x82 because thats where A is loaded in RAM
         assertEquals(0x82, m.getI());
         // 0xF0, 0x90, 0xF0, 0x90, 0x90 is font data for A so we can expect to find these from RAM pointed by I
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRAM()[m.getI()]));
-        assertEquals(0x90, Byte.toUnsignedInt(m.getRAM()[m.getI() + 1]));
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRAM()[m.getI() + 2]));
-        assertEquals(0x90, Byte.toUnsignedInt(m.getRAM()[m.getI() + 3]));
-        assertEquals(0x90, Byte.toUnsignedInt(m.getRAM()[m.getI() + 4]));
+        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI()]));
+        assertEquals(0x90, Byte.toUnsignedInt(m.getRam()[m.getI() + 1]));
+        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI() + 2]));
+        assertEquals(0x90, Byte.toUnsignedInt(m.getRam()[m.getI() + 3]));
+        assertEquals(0x90, Byte.toUnsignedInt(m.getRam()[m.getI() + 4]));
 
         m.varReg(0xC, 0x5); // insert 5 character into V[0xC]
         decoder.decode((short) 0xFC29);
         assertEquals(0x69, m.getI()); // 5's location in RAM
 
         // 0xF0, 0x80, 0xF0, 0x10, 0xF0 font data for 5
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRAM()[m.getI()]));
-        assertEquals(0x80, Byte.toUnsignedInt(m.getRAM()[m.getI() + 1]));
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRAM()[m.getI() + 2]));
-        assertEquals(0x10, Byte.toUnsignedInt(m.getRAM()[m.getI() + 3]));
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRAM()[m.getI() + 4]));
+        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI()]));
+        assertEquals(0x80, Byte.toUnsignedInt(m.getRam()[m.getI() + 1]));
+        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI() + 2]));
+        assertEquals(0x10, Byte.toUnsignedInt(m.getRam()[m.getI() + 3]));
+        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI() + 4]));
     }
 }

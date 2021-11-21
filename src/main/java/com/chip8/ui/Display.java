@@ -81,6 +81,7 @@ public class Display extends Application {
                 gameSpeed = slider.getValue();
                 if (!fileChosen) return;
 
+
                 try {
                     Thread.sleep((long) gameSpeed);
                 } catch (Exception e) {

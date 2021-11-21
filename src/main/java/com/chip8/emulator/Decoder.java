@@ -24,9 +24,14 @@ public class Decoder {
 
     public void decode(short opcode) {
         this.opcode = opcode;
-        if (opcode == 0x00E0) { // 00E0
-            this.clearDisplay();
-            return;
+        //System.out.println("current instruction: " + Integer.toHexString(opcode & 0xffff));
+        switch (opcode) {
+            case 0x00E0: // 00E0
+                this.clearDisplay();
+                return;
+            case 0x00EE: // 00EE
+                this.returnFromSubroutine();
+                return;
         }
 
         switch (opcode & 0xF0FF) {
@@ -68,6 +73,9 @@ public class Decoder {
             case 0x1000: // 1NNN
                 this.jumpAddress();
                 return;
+            case 0x2000: // 2NNN
+                this.callSubroutine();
+                return;
             case 0x3000: // 3XNN
                 this.skipIfEqual();
                 return;
@@ -83,6 +91,9 @@ public class Decoder {
             case 0x7000: // 7XNN
                 this.addVarReg();
                 return;
+            case 0x9000: // 9XY0
+                this.skipIfNotEqualRegisters();
+                return;
             case 0xA000: // ANNN
                 this.setIndex();
                 return;
@@ -96,6 +107,117 @@ public class Decoder {
                 this.drawDisplay();
                 return;
         }
+
+        switch (opcode & 0xF00F) {
+            case 0x8000: // 8XY0
+                this.setVxToVy();
+                return;
+            case 0x8001: // 8XY1
+                this.binaryOr();
+                return;
+            case 0x8002: // 8XY2
+                this.binaryAnd();
+                return;
+            case 0x8003: // 8XY3
+                this.logicalXor();
+                return;
+            case 0x8004: // 8XY4
+                this.addVxVy();
+                return;
+            case 0x8005: // 8XY5
+            case 0x8007: // 8XY7
+                this.subtract();
+                return;
+            case 0x8006: // 8XY6
+                this.shiftRight();
+                return;
+            case 0x800E: // 8XYE
+                this.shiftLeft();
+                return;
+
+        }
+
+        System.out.println("unknown opcode: " + Byte.toUnsignedInt((byte) opcode));
+
+    }
+
+    private void setVxToVy() {
+        // sets v[x] to v[y]
+        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4]);
+    }
+
+    private void binaryOr() {
+        // bitwise or on v[x] and v[y] and stores that in v[x]
+        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4] | m.getV()[(opcode & 0x0F00) >> 8]);
+    }
+
+    private void binaryAnd() {
+        // bitwise and on v[x] and v[y] and stores that in v[x]
+        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4] & m.getV()[(opcode & 0x0F00) >> 8]);
+    }
+
+    private void logicalXor() {
+        // bitwise xor on v[x] and v[y] and stores that in v[x]
+        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4] ^ m.getV()[(opcode & 0x0F00) >> 8]);
+    }
+
+    private void addVxVy() {
+        // sets v[x] = v[x] + v[y], if overflow then v[0xF] is set to 1 else to 0
+        int x = Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]);
+        int y = Byte.toUnsignedInt(m.getV()[(opcode & 0x00F0) >> 4]);
+        if ((x + y) > 0xFF) {
+            m.varReg(0xF, 1);
+            m.varReg((opcode & 0x0F00) >> 8, (x + y) & 0xFF);
+        } else {
+            m.varReg(0xF, 0);
+            m.varReg((opcode & 0x0F00) >> 8, x + y);
+        }
+    }
+
+    private void subtract() {
+        int x = Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]);
+        int y = Byte.toUnsignedInt(m.getV()[(opcode & 0x00F0) >> 4]);
+        if ((opcode & 0x00F) == 0x5) {
+            // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
+            if (x > y) {
+                m.varReg(0xF, 1);
+            } else {
+                m.varReg(0xF, 0);
+            }
+            m.varReg((opcode & 0x0F00) >> 8, x - y);
+        } else if ((opcode & 0x00F) == 0x7) {
+            // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
+            if (y > x) {
+                m.varReg(0xF, 1);
+            } else {
+                m.varReg(0xF, 0);
+            }
+            m.varReg((opcode & 0x0F00) >> 8, y - x);
+        }
+    }
+
+    private void shiftRight() {
+        // sets v[x] to v[y] then shifts v[x] 1 bit to right, if the shifted bit was 1
+        // then sets v[0xF] to 1, else to 0
+        byte y = m.getV()[(opcode & 0x00F0) >> 4];
+        if ((y & 0x1) == 1) {
+            m.varReg(0xF, 1);
+        } else {
+            m.varReg(0xF, 0);
+        }
+        m.varReg((opcode & 0x0F00) >> 8, y >> 1);
+    }
+
+    private void shiftLeft() {
+        // sets v[x] to v[y] then shifts v[x] 1 bit to left, if the shifted bit was 1
+        // then sets v[0xF] to 1, else to 0
+        byte y = m.getV()[(opcode & 0x00F0) >> 4];
+        if ((y & 0b10000000) >> 7 == 1) {
+            m.varReg(0xF, 1);
+        } else {
+            m.varReg(0xF, 0);
+        }
+        m.varReg((opcode & 0x0F00) >> 8, y << 1);
     }
 
     private void clearDisplay() {
@@ -103,9 +225,20 @@ public class Decoder {
         pixels.clearDisplay();
     }
 
+    private void returnFromSubroutine() {
+        // returns to program popping the pc from stack
+        m.setPc(m.getStack().pop());
+    }
+
     private void jumpAddress() {
         // jump, sets the PC to NNN | 1NNN
         m.setPc((short) (opcode & 0x0FFF));
+    }
+
+    private void callSubroutine() {
+        // puts current pc to stack then jumps to NNN
+        m.getStack().push(m.getPc());
+        this.jumpAddress();
     }
 
     private void skipIfEqual() {
@@ -137,6 +270,13 @@ public class Decoder {
     private void addVarReg() {
         // Add, adds V(x) = V(x) + (NN) | 7xNN
         m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x0F00) >> 8] + opcode & 0x00FF);
+    }
+
+    private void skipIfNotEqualRegisters() {
+        // skip next instruction if V[x] != V[y] | 5XY0
+        if (m.getV()[(opcode & 0x0F00) >> 8] != m.getV()[(opcode & 0x0F0) >> 4]) {
+            fetcher.incrementPC();
+        }
     }
 
     private void setIndex() {
@@ -200,7 +340,7 @@ public class Decoder {
         }
     }
 
-    private void setSoundToVx() {
+    private void setVxToDelay() {
         // sets v[x] to delay timer
         m.varReg((opcode & 0x0F00) >> 8, m.getDelayTimer());
     }
@@ -222,7 +362,7 @@ public class Decoder {
         m.setDelayTimer(m.getV()[(opcode & 0x0F00) >> 8]);
     }
 
-    private void setVxToDelay() {
+    private void setSoundToVx() {
         // sets sound to v[x]
         m.setSoundTimer(m.getV()[(opcode & 0x0F00) >> 8]);
     }
@@ -257,7 +397,7 @@ public class Decoder {
         // dump registers from V0 to Vx to ram at I
         int tempI = m.getI();
         byte[] ram = m.getRam();
-        for (int i = 0; i < ((opcode & 0x0F00) >> 8); i++, tempI++) {
+        for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
             ram[tempI] = m.getV()[i];
         }
         m.setRam(ram);
@@ -267,7 +407,7 @@ public class Decoder {
         // fill registers V0 to Vx from ram at I
         int tempI = m.getI();
         byte[] ram = m.getRam();
-        for (int i = 0; i < ((opcode & 0x0F00) >> 8); i++, tempI++) {
+        for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
             m.varReg(i, ram[tempI]);
         }
     }

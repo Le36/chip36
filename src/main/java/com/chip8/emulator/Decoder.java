@@ -3,6 +3,8 @@ package com.chip8.emulator;
 import com.chip8.ui.ConsoleDisplay;
 import com.chip8.ui.PixelManager;
 
+import java.util.Random;
+
 public class Decoder {
 
     private ConsoleDisplay display;
@@ -10,58 +12,87 @@ public class Decoder {
     private Fetcher fetcher;
     private PixelManager pixels;
     private short opcode;
+    private Keys keys;
 
-    public Decoder(Memory m, Fetcher fetcher, PixelManager pixels) {
+    public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys) {
         this.display = new ConsoleDisplay();
         this.m = m;
         this.fetcher = fetcher;
         this.pixels = pixels;
+        this.keys = keys;
     }
 
     public void decode(short opcode) {
         this.opcode = opcode;
-        if (opcode == 0x00E0) {
+        if (opcode == 0x00E0) { // 00E0
             this.clearDisplay();
             return;
         }
 
         switch (opcode & 0xF0FF) {
-            case 0xF029:
+            case 0xE09E: // EX9E
+                this.skipIfKeyEqual();
+                return;
+            case 0xE0A1: // EXA1
+                this.skipIfKeyNotEqual();
+                return;
+            case 0xF007: // FX07
+                this.setVxToDelay();
+                return;
+            case 0xF00A: // FX0A
+                this.getKey();
+                return;
+            case 0xF015: // FX15
+                this.setDelayToVx();
+                return;
+            case 0xF018: // FX18
+                this.setSoundToVx();
+                return;
+            case 0xF01E: // FX1E
+                this.addToIndex();
+                return;
+            case 0xF029: //FX29
                 this.font();
                 return;
-            case 0xF033:
+            case 0xF033: // FX33
                 this.bcd();
                 return;
-            case 0xF055:
+            case 0xF055: // FX55
                 this.registerDump();
                 return;
-            case 0xF065:
+            case 0xF065: // FX65
                 this.registerFill();
                 return;
         }
         switch (opcode & 0xF000) {
-            case 0x1000:
+            case 0x1000: // 1NNN
                 this.jumpAddress();
                 return;
-            case 0x3000:
+            case 0x3000: // 3XNN
                 this.skipIfEqual();
                 return;
-            case 0x4000:
+            case 0x4000: // 4XNN
                 this.skipIfNotEqual();
                 return;
-            case 0x5000:
+            case 0x5000: // 5XY0
                 this.skipIfEqualRegisters();
                 return;
-            case 0x6000:
+            case 0x6000: // 6XNN
                 this.setVarReg();
                 return;
-            case 0x7000:
+            case 0x7000: // 7XNN
                 this.addVarReg();
                 return;
-            case 0xA000:
+            case 0xA000: // ANNN
                 this.setIndex();
                 return;
-            case 0xD000:
+            case 0xB000: // BNNN
+                this.jumpWithOffset();
+                return;
+            case 0xC000: // CXNN
+                this.random();
+                return;
+            case 0xD000: // DXYN
                 this.drawDisplay();
                 return;
         }
@@ -113,6 +144,18 @@ public class Decoder {
         m.setI((short) (opcode & 0x0FFF));
     }
 
+    private void jumpWithOffset() {
+        // jumps to NNN + v[0] | BNNN
+        m.setPc((short) ((opcode & 0x0FFF) + m.getV()[0]));
+    }
+
+    private void random() {
+        // generates random number and binary AND's it with NN
+        // then puts the result in V[x] | CXNN
+        Random rand = new Random();
+        m.varReg((opcode & 0x0F00) >> 8, rand.nextInt(256) & (opcode & 0x00FF));
+    }
+
     private void drawDisplay() {
         // draws display, Dxyn
         // gets x and y coordinates for sprite
@@ -140,7 +183,53 @@ public class Decoder {
                 }
             }
         }
-        display.printDisplay();
+        //display.printDisplay();
+    }
+
+    private void skipIfKeyEqual() {
+        // skips next instruction if pressed key equals key in v[x]
+        if (keys.getKeys()[m.getV()[(opcode & 0x0F00) >> 8]]) {
+            fetcher.incrementPC();
+        }
+    }
+
+    private void skipIfKeyNotEqual() {
+        // skips next instruction if key pressed not equal to key in v[x]
+        if (!keys.getKeys()[m.getV()[(opcode & 0x0F00) >> 8]]) {
+            fetcher.incrementPC();
+        }
+    }
+
+    private void setSoundToVx() {
+        // sets v[x] to delay timer
+        m.varReg((opcode & 0x0F00) >> 8, m.getDelayTimer());
+    }
+
+    private void getKey() {
+        // waits for key press by decrementing pc, staying in same instruction.
+        // when key press -> set pressed key to v[x] and increment pc
+        for (byte b = 0x0; b <= 0xF; b++) {
+            if (keys.getKeys()[b]) {
+                m.varReg((opcode & 0x0F00) >> 8, b);
+                return;
+            }
+        }
+        fetcher.decrementPC();
+    }
+
+    private void setDelayToVx() {
+        // sets delay to v[x]
+        m.setDelayTimer(m.getV()[(opcode & 0x0F00) >> 8]);
+    }
+
+    private void setVxToDelay() {
+        // sets sound to v[x]
+        m.setSoundTimer(m.getV()[(opcode & 0x0F00) >> 8]);
+    }
+
+    private void addToIndex() {
+        // add v[x] to index
+        m.setI((short) (m.getI() + m.getV()[(opcode & 0x0F00) >> 8]));
     }
 
     private void font() {

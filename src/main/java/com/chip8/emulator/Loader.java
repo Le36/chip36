@@ -33,7 +33,6 @@ public class Loader {
         for (byte b : bytes) {
             memory.initializeMemory(address, b);
             address++;
-            //System.out.println(address);
         }
     }
 

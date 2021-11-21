@@ -9,6 +9,8 @@ public class Memory {
     private short i; // 16-bit index register
     private short pc; // program counter
     private byte[] ram; // 4 kB memory, 0x0 - 0x1FF reserved for font data etc.
+    private byte delayTimer; // 8-bit delay timer
+    private byte soundTimer; // 8-bit sound timer
 
     public Memory() {
         this.ram = new byte[4096];

@@ -17,7 +17,7 @@ public class FetcherTest {
     public void setUp() {
         this.m = new Memory();
         this.fetcher = new Fetcher(m);
-        this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1));
+        this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1), new Keys());
     }
 
     @Test

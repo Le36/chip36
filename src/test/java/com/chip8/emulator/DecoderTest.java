@@ -17,7 +17,7 @@ public class DecoderTest {
     public void setUp() {
         this.m = new Memory();
         this.fetcher = new Fetcher(m);
-        this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1));
+        this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1), new Keys());
     }
 
     @Test
@@ -232,4 +232,18 @@ public class DecoderTest {
         decoder.decode((short) 0xAFF3);
         assertEquals(0xFF3, m.getI());
     }
+
+    @Test
+    public void jumpWithOffsetBNNN() {
+        // set 0x30 to v[0]
+        m.varReg(0x0, 0x30);
+        // execute instruction, pc should be at 0x30 + 0x30
+        decoder.decode((short) 0xB030);
+        assertEquals(0x60, m.getPc());
+
+        // execute instruction, pc should be at 0x30 + 0x1F5
+        decoder.decode((short) 0xB1F5);
+        assertEquals(0x225, m.getPc());
+    }
+
 }

@@ -9,7 +9,7 @@ public class Executer {
     private Fetcher fetcher;
     private Decoder decoder;
 
-    public Executer(String rom, PixelManager pixels) {
+    public Executer(String rom, PixelManager pixels, Keys keys) {
         this.memory = new Memory();
 
         Loader loader = new Loader(rom, memory);
@@ -20,7 +20,7 @@ public class Executer {
         loader.hexDump();
 
         this.fetcher = new Fetcher(memory);
-        this.decoder = new Decoder(memory, fetcher, pixels);
+        this.decoder = new Decoder(memory, fetcher, pixels, keys);
     }
 
     public void execute() {

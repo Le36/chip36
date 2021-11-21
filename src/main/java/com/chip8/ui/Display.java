@@ -1,6 +1,7 @@
 package com.chip8.ui;
 
 import com.chip8.emulator.Executer;
+import com.chip8.emulator.Keys;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -34,6 +35,7 @@ public class Display extends Application {
 
         PixelManager pixels = new PixelManager(64, 32);
         FileChooser fileChooser = new FileChooser();
+        Keys keys = new Keys();
 
         Button selectRom = new Button("Select ROM");
         Button resetRom = new Button("Reset ROM");
@@ -54,24 +56,22 @@ public class Display extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
+        // keyboard for emulator
+        scene.addEventFilter(KeyEvent.ANY, keys::setKey);
+
         selectRom.setOnAction(e -> {
             selectedFile = fileChooser.showOpenDialog(stage);
             if (selectedFile == null || selectedFile.length() > 4096 || selectedFile.length() < 2) return;
-            this.executer = new Executer(selectedFile.getAbsolutePath(), pixels);
+            this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys);
             fileChosen = true;
             pixels.clearDisplay();
         });
 
         resetRom.setOnAction(e -> {
             if (selectedFile == null) return;
-            this.executer = new Executer(selectedFile.getAbsolutePath(), pixels);
+            this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys);
             fileChosen = true;
             pixels.clearDisplay();
-        });
-
-        // press any key and it clears the screen for testing purposes
-        scene.addEventFilter(KeyEvent.ANY, keyEvent -> {
-            executer.forceOpcode((short) 0x00E0);
         });
 
         // currently AnimationTimer handling everything

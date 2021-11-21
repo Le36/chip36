@@ -22,4 +22,8 @@ public class Fetcher {
     public void incrementPC() {
         m.setPc((short) (m.getPc() + 2));
     }
+
+    public void decrementPC() {
+        m.setPc((short) (m.getPc() - 2));
+    }
 }

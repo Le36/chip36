@@ -43,6 +43,15 @@ public class Decoder {
             case 0x1000:
                 this.jumpAddress();
                 return;
+            case 0x3000:
+                this.skipIfEqual();
+                return;
+            case 0x4000:
+                this.skipIfNotEqual();
+                return;
+            case 0x5000:
+                this.skipIfEqualRegisters();
+                return;
             case 0x6000:
                 this.setVarReg();
                 return;
@@ -66,6 +75,27 @@ public class Decoder {
     private void jumpAddress() {
         // jump, sets the PC to NNN | 1NNN
         m.setPc((short) (opcode & 0x0FFF));
+    }
+
+    private void skipIfEqual() {
+        // skip next instruction if V[x] == NN | 3XNN
+        if (m.getV()[(opcode & 0x0F00) >> 8] == (opcode & 0x0FF)) {
+            fetcher.incrementPC();
+        }
+    }
+
+    private void skipIfNotEqual() {
+        // skip next instruction if V[x] != NN | 4XNN
+        if (m.getV()[(opcode & 0x0F00) >> 8] != (opcode & 0x0FF)) {
+            fetcher.incrementPC();
+        }
+    }
+
+    private void skipIfEqualRegisters() {
+        // skip next instruction if V[x] == V[y] | 5XY0
+        if (m.getV()[(opcode & 0x0F00) >> 8] == m.getV()[(opcode & 0x0F0) >> 4]) {
+            fetcher.incrementPC();
+        }
     }
 
     private void setVarReg() {
@@ -135,7 +165,7 @@ public class Decoder {
     }
 
     private void registerDump() {
-        // dumps registers from V0 to Vx to ram at I
+        // dump registers from V0 to Vx to ram at I
         int tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = 0; i < ((opcode & 0x0F00) >> 8); i++, tempI++) {
@@ -145,7 +175,7 @@ public class Decoder {
     }
 
     private void registerFill() {
-        // fills registers V0 to Vx from ram at I
+        // fill registers V0 to Vx from ram at I
         int tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = 0; i < ((opcode & 0x0F00) >> 8); i++, tempI++) {

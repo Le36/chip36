@@ -215,11 +215,15 @@ public class DecoderTest {
         decoder.decode((short) 0x7035);
         // since v[0] was 0, it should be now 0x35
         assertEquals(0x35, m.getV()[0x0]);
-
         // add 0x15 to v[0]
         decoder.decode((short) 0x7015);
         // since v[0] was 0x35, it should now be 0x4A
         assertEquals(0x4A, m.getV()[0x0]);
+
+        decoder.decode((short) 0x7C35);
+        assertEquals(0x35, m.getV()[0xC]);
+        decoder.decode((short) 0x7C55);
+        assertEquals(0x8A, Byte.toUnsignedInt(m.getV()[0xC]));
     }
 
     @Test
@@ -244,6 +248,64 @@ public class DecoderTest {
         // execute instruction, pc should be at 0x30 + 0x1F5
         decoder.decode((short) 0xB1F5);
         assertEquals(0x225, m.getPc());
+    }
+
+    @Test
+    public void setVxToDelayFX07() {
+        // set delay timer to 60, instruction sets it to v[0x4]
+        m.setDelayTimer((byte) 60);
+        decoder.decode((short) 0xF407);
+        assertEquals(60, m.getV()[0x4]);
+
+        decoder.decode((short) 0xFD07);
+        assertEquals(60, m.getV()[0xD]);
+    }
+
+    @Test
+    public void setDelayToVxFX15() {
+        // set delay timer to 0x22 then v[0xF] to 0x1F
+        // after instruction check if delay timer is now 0x1F
+        m.setDelayTimer((byte) 0x22);
+        m.varReg(0xF, 0x1F);
+        decoder.decode((short) 0xFF15);
+        assertEquals(0x1F, m.getDelayTimer());
+
+        // set delay timer to 0x52 then v[0x9] to 0x6A
+        // after instruction check if delay timer is now 0x6A
+        m.setDelayTimer((byte) 0x52);
+        m.varReg(0x9, 0x6A);
+        decoder.decode((short) 0xF915);
+        assertEquals(0x6A, m.getDelayTimer());
+    }
+
+    @Test
+    public void setSoundToVxFX18() {
+        // set sound timer to 0x22 then v[0xF] to 0x1F
+        // after instruction check if delay timer is now 0x1F
+        m.setSoundTimer((byte) 0x22);
+        m.varReg(0xF, 0x1F);
+        decoder.decode((short) 0xFF18);
+        assertEquals(0x1F, m.getSoundTimer());
+
+        // set sound timer to 0x52 then v[0x9] to 0x6A
+        // after instruction check if delay timer is now 0x6A
+        m.setSoundTimer((byte) 0x52);
+        m.varReg(0x9, 0x6A);
+        decoder.decode((short) 0xF918);
+        assertEquals(0x6A, m.getSoundTimer());
+    }
+
+    @Test
+    public void addToIndexFX1E() {
+        m.setI((short) 0x400);
+        m.varReg(0x5, 0x40);
+        decoder.decode((short) 0xF51E);
+        assertEquals(0x440, m.getI());
+
+        m.setI((short) 0x150);
+        m.varReg(0xB, 0xFF);
+        decoder.decode((short) 0xFB1E);
+        assertEquals(0x24F, m.getI());
     }
 
 }

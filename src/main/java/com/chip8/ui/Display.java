@@ -5,7 +5,6 @@ import com.chip8.emulator.Keys;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -55,6 +54,8 @@ public class Display extends Application {
         root.setCenter(canvas);
         Scene scene = new Scene(root);
         stage.setScene(scene);
+        stage.setResizable(false);
+        stage.sizeToScene();
 
         // keyboard for emulator
         scene.addEventFilter(KeyEvent.ANY, keys::setKey);
@@ -76,19 +77,11 @@ public class Display extends Application {
 
         // currently AnimationTimer handling everything
         new AnimationTimer() {
-
             public void handle(long l) {
-                gameSpeed = slider.getValue();
+
                 if (!fileChosen) return;
+                executer.execute();
 
-
-                try {
-                    Thread.sleep((long) gameSpeed);
-                } catch (Exception e) {
-                    System.out.println(e.getStackTrace());
-                }
-
-                executer.execute(); // runs one cpu cycle
                 pixels.fade(); // fades all pixels that have been erased
 
                 // paints everything black every cycle

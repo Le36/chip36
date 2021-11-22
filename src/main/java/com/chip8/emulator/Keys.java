@@ -12,11 +12,11 @@ public class Keys {
     public void setKey(KeyEvent event) {
         if (event.getEventType().getName().equals("KEY_PRESSED")) {
             this.setKey(true, event.getCode());
-            System.out.println(event.toString());
+            //System.out.println(event.toString());
         }
         if (event.getEventType().getName().equals("KEY_RELEASED")) {
             this.setKey(false, event.getCode());
-            System.out.println(event.toString());
+            //System.out.println(event.toString());
         }
     }
 

@@ -269,7 +269,9 @@ public class Decoder {
 
     private void addVarReg() {
         // Add, adds V(x) = V(x) + (NN) | 7xNN
-        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x0F00) >> 8] + opcode & 0x00FF);
+        int x = Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]);
+        int nn = Byte.toUnsignedInt((byte) (opcode & 0x00FF));
+        m.varReg((opcode & 0x0F00) >> 8, (x + nn) & 0xFF);
     }
 
     private void skipIfNotEqualRegisters() {
@@ -287,6 +289,8 @@ public class Decoder {
     private void jumpWithOffset() {
         // jumps to NNN + v[0] | BNNN
         m.setPc((short) ((opcode & 0x0FFF) + m.getV()[0]));
+        // super-chip style BXNN
+        //m.setPc((short) ((opcode & 0x0FFF) + m.getV()[(0x0F00 & opcode) >> 8]));
     }
 
     private void random() {
@@ -311,8 +315,8 @@ public class Decoder {
                 // using binary mask to check each bit in sprite if that bit should be drawn or not
                 if ((spriteData & (0b10000000 >> j)) != 0) {
                     // modulo to wrap sprites around the screen
-                    int xx = (x + j) % display.getWidth();
-                    int yy = (y + i) % display.getHeight();
+                    int xx = Math.abs((x + j) % display.getWidth());
+                    int yy = Math.abs((y + i) % display.getHeight());
                     // if we erased pixel then set VF register to 1
                     if (display.getPixel(xx, yy)) {
                         m.varReg(0xF, 1);
@@ -369,7 +373,7 @@ public class Decoder {
 
     private void addToIndex() {
         // add v[x] to index
-        m.setI((short) (m.getI() + m.getV()[(opcode & 0x0F00) >> 8]));
+        m.setI((short) (m.getI() + Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8])));
     }
 
     private void font() {

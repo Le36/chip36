@@ -15,7 +15,7 @@ public class Fetcher {
     // fetches the opcode with PC, increments PC after
     // shifts first byte left 8 bits and does bitwise OR
     public void fetch() {
-        this.opcode = (short) ((m.getRam()[m.getPc()] << 8) | (m.getRam()[m.getPc() + 1] & 0x00FF));
+        this.opcode = (short) (((m.getRam()[m.getPc()] << 8) & 0xFF00) | (m.getRam()[m.getPc() + 1] & 0x00FF));
         this.incrementPC();
         m.timerDecrement();
     }

@@ -24,7 +24,6 @@ public class Decoder {
 
     public void decode(short opcode) {
         this.opcode = opcode;
-        //System.out.println("current instruction: " + Integer.toHexString(opcode & 0xffff));
         switch (opcode) {
             case 0x00E0: // 00E0
                 this.clearDisplay();
@@ -269,8 +268,13 @@ public class Decoder {
 
     private void addVarReg() {
         // Add, adds V(x) = V(x) + (NN) | 7xNN
-        int x = Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]);
-        int nn = Byte.toUnsignedInt((byte) (opcode & 0x00FF));
+        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        byte nn = (byte) (opcode & 0x00FF);
+        if ((x + nn) < (byte) 0xFF) {
+            m.varReg(0xF, 1);
+        } else {
+            m.varReg(0xF, 0);
+        }
         m.varReg((opcode & 0x0F00) >> 8, (x + nn) & 0xFF);
     }
 
@@ -282,7 +286,7 @@ public class Decoder {
     }
 
     private void setIndex() {
-        // Sets index to NNN | INNN
+        // Sets index to NNN | ANNN
         m.setI((short) (opcode & 0x0FFF));
     }
 
@@ -303,8 +307,8 @@ public class Decoder {
     private void drawDisplay() {
         // draws display, Dxyn
         // gets x and y coordinates for sprite
-        int x = m.getV()[(opcode & 0x0F00) >> 8];
-        int y = m.getV()[(opcode & 0x00F0) >> 4];
+        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        byte y = m.getV()[(opcode & 0x00F0) >> 4];
         // variable register VF (V[15]) keeps track if there were any pixels erased, reset here
         m.varReg(0xF, 0);
         // first nibble indicating height of the sprite

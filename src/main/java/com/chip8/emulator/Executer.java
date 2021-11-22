@@ -10,16 +10,15 @@ public class Executer {
     private Memory memory;
     private Fetcher fetcher;
     private Decoder decoder;
+    private Loader loader;
 
     public Executer(String rom, PixelManager pixels, Keys keys) {
         this.memory = new Memory();
 
-        Loader loader = new Loader(rom, memory);
+        loader = new Loader(rom, memory);
 
         loader.readFile();
         loader.loadToMemory();
-
-        loader.hexDump();
 
         this.fetcher = new Fetcher(memory);
         this.decoder = new Decoder(memory, fetcher, pixels, keys);

@@ -1,5 +1,6 @@
 package com.chip8.emulator;
 
+import lombok.Data;
 import org.apache.commons.io.HexDump;
 
 import java.io.ByteArrayOutputStream;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 
+@Data
 public class Loader {
 
     private byte[] bytes;
@@ -36,14 +38,14 @@ public class Loader {
         }
     }
 
-    public void hexDump() {
+    public String hexDump() {
         OutputStream os = new ByteArrayOutputStream();
         try {
             HexDump.dump(bytes, 0, os, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(os);
+        return os.toString();
     }
 
 }

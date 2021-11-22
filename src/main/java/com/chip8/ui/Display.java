@@ -5,12 +5,11 @@ import com.chip8.emulator.Keys;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -19,6 +18,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Display extends Application {
@@ -27,11 +27,9 @@ public class Display extends Application {
     private boolean fileChosen;
     private File selectedFile;
     private double gameSpeed;
-    private boolean paused;
 
     public void start(Stage stage) {
 
-        paused = false;
         final int width = 640;
         final int height = 320;
 
@@ -41,88 +39,86 @@ public class Display extends Application {
 
         Button selectRom = new Button("Select ROM");
         Button resetRom = new Button("Reset ROM");
-        Button pause = new Button("Pause ROM");
+        ToggleButton pause = new ToggleButton("Pause ROM");
         Button nextStep = new Button("Next Instruction");
         Slider slider = new Slider(0, 100, 20);
         Label gameSpeedLabel = new Label("Game Speed: ");
+        pause.setMinSize(80, 20);
 
+        ToolBar toolBar = new ToolBar();
         stage.setTitle("Chip8 Emulator");
-        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep);
+
+        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, new Separator(Orientation.VERTICAL));
         HBox hboxRight = new HBox(4, gameSpeedLabel, slider);
-        HBox hbox = new HBox(300, hboxLeft, hboxRight);
+        HBox hbox = new HBox(400, hboxLeft, hboxRight);
+        toolBar.getItems().add(hbox);
 
+        Label currentInstruction = new Label("Current Instruction: 0x0");
+        Label indexRegister = new Label("Index Register: 0x0");
+        Label programCounter = new Label("Program Counter: 0x0");
+        Label delayTimer = new Label("Delay Timer: 0x0");
 
-        Label currentInstruction = new Label("Current Instruction: ");
-        Label indexRegister = new Label("Index Register: ");
-        Label programCounter = new Label("Program Counter: ");
-        Label delayTimer = new Label("Delay Timer: ");
+        currentInstruction.setFont(new Font("Consolas", 18));
+        indexRegister.setFont(new Font("Consolas", 18));
+        programCounter.setFont(new Font("Consolas", 18));
+        delayTimer.setFont(new Font("Consolas", 18));
 
-        currentInstruction.setFont(new Font("Arial", 18));
-        indexRegister.setFont(new Font("Arial", 18));
-        programCounter.setFont(new Font("Arial", 18));
-        delayTimer.setFont(new Font("Arial", 18));
+        currentInstruction.setMinSize(290, 20);
 
         GridPane registers = new GridPane();
 
-        Label v0 = new Label("V0: ");
-        Label v1 = new Label("V1: ");
-        Label v2 = new Label("V2: ");
-        Label v3 = new Label("V3: ");
-        Label v4 = new Label("V4: ");
-        Label v5 = new Label("V5: ");
-        Label v6 = new Label("V6: ");
-        Label v7 = new Label("V7: ");
-        Label v8 = new Label("V8: ");
-        Label v9 = new Label("V9: ");
-        Label vA = new Label("VA: ");
-        Label vB = new Label("VB: ");
-        Label vC = new Label("VC: ");
-        Label vD = new Label("VD: ");
-        Label vE = new Label("VE: ");
-        Label vF = new Label("VF: ");
+        ArrayList<Label> registerLabels = new ArrayList<>();
 
-        v0.setMinSize(50, 20);
-        v1.setMinSize(50, 20);
-        v2.setMinSize(50, 20);
-        v3.setMinSize(50, 20);
+        for (int i = 0, first = 0, second = 0; i < 16; i++) {
+            Label lab = new Label("V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x0");
+            lab.setMinSize(75, 20);
 
-        registers.add(v0, 0, 0);
-        registers.add(v1, 1, 0);
-        registers.add(v2, 2, 0);
-        registers.add(v3, 3, 0);
-        registers.add(v4, 0, 1);
-        registers.add(v5, 1, 1);
-        registers.add(v6, 2, 1);
-        registers.add(v7, 3, 1);
-        registers.add(v8, 0, 2);
-        registers.add(v9, 1, 2);
-        registers.add(vA, 2, 2);
-        registers.add(vB, 3, 2);
-        registers.add(vC, 0, 3);
-        registers.add(vD, 1, 3);
-        registers.add(vE, 2, 3);
-        registers.add(vF, 3, 3);
+            lab.setFont(new Font("Consolas", 14));
+            registerLabels.add(lab);
+            registers.add(lab, first, second);
+            first++;
+            if (first == 4) {
+                second++;
+                first = 0;
+            }
+        }
+
 
         registers.setHgap(10);
         registers.setVgap(10);
         registers.setMinSize(10.0, 10.0);
-        registers.setGridLinesVisible(true);
+        //registers.setGridLinesVisible(true);
 
 
-        VBox vbox = new VBox(15, currentInstruction, indexRegister, programCounter, delayTimer, registers);
+        Background bg = new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY));
+        VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers);
 
+
+        BorderPane bottomPane = new BorderPane();
+        TextArea hexDumpArea = new TextArea();
+        bottomPane.setRight(hexDumpArea);
+
+        hexDumpArea.setMinSize(520, 150);
+        hexDumpArea.setFont(new Font("Consolas", 12));
+        hexDumpArea.setBackground(bg);
+        hexDumpArea.setEditable(false);
+
+
+        ListView instructionList = new ListView();
+        //bottomPane.setLeft(instructionList);
 
         Canvas canvas = new Canvas(width, height);
         GraphicsContext paint = canvas.getGraphicsContext2D();
         BorderPane root = new BorderPane();
-        root.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-        root.setTop(hbox);
+        root.setBackground(bg);
+        root.setTop(toolBar);
         root.setRight(canvas);
         root.setLeft(vbox);
+        root.setBottom(bottomPane);
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
-        stage.setResizable(false);
+        //stage.setResizable(false);
         stage.sizeToScene();
 
         // keyboard for emulator
@@ -134,6 +130,7 @@ public class Display extends Application {
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys);
             fileChosen = true;
             pixels.clearDisplay();
+            hexDumpArea.setText(executer.getLoader().hexDump());
         });
 
         resetRom.setOnAction(e -> {
@@ -144,11 +141,15 @@ public class Display extends Application {
         });
 
         pause.setOnAction(e -> {
-            this.paused = !this.paused;
+            if (!pause.isSelected()) {
+                pause.setText("Pause ROM");
+            } else {
+                pause.setText("Unpause");
+            }
         });
 
         nextStep.setOnAction(e -> {
-            executer.execute();
+            if (fileChosen) executer.execute();
         });
 
 
@@ -157,29 +158,16 @@ public class Display extends Application {
             public void handle(long l) {
 
                 if (!fileChosen) return;
-                if (!paused) executer.execute();
+                if (!pause.isSelected()) executer.execute();
 
                 currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
                 indexRegister.setText("Index register: 0x" + Integer.toHexString((executer.getMemory().getI() & 0xFFFF)).toUpperCase());
                 programCounter.setText("Program counter: 0x" + Integer.toHexString((executer.getMemory().getPc() & 0xFFFF)).toUpperCase());
                 delayTimer.setText("Delay timer: 0x" + Integer.toHexString((executer.getMemory().getDelayTimer() & 0xFF)).toUpperCase());
 
-                v0.setText(" V0: 0x" + Integer.toHexString((executer.getMemory().getV()[0] & 0xFF)).toUpperCase());
-                v1.setText(" V1: 0x" + Integer.toHexString((executer.getMemory().getV()[1] & 0xFF)).toUpperCase());
-                v2.setText(" V2: 0x" + Integer.toHexString((executer.getMemory().getV()[2] & 0xFF)).toUpperCase());
-                v3.setText(" V3: 0x" + Integer.toHexString((executer.getMemory().getV()[3] & 0xFF)).toUpperCase());
-                v4.setText(" V4: 0x" + Integer.toHexString((executer.getMemory().getV()[4] & 0xFF)).toUpperCase());
-                v5.setText(" V5: 0x" + Integer.toHexString((executer.getMemory().getV()[5] & 0xFF)).toUpperCase());
-                v6.setText(" V6: 0x" + Integer.toHexString((executer.getMemory().getV()[6] & 0xFF)).toUpperCase());
-                v7.setText(" V7: 0x" + Integer.toHexString((executer.getMemory().getV()[7] & 0xFF)).toUpperCase());
-                v8.setText(" V8: 0x" + Integer.toHexString((executer.getMemory().getV()[8] & 0xFF)).toUpperCase());
-                v9.setText(" V9: 0x" + Integer.toHexString((executer.getMemory().getV()[9] & 0xFF)).toUpperCase());
-                vA.setText(" VA: 0x" + Integer.toHexString((executer.getMemory().getV()[10] & 0xFF)).toUpperCase());
-                vB.setText(" VB: 0x" + Integer.toHexString((executer.getMemory().getV()[11] & 0xFF)).toUpperCase());
-                vC.setText(" VC: 0x" + Integer.toHexString((executer.getMemory().getV()[12] & 0xFF)).toUpperCase());
-                vD.setText(" VD: 0x" + Integer.toHexString((executer.getMemory().getV()[13] & 0xFF)).toUpperCase());
-                vE.setText(" VE: 0x" + Integer.toHexString((executer.getMemory().getV()[14] & 0xFF)).toUpperCase());
-                vF.setText(" VF: 0x" + Integer.toHexString((executer.getMemory().getV()[15] & 0xFF)).toUpperCase());
+                for (int i = 0; i < 16; i++) {
+                    registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
+                }
 
                 pixels.fade(); // fades all pixels that have been erased
 

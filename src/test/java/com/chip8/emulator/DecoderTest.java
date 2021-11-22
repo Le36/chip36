@@ -73,22 +73,22 @@ public class DecoderTest {
         // we can expect I to be pointing into 0x82 because thats where A is loaded in RAM
         assertEquals(0x82, m.getI());
         // 0xF0, 0x90, 0xF0, 0x90, 0x90 is font data for A so we can expect to find these from RAM pointed by I
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI()]));
-        assertEquals(0x90, Byte.toUnsignedInt(m.getRam()[m.getI() + 1]));
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI() + 2]));
-        assertEquals(0x90, Byte.toUnsignedInt(m.getRam()[m.getI() + 3]));
-        assertEquals(0x90, Byte.toUnsignedInt(m.getRam()[m.getI() + 4]));
+        assertEquals((byte) 0xF0, m.getRam()[m.getI()]);
+        assertEquals((byte) 0x90, m.getRam()[m.getI() + 1]);
+        assertEquals((byte) 0xF0, m.getRam()[m.getI() + 2]);
+        assertEquals((byte) 0x90, m.getRam()[m.getI() + 3]);
+        assertEquals((byte) 0x90, m.getRam()[m.getI() + 4]);
 
         m.varReg(0xC, 0x5); // insert 5 character into V[0xC]
         decoder.decode((short) 0xFC29);
         assertEquals(0x69, m.getI()); // 5's location in RAM
 
         // 0xF0, 0x80, 0xF0, 0x10, 0xF0 font data for 5
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI()]));
-        assertEquals(0x80, Byte.toUnsignedInt(m.getRam()[m.getI() + 1]));
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI() + 2]));
-        assertEquals(0x10, Byte.toUnsignedInt(m.getRam()[m.getI() + 3]));
-        assertEquals(0xF0, Byte.toUnsignedInt(m.getRam()[m.getI() + 4]));
+        assertEquals((byte) 0xF0, m.getRam()[m.getI()]);
+        assertEquals((byte) 0x80, m.getRam()[m.getI() + 1]);
+        assertEquals((byte) 0xF0, m.getRam()[m.getI() + 2]);
+        assertEquals((byte) 0x10, m.getRam()[m.getI() + 3]);
+        assertEquals((byte) 0xF0, m.getRam()[m.getI() + 4]);
     }
 
     @Test
@@ -223,7 +223,7 @@ public class DecoderTest {
         decoder.decode((short) 0x7C35);
         assertEquals(0x35, m.getV()[0xC]);
         decoder.decode((short) 0x7C55);
-        assertEquals(0x8A, Byte.toUnsignedInt(m.getV()[0xC]));
+        assertEquals((byte) 0x8A, (m.getV()[0xC]));
     }
 
     @Test

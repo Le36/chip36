@@ -163,9 +163,9 @@ public class Decoder {
 
     private void addVxVy() {
         // sets v[x] = v[x] + v[y], if overflow then v[0xF] is set to 1 else to 0
-        int x = Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]);
-        int y = Byte.toUnsignedInt(m.getV()[(opcode & 0x00F0) >> 4]);
-        if ((x + y) > 0xFF) {
+        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        byte y = m.getV()[(opcode & 0x00F0) >> 4];
+        if ((x + y) > (byte) 0xFF) {
             m.varReg(0xF, 1);
             m.varReg((opcode & 0x0F00) >> 8, (x + y) & 0xFF);
         } else {
@@ -175,8 +175,8 @@ public class Decoder {
     }
 
     private void subtract() {
-        int x = Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]);
-        int y = Byte.toUnsignedInt(m.getV()[(opcode & 0x00F0) >> 4]);
+        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        byte y = m.getV()[(opcode & 0x00F0) >> 4];
         if ((opcode & 0x00F) == 0x5) {
             // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
             if (x > y) {

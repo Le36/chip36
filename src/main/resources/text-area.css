@@ -4,7 +4,6 @@
     -fx-font-weight: bold;
     -fx-font-size: 12px;
     -fx-text-fill: rgb(35, 255, 0);
-    -fx-font-smoothing-type: gray;
 }
 
 .text-area .scroll-pane {

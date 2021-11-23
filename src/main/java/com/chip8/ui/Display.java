@@ -104,8 +104,13 @@ public class Display extends Application {
         registers.setVgap(5);
         registers.setMinSize(10.0, 10.0);
 
+        TextArea currentDetailed = new TextArea();
+        currentDetailed.setPrefSize(290, 105);
+        currentDetailed.setEditable(false);
+        currentDetailed.getStylesheets().add("text-area.css");
+
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
-        VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers);
+        VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
 
 
         BorderPane bottomPane = new BorderPane();
@@ -113,7 +118,6 @@ public class Display extends Application {
         bottomPane.setRight(hexDumpArea);
 
         hexDumpArea.setPrefSize(520, 145);
-        //hexDumpArea.setFont(new Font("Consolas", 12));
         hexDumpArea.getStylesheets().add("text-area.css");
         hexDumpArea.setEditable(false);
 
@@ -215,12 +219,23 @@ public class Display extends Application {
                     registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
                 }
 
+                currentDetailed.setText(executer.getDecoder().getDetailed());
+
                 instructionList.getItems().clear();
                 short pc = executer.getMemory().getPc();
                 for (int i = 0; i < 7; i++) {
                     short opcode = executer.getFetcher().seek(pc);
                     executer.getDecoder().decode(opcode, true);
-                    instructionList.getItems().add("0x" + Integer.toHexString((opcode & 0xFFFF)).toUpperCase() + " | " + executer.getDecoder().getSeekString());
+                    String instruction = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
+                    String base = "0x";
+                    if (instruction.length() == 1) {
+                        base = "0x000";
+                    } else if (instruction.length() == 2) {
+                        base = "0x00";
+                    } else if (instruction.length() == 3) {
+                        base = "0x0";
+                    }
+                    instructionList.getItems().add(base + instruction + " | " + executer.getDecoder().getSeekString());
                     pc += 2;
                 }
 

@@ -17,6 +17,7 @@ public class Decoder {
     private Keys keys;
     private boolean seeking;
     private String seekString;
+    private String detailed;
 
     public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys) {
         this.display = new ConsoleDisplay();
@@ -159,6 +160,7 @@ public class Decoder {
         }
         display.clearDisplay();
         pixels.clearDisplay();
+        this.detailed = "Clears the display";
     }
 
     private void returnFromSubroutine() {
@@ -167,7 +169,14 @@ public class Decoder {
             return;
         }
         // returns to program popping the pc from stack
+        int stackSize = m.getStack().size();
         m.setPc(m.getStack().pop());
+        this.detailed = "Returns from a subroutine. Does this by" +
+                "\npopping the stack. Stack size before pop: " +
+                stackSize + "\nSize of the stack after the pop: " +
+                m.getStack().size() + "\nPopped value was: 0x" +
+                Integer.toHexString((m.getPc() & 0xFFFF)).toUpperCase() +
+                "\nThis value was assigned to program counter.";
     }
 
     private void jumpAddress() {
@@ -176,7 +185,13 @@ public class Decoder {
             return;
         }
         // jump, sets the PC to NNN | 1NNN
+        short pcBefore = m.getPc();
         m.setPc((short) (opcode & 0x0FFF));
+        this.detailed = "Jumps to address: 0x" +
+                Integer.toHexString(((opcode & 0x0FFF) & 0xFFFF)).toUpperCase() +
+                "\nThis value was assigned to program counter." +
+                "\nProgram counter was before execution: 0x" +
+                Integer.toHexString((pcBefore & 0xFFFF)).toUpperCase();
     }
 
     private void callSubroutine() {
@@ -185,8 +200,17 @@ public class Decoder {
             return;
         }
         // puts current pc to stack then jumps to NNN
+        int stackSize = m.getStack().size();
         m.getStack().push(m.getPc());
         this.jumpAddress();
+        this.detailed = "Calls a subroutine. Does this by pushing" +
+                "\ncurrent program counter to stack." +
+                "\nStack size before push: " + stackSize +
+                "\nStack size after the push: " +
+                m.getStack().size() + "\nPushed program counter was: 0x" +
+                Integer.toHexString((m.getPc() & 0xFFFF)).toUpperCase() +
+                "\nAfter push, jumps to address: 0x" +
+                Integer.toHexString(((opcode & 0x0FFF) & 0xFFF)).toUpperCase();
     }
 
     private void skipIfEqual() {
@@ -194,10 +218,15 @@ public class Decoder {
             this.seekString = "3XNN: Skip next instruction if V[X] == NN";
             return;
         }
+        boolean skipped = false;
         // skip next instruction if V[x] == NN | 3XNN
-        if (m.getV()[(opcode & 0x0F00) >> 8] == (opcode & 0x0FF)) {
+        if (m.getV()[(opcode & 0x0F00) >> 8] == (byte) (opcode & 0x0FF)) {
             fetcher.incrementPC();
+            skipped = true;
         }
+        this.detailed = "Skips next instruction if V[" + Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase() +
+                "]\nis equal to 0x" + Integer.toHexString(((opcode & 0x00FF) & 0xFF)).toUpperCase() +
+                "\nSkipping is done by incrementing pc by 0x2" + "\nSkip happened: " + skipped;
     }
 
     private void skipIfNotEqual() {
@@ -205,10 +234,15 @@ public class Decoder {
             this.seekString = "4XNN: Skip next instruction if V[X] != NN";
             return;
         }
+        boolean skipped = false;
         // skip next instruction if V[x] != NN | 4XNN
-        if (m.getV()[(opcode & 0x0F00) >> 8] != (opcode & 0x0FF)) {
+        if (m.getV()[(opcode & 0x0F00) >> 8] != (byte) (opcode & 0x0FF)) {
             fetcher.incrementPC();
+            skipped = true;
         }
+        this.detailed = "Skips next instruction if V[" + Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase() +
+                "]\nis NOT equal to 0x" + Integer.toHexString(((opcode & 0x00FF) & 0xFF)).toUpperCase() +
+                "\nSkipping is done by incrementing pc by 0x2" + "\nSkip happened: " + skipped;
     }
 
     private void skipIfEqualRegisters() {
@@ -217,9 +251,14 @@ public class Decoder {
             return;
         }
         // skip next instruction if V[x] == V[y] | 5XY0
+        boolean skipped = false;
         if (m.getV()[(opcode & 0x0F00) >> 8] == m.getV()[(opcode & 0x0F0) >> 4]) {
             fetcher.incrementPC();
+            skipped = true;
         }
+        this.detailed = "Skips next instruction if V[" + Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase() +
+                "]\nis equal to V[" + Integer.toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase() +
+                "]\nSkipping is done by incrementing pc by 0x2" + "\nSkip happened: " + skipped;
     }
 
     private void setVarReg() {
@@ -229,6 +268,8 @@ public class Decoder {
         }
         // Set, sets V(x) = (NN) | 6xNN
         m.varReg((opcode & 0x0F00) >> 8, opcode & 0x00FF);
+        this.detailed = "Sets V[" + Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase() +
+                "] to 0x" + Integer.toHexString(((opcode & 0x00FF) & 0xFF)).toUpperCase();
     }
 
     private void addVarReg() {
@@ -237,14 +278,20 @@ public class Decoder {
             return;
         }
         // Add, adds V(x) = V(x) + (NN) | 7xNN
+        boolean overflow = false;
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte nn = (byte) (opcode & 0x00FF);
         if ((x + nn) < (byte) 0xFF) {
             m.varReg(0xF, 1);
+            overflow = true;
         } else {
             m.varReg(0xF, 0);
         }
         m.varReg((opcode & 0x0F00) >> 8, (x + nn) & 0xFF);
+        this.detailed = "Adds 0x" + Integer.toHexString((nn & 0xFF)).toUpperCase() +
+                " to V[" + Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase() +
+                "].\nIf overflow then V[F] is set to 1.\nOverflow: " + overflow +
+                "\nRegister value before add: 0x" + Integer.toHexString(((x) & 0xFF)).toUpperCase();
     }
 
 
@@ -255,6 +302,8 @@ public class Decoder {
         }
         // sets v[x] to v[y]
         m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4]);
+        this.detailed = "Sets V[" + Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase() +
+                "] to V[" + Integer.toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase() + "]";
     }
 
     private void binaryOr() {
@@ -263,7 +312,16 @@ public class Decoder {
             return;
         }
         // bitwise or on v[x] and v[y] and stores that in v[x]
-        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4] | m.getV()[(opcode & 0x0F00) >> 8]);
+        byte x = (byte) ((opcode & 0x0F00) >> 8);
+        byte y = (byte) ((opcode & 0x00F0) >> 4);
+        byte xValue = m.getV()[x];
+        byte yValue = m.getV()[y];
+        m.varReg(x, m.getV()[x] | m.getV()[y]);
+        this.detailed = "Does bitwise OR on V[" + Integer.toHexString((x & 0xF)).toUpperCase() + "] and V[" +
+                Integer.toHexString((y & 0xF)).toUpperCase() + "]\nand stores this value to V[" +
+                Integer.toHexString((x & 0xF)).toUpperCase() + "]\n0x" + Integer.toHexString((xValue & 0xFF)).toUpperCase() +
+                " | 0x" + Integer.toHexString((yValue & 0xFF)).toUpperCase() + "\nResult stored in V[" +
+                Integer.toHexString((x & 0xF)).toUpperCase() + "]";
     }
 
     private void binaryAnd() {
@@ -272,7 +330,16 @@ public class Decoder {
             return;
         }
         // bitwise and on v[x] and v[y] and stores that in v[x]
-        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4] & m.getV()[(opcode & 0x0F00) >> 8]);
+        byte x = (byte) ((opcode & 0x0F00) >> 8);
+        byte y = (byte) ((opcode & 0x00F0) >> 4);
+        byte xValue = m.getV()[x];
+        byte yValue = m.getV()[y];
+        m.varReg(x, m.getV()[x] & m.getV()[y]);
+        this.detailed = "Does bitwise AND on V[" + Integer.toHexString((x & 0xF)).toUpperCase() + "] and V[" +
+                Integer.toHexString((y & 0xF)).toUpperCase() + "]\nand stores this value to V[" +
+                Integer.toHexString((x & 0xF)).toUpperCase() + "]\n0x" + Integer.toHexString((xValue & 0xFF)).toUpperCase() +
+                " & 0x" + Integer.toHexString((yValue & 0xFF)).toUpperCase() + "\nResult stored in V[" +
+                Integer.toHexString((x & 0xF)).toUpperCase() + "]";
     }
 
     private void logicalXor() {
@@ -281,7 +348,16 @@ public class Decoder {
             return;
         }
         // bitwise xor on v[x] and v[y] and stores that in v[x]
-        m.varReg((opcode & 0x0F00) >> 8, m.getV()[(opcode & 0x00F0) >> 4] ^ m.getV()[(opcode & 0x0F00) >> 8]);
+        byte x = (byte) ((opcode & 0x0F00) >> 8);
+        byte y = (byte) ((opcode & 0x00F0) >> 4);
+        byte xValue = m.getV()[x];
+        byte yValue = m.getV()[y];
+        m.varReg(x, m.getV()[x] ^ m.getV()[y]);
+        this.detailed = "Does bitwise XOR on V[" + Integer.toHexString((x & 0xF)).toUpperCase() + "] and V[" +
+                Integer.toHexString((y & 0xF)).toUpperCase() + "]\nand stores this value to V[" +
+                Integer.toHexString((x & 0xF)).toUpperCase() + "]\n0x" + Integer.toHexString((xValue & 0xFF)).toUpperCase() +
+                " ^ 0x" + Integer.toHexString((yValue & 0xFF)).toUpperCase() + "\nResult stored in V[" +
+                Integer.toHexString((x & 0xF)).toUpperCase() + "]";
     }
 
     private void addVxVy() {
@@ -292,13 +368,20 @@ public class Decoder {
         // sets v[x] = v[x] + v[y], if overflow then v[0xF] is set to 1 else to 0
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
+        boolean overflow = false;
         if ((x + y) > (byte) 0xFF) {
             m.varReg(0xF, 1);
             m.varReg((opcode & 0x0F00) >> 8, (x + y) & 0xFF);
+            overflow = true;
         } else {
             m.varReg(0xF, 0);
             m.varReg((opcode & 0x0F00) >> 8, x + y);
         }
+        this.detailed = "Adds V[" + Integer.toHexString(((opcode & 0x00F0) >> 4 & 0xF)).toUpperCase() +
+                "] to V[" + Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase() +
+                "].\nIf overflow then V[F] is set to 1.\nOverflow: " + overflow +
+                "\nRegister value before add: 0x" + Integer.toHexString(((x) & 0xFF)).toUpperCase() +
+                "\nValue to be added: 0x" + Integer.toHexString(((y) & 0xFF)).toUpperCase();
     }
 
     private void subtract() {
@@ -310,24 +393,44 @@ public class Decoder {
                 return;
             }
             // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
+            boolean state = false;
             if (x > y) {
                 m.varReg(0xF, 1);
+                state = true;
             } else {
                 m.varReg(0xF, 0);
             }
             m.varReg((opcode & 0x0F00) >> 8, x - y);
+            String xx = Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase();
+            String yy = Integer.toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase();
+            String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
+            String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
+            this.detailed = "Subtract V[" + xx + "] = V[" + xx + "] - V[" + yy + "]" + "\n0x" +
+                    xValue + " - 0x" + yValue + " = 0x" + Integer.toHexString(((x - y) & 0xFF)).toUpperCase() +
+                    "\nIf V[" + xx + "] (0x" + xValue + ") > V[" + yy + "] (0x" + yValue + ")" +
+                    "\nThen set VF to 1, VF set to 1: " + state;
         } else if ((opcode & 0x00F) == 0x7) {
             if (seeking) {
                 this.seekString = "8XY7: Subtract V[X] = V[Y] - V[X]";
                 return;
             }
             // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
+            boolean state = false;
             if (y > x) {
                 m.varReg(0xF, 1);
+                state = true;
             } else {
                 m.varReg(0xF, 0);
             }
             m.varReg((opcode & 0x0F00) >> 8, y - x);
+            String xx = Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase();
+            String yy = Integer.toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase();
+            String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
+            String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
+            this.detailed = "Subtract V[" + xx + "] = V[" + yy + "] - V[" + xx + "]" + "\n0x" +
+                    yValue + " - 0x" + xValue + " = 0x" + Integer.toHexString(((y - x) & 0xFF)).toUpperCase() +
+                    "\nIf V[" + yy + "] (0x" + yValue + ") > V[" + xx + "] (0x" + xValue + ")" +
+                    "\nThen set VF to 1, VF set to 1: " + state;
         }
     }
 

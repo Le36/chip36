@@ -4,6 +4,7 @@ import com.chip8.emulator.Executer;
 import com.chip8.emulator.Keys;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -20,6 +21,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Display extends Application {
 
@@ -41,9 +43,10 @@ public class Display extends Application {
         Button resetRom = new Button("Reset ROM");
         ToggleButton pause = new ToggleButton("Pause ROM");
         Button nextStep = new Button("Next Instruction");
-        Slider slider = new Slider(0, 100, 20);
+        Slider slider = new Slider(1, 100, 20);
         Label gameSpeedLabel = new Label("Game Speed: ");
         pause.setMinSize(80, 20);
+        gameSpeed = slider.getValue();
 
         ToolBar toolBar = new ToolBar();
         stage.setTitle("Chip8 Emulator");
@@ -153,12 +156,28 @@ public class Display extends Application {
         });
 
 
-        // currently AnimationTimer handling everything
+        new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep((long) gameSpeed);
+                        if (!pause.isSelected() && fileChosen) executer.execute();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    Platform.runLater(new Runnable() {
+                        public void run() {
+                        }
+                    });
+                }
+            }
+        }.start();
+
+
         new AnimationTimer() {
             public void handle(long l) {
-
+                gameSpeed = slider.getValue();
                 if (!fileChosen) return;
-                if (!pause.isSelected()) executer.execute();
 
                 currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
                 indexRegister.setText("Index register: 0x" + Integer.toHexString((executer.getMemory().getI() & 0xFFFF)).toUpperCase());
@@ -198,9 +217,12 @@ public class Display extends Application {
                             paint.fillRect(x * 10, y * 10, 10, 10);
                         }
                     }
+
                 }
+
             }
         }.start();
+
         stage.show();
     }
 

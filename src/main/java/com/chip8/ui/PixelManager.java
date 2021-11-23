@@ -31,7 +31,7 @@ public class PixelManager {
             for (int y = 0; y < this.fadeMap.get(x).size(); y++) {
                 double d = this.fadeMap.get(x).get(y);
                 if (d > 0) {
-                    d -= 0.04; // basically how fast the fade is
+                    d -= 1; // basically how fast the fade is
                 }
                 this.fadeMap.get(x).put(y, d);
             }

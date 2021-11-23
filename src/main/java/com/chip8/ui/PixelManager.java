@@ -11,10 +11,13 @@ public class PixelManager {
     private boolean[][] display;
     private int x = 0;
     private int y = 0;
+    private boolean fade;
+    private double fadeSpeed;
 
     public PixelManager(int width, int height) {
         this.fadeMap = new HashMap<>();
-
+        this.fade = true;
+        this.fadeSpeed = 0.1;
         for (int x = 0; x < width; x++) {
             this.fadeMap.putIfAbsent(x, new HashMap<>());
             for (int y = 0; y < height; y++) {
@@ -31,7 +34,7 @@ public class PixelManager {
             for (int y = 0; y < this.fadeMap.get(x).size(); y++) {
                 double d = this.fadeMap.get(x).get(y);
                 if (d > 0) {
-                    d -= 0.5; // basically how fast the fade is
+                    d -= fadeSpeed; // basically how fast the fade is
                 }
                 this.fadeMap.get(x).put(y, d);
             }
@@ -41,7 +44,7 @@ public class PixelManager {
     // if the display is going to be erased, instead of erasing it right away
     // we are going to add it to a fade map, that lets the pixel fade out slowly
     public void draw(int x, int y) {
-        if (this.display[x][y]) {
+        if (this.display[x][y] && fade) {
             this.x = x;
             this.y = y;
             this.fadeMap.get(this.x).put(this.y, 0.95);

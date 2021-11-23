@@ -43,17 +43,22 @@ public class Display extends Application {
         Button resetRom = new Button("Reset ROM");
         ToggleButton pause = new ToggleButton("Pause ROM");
         Button nextStep = new Button("Next Instruction");
+
+        ToggleButton fadeButton = new ToggleButton("Fade On");
+        Slider fadeSlider = new Slider(0.0001, 0.3, 0.1);
         Slider slider = new Slider(1, 100, 20);
-        Label gameSpeedLabel = new Label("Game Speed: ");
+        Label gameSpeedLabel = new Label("ROM Speed: ");
+        Label fadeSpeedLabel = new Label("Fade Speed: ");
         pause.setMinSize(80, 20);
+        fadeButton.setMinSize(65, 20);
         gameSpeed = slider.getValue();
 
         ToolBar toolBar = new ToolBar();
         stage.setTitle("Chip8 Emulator");
 
-        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, new Separator(Orientation.VERTICAL));
-        HBox hboxRight = new HBox(4, gameSpeedLabel, slider);
-        HBox hbox = new HBox(400, hboxLeft, hboxRight);
+        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton, new Separator(Orientation.VERTICAL));
+        HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
+        HBox hbox = new HBox(90, hboxLeft, hboxRight);
         toolBar.getItems().add(hbox);
 
         Label currentInstruction = new Label("Current Instruction: 0x0");
@@ -86,12 +91,9 @@ public class Display extends Application {
             }
         }
 
-
-        registers.setHgap(10);
-        registers.setVgap(10);
+        registers.setHgap(5);
+        registers.setVgap(5);
         registers.setMinSize(10.0, 10.0);
-        //registers.setGridLinesVisible(true);
-
 
         Background bg = new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY));
         VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers);
@@ -107,7 +109,7 @@ public class Display extends Application {
         hexDumpArea.setEditable(false);
 
 
-        ListView instructionList = new ListView();
+        //ListView instructionList = new ListView();
         //bottomPane.setLeft(instructionList);
 
         Canvas canvas = new Canvas(width, height);
@@ -155,28 +157,37 @@ public class Display extends Application {
             if (fileChosen) executer.execute();
         });
 
-
-        new Thread() {
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep((long) gameSpeed);
-                        if (!pause.isSelected() && fileChosen) executer.execute();
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                    Platform.runLater(new Runnable() {
-                        public void run() {
-                        }
-                    });
-                }
+        fadeButton.setOnAction(e -> {
+            if (!fadeButton.isSelected()) {
+                fadeButton.setText("Fade On");
+                pixels.setFade(true);
+            } else {
+                fadeButton.setText("Fade Off");
+                pixels.setFade(false);
             }
-        }.start();
+        });
+
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep((long) gameSpeed);
+                    if (!pause.isSelected() && fileChosen) executer.execute();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                    }
+                });
+            }
+        }).start();
 
 
         new AnimationTimer() {
             public void handle(long l) {
                 gameSpeed = slider.getValue();
+                pixels.setFadeSpeed(fadeSlider.getValue());
                 if (!fileChosen) return;
 
                 currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
@@ -188,11 +199,31 @@ public class Display extends Application {
                     registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
                 }
 
-                pixels.fade(); // fades all pixels that have been erased
 
                 // paints everything black every cycle
                 paint.setFill(Color.BLACK);
                 paint.fillRect(0, 0, width, height);
+
+                pixels.fade(); // fades all pixels that have been erased
+
+                // draws fading pixels
+                if (!fadeButton.isSelected()) {
+                    HashMap<Integer, HashMap<Integer, Double>> fadeMap = pixels.getFadeMap();
+                    for (int x = 0; x < fadeMap.size(); x++) {
+                        for (int y = 0; y < fadeMap.get(x).size(); y++) {
+                            if (fadeMap.get(x).get(y) > 0.0) {
+                                double fading = Math.min(0.95, fadeMap.get(x).get(y));
+
+                                Color color = new Color(fading, fading, fading, 1);
+
+                                paint.setFill(color);
+                                paint.fillRect(x * 10, y * 10, 10, 10);
+                            }
+                        }
+                    }
+                }
+
+
                 // paints the current pixels that are actually on
                 boolean[][] display = pixels.getDisplay();
                 paint.setFill(Color.WHITE);
@@ -202,22 +233,6 @@ public class Display extends Application {
                             paint.fillRect(y * 10, x * 10, 10, 10);
                         }
                     }
-                }
-
-                // draws fading pixels
-                HashMap<Integer, HashMap<Integer, Double>> fadeMap = pixels.getFadeMap();
-                for (int x = 0; x < fadeMap.size(); x++) {
-                    for (int y = 0; y < fadeMap.get(x).size(); y++) {
-                        if (fadeMap.get(x).get(y) > 0.0) {
-                            double fading = Math.min(0.95, fadeMap.get(x).get(y));
-
-                            Color color = new Color(fading, fading, fading, 1);
-
-                            paint.setFill(color);
-                            paint.fillRect(x * 10, y * 10, 10, 10);
-                        }
-                    }
-
                 }
 
             }

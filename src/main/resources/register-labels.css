@@ -1,0 +1,7 @@
+.label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: Consolas;
+    -fx-text-fill: rgb(35, 255, 0);
+    -fx-border-color: #3c3b3d;
+}

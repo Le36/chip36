@@ -1,0 +1,7 @@
+.slider .track {
+    -fx-background-color: rgb(50, 50, 50);
+}
+
+.slider .thumb {
+    -fx-background-color: linear-gradient(#23ff00, #0a4400);
+}

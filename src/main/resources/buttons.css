@@ -1,0 +1,9 @@
+.button {
+    -fx-background-color: linear-gradient(#23ff00, #0a4400);
+    -fx-font-family: Consolas;
+}
+
+.toggle-button {
+    -fx-background-color: linear-gradient(#23ff00, #0a4400);
+    -fx-font-family: Consolas;
+}

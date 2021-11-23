@@ -21,7 +21,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Display extends Application {
 
@@ -50,13 +49,24 @@ public class Display extends Application {
         Label gameSpeedLabel = new Label("ROM Speed: ");
         Label fadeSpeedLabel = new Label("Fade Speed: ");
         pause.setMinSize(80, 20);
-        fadeButton.setMinSize(65, 20);
+        fadeButton.setMinSize(70, 20);
+        selectRom.getStylesheets().add("buttons.css");
+        resetRom.getStylesheets().add("buttons.css");
+        pause.getStylesheets().add("buttons.css");
+        nextStep.getStylesheets().add("buttons.css");
+        fadeButton.getStylesheets().add("buttons.css");
+        gameSpeedLabel.getStylesheets().add("toolbar-labels.css");
+        fadeSpeedLabel.getStylesheets().add("toolbar-labels.css");
+        slider.getStylesheets().add("sliders.css");
+        fadeSlider.getStylesheets().add("sliders.css");
+
         gameSpeed = slider.getValue();
 
         ToolBar toolBar = new ToolBar();
         stage.setTitle("Chip8 Emulator");
+        toolBar.getStylesheets().add("toolbar.css");
 
-        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton, new Separator(Orientation.VERTICAL));
+        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
         HBox hbox = new HBox(90, hboxLeft, hboxRight);
         toolBar.getItems().add(hbox);
@@ -66,10 +76,10 @@ public class Display extends Application {
         Label programCounter = new Label("Program Counter: 0x0");
         Label delayTimer = new Label("Delay Timer: 0x0");
 
-        currentInstruction.setFont(new Font("Consolas", 18));
-        indexRegister.setFont(new Font("Consolas", 18));
-        programCounter.setFont(new Font("Consolas", 18));
-        delayTimer.setFont(new Font("Consolas", 18));
+        currentInstruction.getStylesheets().add("labels.css");
+        indexRegister.getStylesheets().add("labels.css");
+        programCounter.getStylesheets().add("labels.css");
+        delayTimer.getStylesheets().add("labels.css");
 
         currentInstruction.setMinSize(290, 20);
 
@@ -81,7 +91,7 @@ public class Display extends Application {
             Label lab = new Label("V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x0");
             lab.setMinSize(75, 20);
 
-            lab.setFont(new Font("Consolas", 14));
+            lab.getStylesheets().add("register-labels.css");
             registerLabels.add(lab);
             registers.add(lab, first, second);
             first++;
@@ -95,7 +105,7 @@ public class Display extends Application {
         registers.setVgap(5);
         registers.setMinSize(10.0, 10.0);
 
-        Background bg = new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY));
+        Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers);
 
 
@@ -104,8 +114,8 @@ public class Display extends Application {
         bottomPane.setRight(hexDumpArea);
 
         hexDumpArea.setMinSize(520, 150);
-        hexDumpArea.setFont(new Font("Consolas", 12));
-        hexDumpArea.setBackground(bg);
+        //hexDumpArea.setFont(new Font("Consolas", 12));
+        hexDumpArea.getStylesheets().add("text-area.css");
         hexDumpArea.setEditable(false);
 
 

@@ -1,0 +1,30 @@
+.list-cell {
+    -fx-focus-color: transparent;
+    -fx-background-color: transparent;
+
+}
+
+.list-cell:odd {
+    -fx-text-fill: rgb(35, 255, 0);
+    -fx-font-family: Consolas;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-color: #000000;
+}
+
+.list-cell:even {
+    -fx-text-fill: rgb(35, 255, 0);
+    -fx-font-family: Consolas;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-color: #151515;
+}
+
+.list-cell:filled:hover {
+
+}
+
+.list-view {
+    -fx-focus-color: transparent;
+    -fx-background-color: transparent;
+}

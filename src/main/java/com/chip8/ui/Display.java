@@ -67,7 +67,7 @@ public class Display extends Application {
 
         HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
-        HBox hbox = new HBox(90, hboxLeft, hboxRight);
+        HBox hbox = new HBox(45, hboxLeft, hboxRight);
         toolBar.getItems().add(hbox);
 
         Label currentInstruction = new Label("Current Instruction: 0x0");
@@ -112,14 +112,21 @@ public class Display extends Application {
         TextArea hexDumpArea = new TextArea();
         bottomPane.setRight(hexDumpArea);
 
-        hexDumpArea.setMinSize(520, 150);
+        hexDumpArea.setPrefSize(520, 145);
         //hexDumpArea.setFont(new Font("Consolas", 12));
         hexDumpArea.getStylesheets().add("text-area.css");
         hexDumpArea.setEditable(false);
 
 
-        //ListView instructionList = new ListView();
-        //bottomPane.setLeft(instructionList);
+        ListView instructionList = new ListView();
+        instructionList.getStylesheets().add("instruction-list.css");
+
+        instructionList.setEditable(false);
+
+
+        instructionList.setPrefSize(440, 145);
+        bottomPane.setLeft(instructionList);
+
 
         Canvas canvas = new Canvas(width, height);
         GraphicsContext paint = canvas.getGraphicsContext2D();
@@ -206,6 +213,13 @@ public class Display extends Application {
 
                 for (int i = 0; i < 16; i++) {
                     registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
+                }
+
+                instructionList.getItems().clear();
+                short pc = executer.getMemory().getPc();
+                for (int i = 0; i < 7; i++) {
+                    instructionList.getItems().add("Next Instruction: 0x" + Integer.toHexString((executer.getFetcher().seek(pc) & 0xFFFF)).toUpperCase() + "");
+                    pc += 2;
                 }
 
 

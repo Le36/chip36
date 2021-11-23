@@ -20,6 +20,10 @@ public class Fetcher {
         m.timerDecrement();
     }
 
+    public short seek(short pc) {
+        return (short) (((m.getRam()[pc] << 8) & 0xFF00) | (m.getRam()[pc + 1] & 0x00FF));
+    }
+
     public void incrementPC() {
         m.setPc((short) (m.getPc() + 2));
     }

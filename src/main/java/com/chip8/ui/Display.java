@@ -218,7 +218,9 @@ public class Display extends Application {
                 instructionList.getItems().clear();
                 short pc = executer.getMemory().getPc();
                 for (int i = 0; i < 7; i++) {
-                    instructionList.getItems().add("Next Instruction: 0x" + Integer.toHexString((executer.getFetcher().seek(pc) & 0xFFFF)).toUpperCase() + "");
+                    short opcode = executer.getFetcher().seek(pc);
+                    executer.getDecoder().decode(opcode, true);
+                    instructionList.getItems().add("0x" + Integer.toHexString((opcode & 0xFFFF)).toUpperCase() + " | " + executer.getDecoder().getSeekString());
                     pc += 2;
                 }
 

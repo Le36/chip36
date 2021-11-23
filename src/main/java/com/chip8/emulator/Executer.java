@@ -26,11 +26,11 @@ public class Executer {
 
     public void execute() {
         fetcher.fetch();
-        decoder.decode(fetcher.getOpcode());
+        decoder.decode(fetcher.getOpcode(), false);
     }
 
     // used to testing
     public void forceOpcode(short opcode) {
-        decoder.decode(opcode);
+        decoder.decode(opcode, false);
     }
 }

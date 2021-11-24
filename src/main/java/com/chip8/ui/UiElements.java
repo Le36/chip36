@@ -34,7 +34,11 @@ public class UiElements {
         switch (type) {
             case LABEL:
                 label.getStylesheets().add("labels.css");
-                label.setMinSize(290, 20);
+                if (!os.startsWith("Windows")) {
+                    label.setMinSize(340, 20);
+                } else {
+                    label.setMinSize(290, 20);
+                }
                 return label;
             case TOOLBAR:
                 label.getStylesheets().add("toolbar-labels.css");
@@ -52,7 +56,7 @@ public class UiElements {
         textArea.getStylesheets().add("text-area.css");
         textArea.setEditable(false);
         if (!os.startsWith("Windows")) {
-            textArea.setPrefSize(v + 20, v1 + 20);
+            textArea.setPrefSize(v + 50, v1 + 20);
         } else {
             textArea.setPrefSize(v, v1);
         }

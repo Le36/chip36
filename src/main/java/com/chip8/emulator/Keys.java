@@ -23,16 +23,16 @@ public class Keys {
     private void setKey(boolean state, KeyCode key) {
         switch (key) {
             case DIGIT1:
-                keys[0] = state;
-                break;
-            case DIGIT2:
                 keys[1] = state;
                 break;
-            case DIGIT3:
+            case DIGIT2:
                 keys[2] = state;
                 break;
-            case DIGIT4:
+            case DIGIT3:
                 keys[3] = state;
+                break;
+            case DIGIT4:
+                keys[0xC] = state;
                 break;
             case Q:
                 keys[4] = state;
@@ -44,31 +44,31 @@ public class Keys {
                 keys[6] = state;
                 break;
             case R:
-                keys[7] = state;
+                keys[0xD] = state;
                 break;
             case A:
-                keys[8] = state;
+                keys[7] = state;
                 break;
             case S:
-                keys[9] = state;
+                keys[8] = state;
                 break;
             case D:
-                keys[10] = state;
+                keys[9] = state;
                 break;
             case F:
-                keys[11] = state;
+                keys[0xE] = state;
                 break;
             case Z:
-                keys[12] = state;
+                keys[0xA] = state;
                 break;
             case X:
-                keys[13] = state;
+                keys[0] = state;
                 break;
             case C:
-                keys[14] = state;
+                keys[0xB] = state;
                 break;
             case V:
-                keys[15] = state;
+                keys[0xF] = state;
                 break;
         }
     }

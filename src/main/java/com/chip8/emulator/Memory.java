@@ -24,13 +24,11 @@ public class Memory {
     }
 
     public void timerDecrement() {
-        this.delayTimer--;
-        this.soundTimer--;
-        if (delayTimer == -1) {
-            delayTimer++;
+        if (Byte.toUnsignedInt(delayTimer) > 0) {
+            delayTimer--;
         }
-        if (soundTimer == -1) {
-            delayTimer++;
+        if (Byte.toUnsignedInt(soundTimer) > 0) {
+            this.soundTimer--;
         }
     }
 

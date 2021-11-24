@@ -279,7 +279,7 @@ public class Decoder {
         boolean overflow = false;
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte nn = (byte) (opcode & 0x00FF);
-        if ((x + nn) < (byte) 0xFF) {
+        if (Byte.toUnsignedInt(x) + Byte.toUnsignedInt(nn) > Byte.toUnsignedInt((byte) 0xFF)) {
             m.varReg(0xF, 1);
             overflow = true;
         } else {
@@ -367,7 +367,7 @@ public class Decoder {
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
         boolean overflow = false;
-        if ((x + y) > (byte) 0xFF) {
+        if (Byte.toUnsignedInt(x) + Byte.toUnsignedInt(y) > Byte.toUnsignedInt((byte) 0xFF)) {
             m.varReg(0xF, 1);
             m.varReg((opcode & 0x0F00) >> 8, (x + y) & 0xFF);
             overflow = true;
@@ -385,14 +385,14 @@ public class Decoder {
     private void subtract() {
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
+        boolean state = false;
         if ((opcode & 0x00F) == 0x5) {
             if (seeking) {
                 this.seekString = "8XY5: Subtract V[X] = V[X] - V[Y]";
                 return;
             }
             // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
-            boolean state = false;
-            if (x > y) {
+            if (Byte.toUnsignedInt(x) > Byte.toUnsignedInt(y)) {
                 m.varReg(0xF, 1);
                 state = true;
             } else {
@@ -413,8 +413,7 @@ public class Decoder {
                 return;
             }
             // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
-            boolean state = false;
-            if (y > x) {
+            if (Byte.toUnsignedInt(y) > Byte.toUnsignedInt(x)) {
                 m.varReg(0xF, 1);
                 state = true;
             } else {
@@ -434,34 +433,34 @@ public class Decoder {
 
     private void shiftRight() {
         if (seeking) {
-            this.seekString = "8XY6: Shift Right";
+            this.seekString = "8XY6: Shift Right and divide V[X] by 2";
             return;
         }
-        // sets v[x] to v[y] then shifts v[x] 1 bit to right, if the shifted bit was 1
-        // then sets v[0xF] to 1, else to 0
-        byte y = m.getV()[(opcode & 0x00F0) >> 4];
-        if ((y & 0x1) == 1) {
+        // shifts v[x] 1 bit to right, if the shifted bit was 1 then sets v[0xF] to 1
+        // else to 0, after this v[x] is divided by 2
+        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        if ((x & 0x1) == 1) {
             m.varReg(0xF, 1);
         } else {
             m.varReg(0xF, 0);
         }
-        m.varReg((opcode & 0x0F00) >> 8, y >> 1);
+        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) / 2);
     }
 
     private void shiftLeft() {
         if (seeking) {
-            this.seekString = "8XYE: Shift Left";
+            this.seekString = "8XYE: Shift Left and multiply V[X] by 2";
             return;
         }
-        // sets v[x] to v[y] then shifts v[x] 1 bit to left, if the shifted bit was 1
-        // then sets v[0xF] to 1, else to 0
-        byte y = m.getV()[(opcode & 0x00F0) >> 4];
-        if ((y & 0b10000000) >> 7 == 1) {
+        // shifts v[x] 1 bit to left, if the shifted bit was 1 then sets v[0xF] to 1
+        // else to 0, after this v[x] is multiplied with 2
+        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        if ((x & 0b10000000) >> 7 == 1) {
             m.varReg(0xF, 1);
         } else {
             m.varReg(0xF, 0);
         }
-        m.varReg((opcode & 0x0F00) >> 8, y << 1);
+        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) * 2);
     }
 
     private void skipIfNotEqualRegisters() {
@@ -490,7 +489,7 @@ public class Decoder {
             return;
         }
         // jumps to NNN + v[0] | BNNN
-        m.setPc((short) ((opcode & 0x0FFF) + m.getV()[0]));
+        m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[0])));
         // super-chip style BXNN
         //m.setPc((short) ((opcode & 0x0FFF) + m.getV()[(0x0F00 & opcode) >> 8]));
     }

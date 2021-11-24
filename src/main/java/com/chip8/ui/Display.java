@@ -6,6 +6,7 @@ import com.chip8.emulator.PixelManager;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -33,6 +34,7 @@ public class Display extends Application {
 
     public void start(Stage stage) {
         stage.setTitle("Chip8 Emulator");
+        this.gameSpeed = 1000;
         PixelManager pixels = new PixelManager(64, 32);
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
@@ -79,15 +81,13 @@ public class Display extends Application {
         registers.setVgap(5);
         registers.setMinSize(10.0, 10.0);
 
-        TextArea currentDetailed = uiElements.makeTextArea();
-        currentDetailed.setPrefSize(290, 105);
+        TextArea currentDetailed = uiElements.makeTextArea(290, 105);
 
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
 
         BorderPane bottomPane = new BorderPane();
-        TextArea hexDumpArea = uiElements.makeTextArea();
-        hexDumpArea.setPrefSize(520, 145);
+        TextArea hexDumpArea = uiElements.makeTextArea(520, 145);
         bottomPane.setRight(hexDumpArea);
 
         ListView instructionList = uiElements.makeListView();
@@ -107,6 +107,8 @@ public class Display extends Application {
 
         // keyboard for emulator
         scene.addEventFilter(KeyEvent.ANY, keys::setKey);
+
+        stage.setOnCloseRequest(windowEvent -> System.exit(0));
 
         selectRom.setOnAction(e -> {
             selectedFile = fileChooser.showOpenDialog(stage);
@@ -154,9 +156,7 @@ public class Display extends Application {
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
-                Platform.runLater(new Runnable() {
-                    public void run() {
-                    }
+                Platform.runLater(() -> {
                 });
             }
         }).start();

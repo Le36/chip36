@@ -4,6 +4,12 @@ import javafx.scene.control.*;
 
 public class UiElements {
 
+    private String os;
+
+    public UiElements() {
+        this.os = System.getProperty("os.name");
+    }
+
     public Button makeButton(String text) {
         Button button = new Button(text);
         button.getStylesheets().add("buttons.css");
@@ -41,10 +47,15 @@ public class UiElements {
         return label;
     }
 
-    public TextArea makeTextArea() {
+    public TextArea makeTextArea(double v, double v1) {
         TextArea textArea = new TextArea();
         textArea.getStylesheets().add("text-area.css");
         textArea.setEditable(false);
+        if (!os.startsWith("Windows")) {
+            textArea.setPrefSize(v + 20, v1 + 20);
+        } else {
+            textArea.setPrefSize(v, v1);
+        }
         return textArea;
     }
 
@@ -52,7 +63,11 @@ public class UiElements {
         ListView listView = new ListView();
         listView.getStylesheets().add("instruction-list.css");
         listView.setEditable(false);
-        listView.setPrefSize(440, 145);
+        if (!os.startsWith("Windows")) {
+            listView.setPrefSize(460, 165);
+        } else {
+            listView.setPrefSize(440, 145);
+        }
         return listView;
     }
 

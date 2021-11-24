@@ -1,7 +1,5 @@
 package com.chip8.emulator;
 
-import com.chip8.ui.ConsoleDisplay;
-import com.chip8.ui.PixelManager;
 import lombok.Data;
 
 import java.util.Random;

@@ -3,7 +3,6 @@ package com.chip8.emulator;
 
 import static org.junit.Assert.*;
 
-import com.chip8.ui.PixelManager;
 import org.junit.Before;
 import org.junit.Test;
 

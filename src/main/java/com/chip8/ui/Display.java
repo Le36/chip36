@@ -2,6 +2,7 @@ package com.chip8.ui;
 
 import com.chip8.emulator.Executer;
 import com.chip8.emulator.Keys;
+import com.chip8.emulator.PixelManager;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -27,70 +28,44 @@ public class Display extends Application {
     private boolean fileChosen;
     private File selectedFile;
     private double gameSpeed;
+    final int width = 640;
+    final int height = 320;
 
     public void start(Stage stage) {
-
-        final int width = 640;
-        final int height = 320;
-
+        stage.setTitle("Chip8 Emulator");
         PixelManager pixels = new PixelManager(64, 32);
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
 
-        Button selectRom = new Button("Select ROM");
-        Button resetRom = new Button("Reset ROM");
-        ToggleButton pause = new ToggleButton("Pause ROM");
-        Button nextStep = new Button("Next Instruction");
+        UiElements uiElements = new UiElements();
 
-        ToggleButton fadeButton = new ToggleButton("Fade On");
-        Slider fadeSlider = new Slider(0.0001, 0.3, 0.1);
-        Slider slider = new Slider(1, 100, 20);
-        Label gameSpeedLabel = new Label("ROM Speed: ");
-        Label fadeSpeedLabel = new Label("Fade Speed: ");
-        pause.setMinSize(80, 20);
-        fadeButton.setMinSize(70, 20);
-        selectRom.getStylesheets().add("buttons.css");
-        resetRom.getStylesheets().add("buttons.css");
-        pause.getStylesheets().add("buttons.css");
-        nextStep.getStylesheets().add("buttons.css");
-        fadeButton.getStylesheets().add("buttons.css");
-        gameSpeedLabel.getStylesheets().add("toolbar-labels.css");
-        fadeSpeedLabel.getStylesheets().add("toolbar-labels.css");
-        slider.getStylesheets().add("sliders.css");
-        fadeSlider.getStylesheets().add("sliders.css");
+        Button selectRom = uiElements.makeButton("Select ROM");
+        Button resetRom = uiElements.makeButton("Reset ROM");
+        ToggleButton pause = uiElements.makeToggleButton("Pause ROM");
+        Button nextStep = uiElements.makeButton("Next Instruction");
+        ToggleButton fadeButton = uiElements.makeToggleButton("Fade On");
 
-        gameSpeed = slider.getValue();
-
-        ToolBar toolBar = new ToolBar();
-        stage.setTitle("Chip8 Emulator");
-        toolBar.getStylesheets().add("toolbar.css");
+        Slider fadeSlider = uiElements.makeSlider(0.0001, 0.3, 0.1);
+        Slider slider = uiElements.makeSlider(1, 100, 20);
+        Label gameSpeedLabel = uiElements.makeLabel("ROM Speed: ", LabelType.TOOLBAR);
+        Label fadeSpeedLabel = uiElements.makeLabel("Fade Speed: ", LabelType.TOOLBAR);
 
         HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
-        HBox hbox = new HBox(45, hboxLeft, hboxRight);
+        HBox hbox = new HBox(35, hboxLeft, hboxRight);
+        ToolBar toolBar = new ToolBar();
         toolBar.getItems().add(hbox);
+        toolBar.getStylesheets().add("toolbar.css");
 
-        Label currentInstruction = new Label("Current Instruction: 0x0");
-        Label indexRegister = new Label("Index Register: 0x0");
-        Label programCounter = new Label("Program Counter: 0x0");
-        Label delayTimer = new Label("Delay Timer: 0x0");
-
-        currentInstruction.getStylesheets().add("labels.css");
-        indexRegister.getStylesheets().add("labels.css");
-        programCounter.getStylesheets().add("labels.css");
-        delayTimer.getStylesheets().add("labels.css");
-
-        currentInstruction.setMinSize(290, 20);
+        Label currentInstruction = uiElements.makeLabel("Current Instruction: 0x0", LabelType.LABEL);
+        Label indexRegister = uiElements.makeLabel("Index Register: 0x0", LabelType.LABEL);
+        Label programCounter = uiElements.makeLabel("Program Counter: 0x0", LabelType.LABEL);
+        Label delayTimer = uiElements.makeLabel("Delay Timer: 0x0", LabelType.LABEL);
 
         GridPane registers = new GridPane();
-
         ArrayList<Label> registerLabels = new ArrayList<>();
-
         for (int i = 0, first = 0, second = 0; i < 16; i++) {
-            Label lab = new Label("V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x0");
-            lab.setMinSize(75, 20);
-
-            lab.getStylesheets().add("register-labels.css");
+            Label lab = uiElements.makeLabel("V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x0", LabelType.REGISTER);
             registerLabels.add(lab);
             registers.add(lab, first, second);
             first++;
@@ -104,33 +79,19 @@ public class Display extends Application {
         registers.setVgap(5);
         registers.setMinSize(10.0, 10.0);
 
-        TextArea currentDetailed = new TextArea();
+        TextArea currentDetailed = uiElements.makeTextArea();
         currentDetailed.setPrefSize(290, 105);
-        currentDetailed.setEditable(false);
-        currentDetailed.getStylesheets().add("text-area.css");
 
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
 
-
         BorderPane bottomPane = new BorderPane();
-        TextArea hexDumpArea = new TextArea();
+        TextArea hexDumpArea = uiElements.makeTextArea();
+        hexDumpArea.setPrefSize(520, 145);
         bottomPane.setRight(hexDumpArea);
 
-        hexDumpArea.setPrefSize(520, 145);
-        hexDumpArea.getStylesheets().add("text-area.css");
-        hexDumpArea.setEditable(false);
-
-
-        ListView instructionList = new ListView();
-        instructionList.getStylesheets().add("instruction-list.css");
-
-        instructionList.setEditable(false);
-
-
-        instructionList.setPrefSize(440, 145);
+        ListView instructionList = uiElements.makeListView();
         bottomPane.setLeft(instructionList);
-
 
         Canvas canvas = new Canvas(width, height);
         GraphicsContext paint = canvas.getGraphicsContext2D();
@@ -142,8 +103,6 @@ public class Display extends Application {
         root.setBottom(bottomPane);
         Scene scene = new Scene(root);
         stage.setScene(scene);
-
-        //stage.setResizable(false);
         stage.sizeToScene();
 
         // keyboard for emulator
@@ -187,7 +146,6 @@ public class Display extends Application {
             }
         });
 
-
         new Thread(() -> {
             while (true) {
                 try {
@@ -203,11 +161,45 @@ public class Display extends Application {
             }
         }).start();
 
-
         new AnimationTimer() {
             public void handle(long l) {
                 gameSpeed = slider.getValue();
                 pixels.setFadeSpeed(fadeSlider.getValue());
+
+                // paints everything black every cycle
+                paint.setFill(Color.BLACK);
+                paint.fillRect(0, 0, width, height);
+
+                pixels.fade(); // fades all pixels that have been erased
+
+                // draws fading pixels
+                if (!fadeButton.isSelected()) {
+                    HashMap<Integer, HashMap<Integer, Double>> fadeMap = pixels.getFadeMap();
+                    for (int x = 0; x < fadeMap.size(); x++) {
+                        for (int y = 0; y < fadeMap.get(x).size(); y++) {
+                            if (fadeMap.get(x).get(y) > 0.0) {
+                                double fading = Math.min(0.95, fadeMap.get(x).get(y));
+
+                                Color color = new Color(fading, fading, fading, 1);
+
+                                paint.setFill(color);
+                                paint.fillRect(x * 10, y * 10, 10, 10);
+                            }
+                        }
+                    }
+                }
+
+                // paints the current pixels that are actually on
+                boolean[][] display = pixels.getDisplay();
+                paint.setFill(Color.WHITE);
+                for (int x = 0; x < 32; x++) {
+                    for (int y = 0; y < 64; y++) {
+                        if (display[y][x]) {
+                            paint.fillRect(y * 10, x * 10, 10, 10);
+                        }
+                    }
+                }
+
                 if (!fileChosen) return;
 
                 currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
@@ -238,43 +230,6 @@ public class Display extends Application {
                     instructionList.getItems().add(base + instruction + " | " + executer.getDecoder().getSeekString());
                     pc += 2;
                 }
-
-
-                // paints everything black every cycle
-                paint.setFill(Color.BLACK);
-                paint.fillRect(0, 0, width, height);
-
-                pixels.fade(); // fades all pixels that have been erased
-
-                // draws fading pixels
-                if (!fadeButton.isSelected()) {
-                    HashMap<Integer, HashMap<Integer, Double>> fadeMap = pixels.getFadeMap();
-                    for (int x = 0; x < fadeMap.size(); x++) {
-                        for (int y = 0; y < fadeMap.get(x).size(); y++) {
-                            if (fadeMap.get(x).get(y) > 0.0) {
-                                double fading = Math.min(0.95, fadeMap.get(x).get(y));
-
-                                Color color = new Color(fading, fading, fading, 1);
-
-                                paint.setFill(color);
-                                paint.fillRect(x * 10, y * 10, 10, 10);
-                            }
-                        }
-                    }
-                }
-
-
-                // paints the current pixels that are actually on
-                boolean[][] display = pixels.getDisplay();
-                paint.setFill(Color.WHITE);
-                for (int x = 0; x < 32; x++) {
-                    for (int y = 0; y < 64; y++) {
-                        if (display[y][x]) {
-                            paint.fillRect(y * 10, x * 10, 10, 10);
-                        }
-                    }
-                }
-
             }
         }.start();
 

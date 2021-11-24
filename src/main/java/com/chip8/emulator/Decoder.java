@@ -18,8 +18,10 @@ public class Decoder {
     private String detailed;
     private String x;
     private String y;
-    private String NNN;
-    private String NN;
+    private String nnn;
+    private String nn;
+    private String iBefore;
+    private boolean state;
 
     public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys) {
         this.display = new ConsoleDisplay();
@@ -30,12 +32,7 @@ public class Decoder {
     }
 
     public void decode(short opcode, boolean seeking) {
-        this.seeking = seeking;
-        this.opcode = opcode;
-        this.x = Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase();
-        this.y = Integer.toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase();
-        this.NNN = Integer.toHexString(((opcode & 0x0FFF) & 0xFFF)).toUpperCase();
-        this.NN = Integer.toHexString(((opcode & 0x00FF) & 0xFF)).toUpperCase();
+        setup(opcode, seeking);
 
         switch (opcode) {
             case 0x0000:
@@ -50,7 +47,6 @@ public class Decoder {
                 this.returnFromSubroutine();
                 return;
         }
-
         switch (opcode & 0xF0FF) {
             case 0xE09E: // EX9E
                 this.skipIfKeyEqual();
@@ -124,7 +120,6 @@ public class Decoder {
                 this.drawDisplay();
                 return;
         }
-
         switch (opcode & 0xF00F) {
             case 0x8000: // 8XY0
                 this.setVxToVy();
@@ -159,6 +154,17 @@ public class Decoder {
         }
     }
 
+    private void setup(short opcode, boolean seeking) {
+        this.opcode = opcode;
+        this.seeking = seeking;
+        this.state = false;
+        this.x = Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase();
+        this.y = Integer.toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase();
+        this.nnn = Integer.toHexString(((opcode & 0x0FFF) & 0xFFF)).toUpperCase();
+        this.nn = Integer.toHexString(((opcode & 0x00FF) & 0xFF)).toUpperCase();
+        this.iBefore = Integer.toHexString((m.getI() & 0xFFF)).toUpperCase();
+    }
+
 
     private void clearDisplay() {
         if (seeking) {
@@ -178,12 +184,7 @@ public class Decoder {
         // returns to program popping the pc from stack
         int stackSize = m.getStack().size();
         m.setPc(m.getStack().pop());
-        this.detailed = "Returns from a subroutine. Does this by" +
-                "\npopping the stack. Stack size before pop: " +
-                stackSize + "\nSize of the stack after the pop: " +
-                m.getStack().size() + "\nPopped value was: 0x" +
-                Integer.toHexString((m.getPc() & 0xFFFF)).toUpperCase() +
-                "\nThis value was assigned to program counter.";
+        detailReturnFrom(stackSize);
     }
 
     private void jumpAddress() {
@@ -194,10 +195,7 @@ public class Decoder {
         // jump, sets the PC to NNN | 1NNN
         short pcBefore = m.getPc();
         m.setPc((short) (opcode & 0x0FFF));
-        this.detailed = "Jumps to address: 0x" + this.NNN +
-                "\nThis value was assigned to program counter." +
-                "\nProgram counter was before execution: 0x" +
-                Integer.toHexString((pcBefore & 0xFFFF)).toUpperCase();
+        detailJumpAddress(pcBefore);
     }
 
     private void callSubroutine() {
@@ -209,13 +207,7 @@ public class Decoder {
         int stackSize = m.getStack().size();
         m.getStack().push(m.getPc());
         this.jumpAddress();
-        this.detailed = "Calls a subroutine. Does this by pushing" +
-                "\ncurrent program counter to stack." +
-                "\nStack size before push: " + stackSize +
-                "\nStack size after the push: " +
-                m.getStack().size() + "\nPushed program counter was: 0x" +
-                Integer.toHexString((m.getPc() & 0xFFFF)).toUpperCase() +
-                "\nAfter push, jumps to address: 0x" + this.NNN;
+        detailCallSub(stackSize);
     }
 
     private void skipIfEqual() {
@@ -223,16 +215,12 @@ public class Decoder {
             this.seekString = "3XNN: Skip next instruction if V[X] == NN";
             return;
         }
-        boolean skipped = false;
         // skip next instruction if V[x] == NN | 3XNN
         if (m.getV()[(opcode & 0x0F00) >> 8] == (byte) (opcode & 0x0FF)) {
             fetcher.incrementPC();
-            skipped = true;
+            state = true;
         }
-        this.detailed = "Skips next instruction if V[" + this.x +
-                "]\nis equal to 0x" + this.NN +
-                "\nSkipping is done by incrementing pc by 0x2" +
-                "\nSkip happened: " + skipped;
+        detailSkipIfEqual();
     }
 
     private void skipIfNotEqual() {
@@ -240,16 +228,12 @@ public class Decoder {
             this.seekString = "4XNN: Skip next instruction if V[X] != NN";
             return;
         }
-        boolean skipped = false;
         // skip next instruction if V[x] != NN | 4XNN
         if (m.getV()[(opcode & 0x0F00) >> 8] != (byte) (opcode & 0x0FF)) {
             fetcher.incrementPC();
-            skipped = true;
+            state = true;
         }
-        this.detailed = "Skips next instruction if V[" + this.x +
-                "]\nis NOT equal to 0x" + this.NN +
-                "\nSkipping is done by incrementing pc by 0x2" +
-                "\nSkip happened: " + skipped;
+        detailSkipIfNotEqual();
     }
 
     private void skipIfEqualRegisters() {
@@ -258,15 +242,11 @@ public class Decoder {
             return;
         }
         // skip next instruction if V[x] == V[y] | 5XY0
-        boolean skipped = false;
         if (m.getV()[(opcode & 0x0F00) >> 8] == m.getV()[(opcode & 0x0F0) >> 4]) {
             fetcher.incrementPC();
-            skipped = true;
+            state = true;
         }
-        this.detailed = "Skips next instruction if V[" + this.x +
-                "]\nis equal to V[" + this.y +
-                "]\nSkipping is done by incrementing pc by 0x2" +
-                "\nSkip happened: " + skipped;
+        detailSkipIfEqualReg();
     }
 
     private void setVarReg() {
@@ -276,7 +256,7 @@ public class Decoder {
         }
         // Set, sets V(x) = (NN) | 6xNN
         m.varReg((opcode & 0x0F00) >> 8, opcode & 0x00FF);
-        this.detailed = "Sets V[" + this.x + "] to 0x" + this.NN;
+        this.detailed = "Sets V[" + this.x + "] to 0x" + this.nn;
     }
 
     private void addVarReg() {
@@ -288,9 +268,7 @@ public class Decoder {
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte nn = (byte) (opcode & 0x00FF);
         m.varReg((opcode & 0x0F00) >> 8, (x + nn) & 0xFF);
-        this.detailed = "Adds 0x" + this.NN + " to V[" + this.x +
-                "].\nRegister value before add: 0x" +
-                Integer.toHexString(((x) & 0xFF)).toUpperCase();
+        detailAddVarReg(x);
     }
 
 
@@ -315,11 +293,7 @@ public class Decoder {
         byte xValue = m.getV()[x];
         byte yValue = m.getV()[y];
         m.varReg(x, m.getV()[x] | m.getV()[y]);
-        this.detailed = "Does bitwise OR on V[" + this.x + "] and V[" +
-                this.y + "]\nand stores this value to V[" + this.x +
-                "]\n0x" + Integer.toHexString((xValue & 0xFF)).toUpperCase() +
-                " | 0x" + Integer.toHexString((yValue & 0xFF)).toUpperCase() +
-                "\nResult stored in V[" + this.x + "]";
+        detailBinary(xValue, yValue, "Does bitwise OR on V[", " | 0x");
     }
 
     private void binaryAnd() {
@@ -333,11 +307,7 @@ public class Decoder {
         byte xValue = m.getV()[x];
         byte yValue = m.getV()[y];
         m.varReg(x, m.getV()[x] & m.getV()[y]);
-        this.detailed = "Does bitwise AND on V[" + this.x + "] and V[" +
-                this.y + "]\nand stores this value to V[" + this.x +
-                "]\n0x" + Integer.toHexString((xValue & 0xFF)).toUpperCase() +
-                " & 0x" + Integer.toHexString((yValue & 0xFF)).toUpperCase() +
-                "\nResult stored in V[" + this.x + "]";
+        detailBinary(xValue, yValue, "Does bitwise AND on V[", " & 0x");
     }
 
     private void logicalXor() {
@@ -351,11 +321,7 @@ public class Decoder {
         byte xValue = m.getV()[x];
         byte yValue = m.getV()[y];
         m.varReg(x, m.getV()[x] ^ m.getV()[y]);
-        this.detailed = "Does bitwise XOR on V[" + this.x + "] and V[" +
-                this.y + "]\nand stores this value to V[" + this.x +
-                "]\n0x" + Integer.toHexString((xValue & 0xFF)).toUpperCase() +
-                " ^ 0x" + Integer.toHexString((yValue & 0xFF)).toUpperCase() +
-                "\nResult stored in V[" + this.x + "]";
+        detailBinary(xValue, yValue, "Does bitwise XOR on V[", " ^ 0x");
     }
 
     private void addVxVy() {
@@ -366,65 +332,63 @@ public class Decoder {
         // sets v[x] = v[x] + v[y], if overflow then v[0xF] is set to 1 else to 0
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
-        boolean overflow = false;
         if (Byte.toUnsignedInt(x) + Byte.toUnsignedInt(y) > Byte.toUnsignedInt((byte) 0xFF)) {
             m.varReg(0xF, 1);
             m.varReg((opcode & 0x0F00) >> 8, (x + y) & 0xFF);
-            overflow = true;
+            state = true;
         } else {
             m.varReg(0xF, 0);
             m.varReg((opcode & 0x0F00) >> 8, x + y);
         }
-        this.detailed = "Adds V[" + this.y + "] to V[" + this.x + "]." +
-                "\nIf overflow then V[F] is set to 1.\nOverflow: " + overflow +
-                "\nRegister value before add: 0x" + Integer.toHexString(((x) & 0xFF)).toUpperCase() +
-                "\nValue to be added: 0x" + Integer.toHexString(((y) & 0xFF)).toUpperCase();
+        detailAddVxVy(x, y);
     }
 
     private void subtract() {
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
-        boolean state = false;
         if ((opcode & 0x00F) == 0x5) {
             if (seeking) {
                 this.seekString = "8XY5: Subtract V[X] = V[X] - V[Y]";
                 return;
             }
-            // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
-            if (Byte.toUnsignedInt(x) > Byte.toUnsignedInt(y)) {
-                m.varReg(0xF, 1);
-                state = true;
-            } else {
-                m.varReg(0xF, 0);
-            }
-            m.varReg((opcode & 0x0F00) >> 8, x - y);
-            String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
-            String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
-            this.detailed = "Subtract V[" + this.x + "] = V[" + this.x + "] - V[" + this.y + "]" + "\n0x" +
-                    xValue + " - 0x" + yValue + " = 0x" + Integer.toHexString(((x - y) & 0xFF)).toUpperCase() +
-                    "\nIf V[" + this.x + "] (0x" + xValue + ") > V[" + this.y + "] (0x" + yValue + ")" +
-                    "\nThen set VF to 1, VF set to 1: " + state;
+            subtract5(x, y);
         } else if ((opcode & 0x00F) == 0x7) {
             if (seeking) {
                 this.seekString = "8XY7: Subtract V[X] = V[Y] - V[X]";
                 return;
             }
-            // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
-            if (Byte.toUnsignedInt(y) > Byte.toUnsignedInt(x)) {
-                m.varReg(0xF, 1);
-                state = true;
-            } else {
-                m.varReg(0xF, 0);
-            }
-            m.varReg((opcode & 0x0F00) >> 8, y - x);
-            String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
-            String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
-            this.detailed = "Subtract V[" + this.x + "] = V[" + this.y + "] - V[" + this.x + "]" + "\n0x" +
-                    yValue + " - 0x" + xValue + " = 0x" + Integer.toHexString(((y - x) & 0xFF)).toUpperCase() +
-                    "\nIf V[" + this.y + "] (0x" + yValue + ") > V[" + this.x + "] (0x" + xValue + ")" +
-                    "\nThen set VF to 1, VF set to 1: " + state;
+            subtract7(x, y);
         }
     }
+
+    private void subtract5(byte x, byte y) {
+        // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
+        if (Byte.toUnsignedInt(x) > Byte.toUnsignedInt(y)) {
+            m.varReg(0xF, 1);
+            state = true;
+        } else {
+            m.varReg(0xF, 0);
+        }
+        m.varReg((opcode & 0x0F00) >> 8, x - y);
+        String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
+        String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
+        detailSubtract(y, x, yValue, xValue, this.x, this.y);
+    }
+
+    private void subtract7(byte x, byte y) {
+        // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
+        if (Byte.toUnsignedInt(y) > Byte.toUnsignedInt(x)) {
+            m.varReg(0xF, 1);
+            state = true;
+        } else {
+            m.varReg(0xF, 0);
+        }
+        m.varReg((opcode & 0x0F00) >> 8, y - x);
+        String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
+        String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
+        detailSubtract(x, y, xValue, yValue, this.y, this.x);
+    }
+
 
     private void shiftRight() {
         if (seeking) {
@@ -434,7 +398,6 @@ public class Decoder {
         // shifts v[x] 1 bit to right, if the shifted bit was 1 then sets v[0xF] to 1
         // else to 0, after this v[x] is divided by 2
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
-        boolean state = false;
         if ((x & 0x1) == 1) {
             m.varReg(0xF, 1);
             state = true;
@@ -442,11 +405,9 @@ public class Decoder {
             m.varReg(0xF, 0);
         }
         m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) / 2);
-        this.detailed = "Shifts right the value in V[" + this.x + "] by 1 bit." +
-                "\nIf the shifted value was 1, sets VF to 1" + "\nVF 1: " + state + "." +
-                "\nAfter this divides value in V[" + this.x + "] by 2." +
-                "\nValue in V[" + this.x + "] before divide: 0x" + Integer.toHexString((x & 0xFF)).toUpperCase();
+        detailShiftRight(x);
     }
+
 
     private void shiftLeft() {
         if (seeking) {
@@ -456,7 +417,6 @@ public class Decoder {
         // shifts v[x] 1 bit to left, if the shifted bit was 1 then sets v[0xF] to 1
         // else to 0, after this v[x] is multiplied with 2
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
-        boolean state = false;
         if ((x & 0b10000000) >> 7 == 1) {
             state = true;
             m.varReg(0xF, 1);
@@ -464,10 +424,7 @@ public class Decoder {
             m.varReg(0xF, 0);
         }
         m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) * 2);
-        this.detailed = "Shifts left the value in V[" + this.x + "] by 1 bit." +
-                "\nIf the shifted value was 1, sets VF to 1" + "\nVF 1: " + state + "." +
-                "\nAfter this multiplies value in V[" + this.x + "] by 2." +
-                "\nValue in V[" + this.x + "] before multiply: 0x" + Integer.toHexString((x & 0xFF)).toUpperCase();
+        detailShiftLeft(x);
     }
 
     private void skipIfNotEqualRegisters() {
@@ -476,15 +433,11 @@ public class Decoder {
             return;
         }
         // skip next instruction if V[x] != V[y] | 5XY0
-        boolean skipped = false;
         if (m.getV()[(opcode & 0x0F00) >> 8] != m.getV()[(opcode & 0x0F0) >> 4]) {
             fetcher.incrementPC();
-            skipped = true;
+            state = true;
         }
-        this.detailed = "Skips next instruction if V[" + this.x +
-                "]\nis NOT equal to V[" + this.y +
-                "]\nSkipping is done by incrementing pc by 0x2" +
-                "\nSkip happened: " + skipped;
+        detailSkipIfNotEqReg();
     }
 
     private void setIndex() {
@@ -493,11 +446,8 @@ public class Decoder {
             return;
         }
         // Sets index to NNN | ANNN
-        short iBefore = m.getI();
         m.setI((short) (opcode & 0x0FFF));
-        this.detailed = "Sets index register to 0x" + this.NNN +
-                "\nIndex register was before operation: 0x" +
-                Integer.toHexString((iBefore & 0xFFF)).toUpperCase();
+        detailSetIndex();
     }
 
     private void jumpWithOffset() {
@@ -506,11 +456,8 @@ public class Decoder {
             return;
         }
         // jumps to NNN + v[0] | BNNN
-        short iBefore = m.getI();
         m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[0])));
-        this.detailed = "Jumps to 0x" + this.NNN + " + V[" + this.x + "]." +
-                "\nIndex register was before operation: 0x" +
-                Integer.toHexString((iBefore & 0xFFF)).toUpperCase();
+        detailJumpWithOff();
     }
 
     private void random() {
@@ -522,8 +469,7 @@ public class Decoder {
         // then puts the result in V[x] | CXNN
         Random rand = new Random();
         m.varReg((opcode & 0x0F00) >> 8, rand.nextInt(256) & (opcode & 0x00FF));
-        this.detailed = "Sets V[" + this.x + "] to random byte that is" +
-                "\nbinary AND with 0x" + this.NN;
+        this.detailed = "Sets V[" + this.x + "] to random byte that is" + "\nbinary AND with 0x" + this.nn;
     }
 
     private void drawDisplay() {
@@ -537,6 +483,12 @@ public class Decoder {
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
         // variable register VF (V[15]) keeps track if there were any pixels erased, reset here
         m.varReg(0xF, 0);
+        draw(x, y);
+        this.detailed = "Draws 8x8 sprite starting at following\ncoordinates: x: " + this.x + " y: " + this.y;
+        //display.printDisplay();
+    }
+
+    private void draw(byte x, byte y) {
         // first nibble indicating height of the sprite
         for (int i = 0; i < (opcode & 0x000F); i++) {
             // gets sprite row data from ram
@@ -557,9 +509,6 @@ public class Decoder {
                 }
             }
         }
-        this.detailed = "Draws 8x8 sprite starting at following" +
-                "\ncoordinates: x: " + this.x + " y: " + this.y;
-        //display.printDisplay();
     }
 
     private void skipIfKeyEqual() {
@@ -568,14 +517,11 @@ public class Decoder {
             return;
         }
         // skips next instruction if pressed key equals key in v[x]
-        boolean state = false;
         if (keys.getKeys()[m.getV()[(opcode & 0x0F00) >> 8]]) {
             fetcher.incrementPC();
             state = true;
         }
-        this.detailed = "Skips next instruction if key in V[" + this.x +
-                "]\nis pressed.\nSkipping is done by incrementing pc by 0x2" +
-                "\nSkip happened: " + state;
+        detailSkipIfKeyEq();
     }
 
     private void skipIfKeyNotEqual() {
@@ -584,14 +530,11 @@ public class Decoder {
             return;
         }
         // skips next instruction if key pressed not equal to key in v[x]
-        boolean state = false;
         if (!keys.getKeys()[m.getV()[(opcode & 0x0F00) >> 8]]) {
             fetcher.incrementPC();
             state = true;
         }
-        this.detailed = "Skips next instruction if key in V[" + this.x +
-                "]\nis NOT pressed.\nSkipping is done by incrementing pc by 0x2" +
-                "\nSkip happened: " + state;
+        detailSkipIfKeyNotEq();
     }
 
     private void setVxToDelay() {
@@ -647,11 +590,8 @@ public class Decoder {
             return;
         }
         // add v[x] to index
-        short iBefore = m.getI();
         m.setI((short) (m.getI() + Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8])));
-        this.detailed = "Adds value in V[" + this.x + "] to index register." +
-                "\nIndex register value before operation: 0x" +
-                Integer.toHexString((iBefore & 0xFFF)).toUpperCase();
+        detailAddToIndex();
     }
 
     private void font() {
@@ -663,11 +603,7 @@ public class Decoder {
         // then I is set ram address that contains data for that character
         int x = ((opcode & 0x0F00) >> 8); // 0 - F
         m.setI((short) (0x50 + (5 * m.getV()[x])));
-        this.detailed = "Sets index register to font data location" +
-                "\npointed by character in V[" + this.x + "]." +
-                "Font data\nlocation starts at 0x50, which contains 0." +
-                "\nEach font data is 5 bytes, so 1 would be\nat 0x55" +
-                "and 2 at 0x60 etc.";
+        detailFont();
     }
 
     private void bcd() {
@@ -686,9 +622,7 @@ public class Decoder {
         decimal = decimal / 10;
         ram[m.getI()] = (byte) (decimal % 10);
         m.setRam(ram);
-        this.detailed = "Converts value in V[" + this.x + "] to BCD." +
-                "\nValue in decimal form: " + decimal + "\n this is now" +
-                "inserted into ram pointed\nby index register in BCD format.";
+        detailBcd(decimal);
     }
 
     private void registerDump() {
@@ -703,9 +637,7 @@ public class Decoder {
             ram[tempI] = m.getV()[i];
         }
         m.setRam(ram);
-        this.detailed = "Dumps registers from V[" + this.x + "] to V[" + this.y +
-                "].\nThese are dumped to ram pointed by\nindex register" +
-                "at locations starting\nat i, i+1, i+2 etc..";
+        detailRegisterDump();
     }
 
     private void registerFill() {
@@ -719,6 +651,153 @@ public class Decoder {
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
             m.varReg(i, ram[tempI]);
         }
+        detailRegisterFill();
+    }
+
+    private void detailReturnFrom(int stackSize) {
+        this.detailed = "Returns from a subroutine. Does this by" +
+                "\npopping the stack. Stack size before pop: " +
+                stackSize + "\nSize of the stack after the pop: " +
+                m.getStack().size() + "\nPopped value was: 0x" +
+                Integer.toHexString((m.getPc() & 0xFFFF)).toUpperCase() +
+                "\nThis value was assigned to program counter.";
+    }
+
+    private void detailJumpAddress(short pcBefore) {
+        this.detailed = "Jumps to address: 0x" + this.nnn +
+                "\nThis value was assigned to program counter." +
+                "\nProgram counter was before execution: 0x" +
+                Integer.toHexString((pcBefore & 0xFFFF)).toUpperCase();
+    }
+
+    private void detailCallSub(int stackSize) {
+        this.detailed = "Calls a subroutine. Does this by pushing" +
+                "\ncurrent program counter to stack." +
+                "\nStack size before push: " + stackSize +
+                "\nStack size after the push: " +
+                m.getStack().size() + "\nPushed program counter was: 0x" +
+                Integer.toHexString((m.getPc() & 0xFFFF)).toUpperCase() +
+                "\nAfter push, jumps to address: 0x" + this.nnn;
+    }
+
+    private void detailSkipIfEqual() {
+        this.detailed = "Skips next instruction if V[" + this.x +
+                "]\nis equal to 0x" + this.nn +
+                "\nSkipping is done by incrementing pc by 0x2" +
+                "\nSkip happened: " + state;
+    }
+
+    private void detailSkipIfNotEqual() {
+        this.detailed = "Skips next instruction if V[" + this.x +
+                "]\nis NOT equal to 0x" + this.nn +
+                "\nSkipping is done by incrementing pc by 0x2" +
+                "\nSkip happened: " + state;
+    }
+
+    private void detailSkipIfEqualReg() {
+        this.detailed = "Skips next instruction if V[" + this.x +
+                "]\nis equal to V[" + this.y +
+                "]\nSkipping is done by incrementing pc by 0x2" +
+                "\nSkip happened: " + state;
+    }
+
+    private void detailAddVarReg(byte x) {
+        this.detailed = "Adds 0x" + this.nn + " to V[" + this.x +
+                "].\nRegister value before add: 0x" +
+                Integer.toHexString(((x) & 0xFF)).toUpperCase();
+    }
+
+    private void detailBinary(byte xValue, byte yValue, String s, String s2) {
+        this.detailed = s + this.x + "] and V[" +
+                this.y + "]\nand stores this value to V[" + this.x +
+                "]\n0x" + Integer.toHexString((xValue & 0xFF)).toUpperCase() +
+                s2 + Integer.toHexString((yValue & 0xFF)).toUpperCase() +
+                "\nResult stored in V[" + this.x + "]";
+    }
+
+    private void detailAddVxVy(byte x, byte y) {
+        this.detailed = "Adds V[" + this.y + "] to V[" + this.x + "]." +
+                "\nIf overflow then V[F] is set to 1.\nOverflow: " + state +
+                "\nRegister value before add: 0x" + Integer.toHexString((x & 0xFF)).toUpperCase() +
+                "\nValue to be added: 0x" + Integer.toHexString((y & 0xFF)).toUpperCase();
+    }
+
+    private void detailSubtract(byte x, byte y, String xValue, String yValue, String y2, String x2) {
+        this.detailed = "Subtract V[" + this.x + "] = V[" + y2 + "] - V[" + x2 + "]" + "\n0x" +
+                yValue + " - 0x" + xValue + " = 0x" + Integer.toHexString(((y - x) & 0xFF)).toUpperCase() +
+                "\nIf V[" + y2 + "] (0x" + yValue + ") > V[" + x2 + "] (0x" + xValue + ")" +
+                "\nThen set VF to 1, VF set to 1: " + state;
+    }
+
+    private void detailShiftRight(byte x) {
+        this.detailed = "Shifts right the value in V[" + this.x + "] by 1 bit." +
+                "\nIf the shifted value was 1, sets VF to 1" + "\nVF 1: " + state + "." +
+                "\nAfter this divides value in V[" + this.x + "] by 2." +
+                "\nValue in V[" + this.x + "] before divide: 0x" + Integer.toHexString((x & 0xFF)).toUpperCase();
+    }
+
+    private void detailShiftLeft(byte x) {
+        this.detailed = "Shifts left the value in V[" + this.x + "] by 1 bit." +
+                "\nIf the shifted value was 1, sets VF to 1" + "\nVF 1: " + state + "." +
+                "\nAfter this multiplies value in V[" + this.x + "] by 2." +
+                "\nValue in V[" + this.x + "] before multiply: 0x" + Integer.toHexString((x & 0xFF)).toUpperCase();
+    }
+
+    private void detailSkipIfNotEqReg() {
+        this.detailed = "Skips next instruction if V[" + this.x +
+                "]\nis NOT equal to V[" + this.y +
+                "]\nSkipping is done by incrementing pc by 0x2" +
+                "\nSkip happened: " + state;
+    }
+
+    private void detailSetIndex() {
+        this.detailed = "Sets index register to 0x" + this.nnn +
+                "\nIndex register was before operation: 0x" + this.iBefore;
+    }
+
+    private void detailJumpWithOff() {
+        this.detailed = "Jumps to 0x" + this.nnn + " + V[" + this.x + "]." +
+                "\nIndex register was before operation: 0x" + this.iBefore;
+    }
+
+    private void detailSkipIfKeyEq() {
+        this.detailed = "Skips next instruction if key in V[" + this.x +
+                "]\nis pressed.\nSkipping is done by incrementing pc by 0x2" +
+                "\nSkip happened: " + state;
+    }
+
+    private void detailSkipIfKeyNotEq() {
+        this.detailed = "Skips next instruction if key in V[" + this.x +
+                "]\nis NOT pressed.\nSkipping is done by incrementing pc by 0x2" +
+                "\nSkip happened: " + state;
+    }
+
+    private void detailAddToIndex() {
+        this.detailed = "Adds value in V[" + this.x + "] to index register." +
+                "\nIndex register value before operation: 0x" + iBefore;
+    }
+
+    private void detailFont() {
+        this.detailed = "Sets index register to font data location" +
+                "\npointed by character in V[" + this.x + "]." +
+                "Font data\nlocation starts at 0x50, which contains 0." +
+                "\nEach font data is 5 bytes, so 1 would be\nat 0x55" +
+                "and 2 at 0x60 etc.";
+    }
+
+    private void detailBcd(int decimal) {
+        this.detailed = "Converts value in V[" + this.x + "] to BCD." +
+                "\nValue in decimal form: " + decimal + "\n this is now" +
+                "inserted into ram pointed\nby index register in BCD format.";
+    }
+
+    private void detailRegisterDump() {
+        this.detailed = "Dumps registers from V[" + this.x + "] to V[" + this.y +
+                "].\nThese are dumped to ram pointed by\nindex register" +
+                "at locations starting\nat i, i+1, i+2 etc..";
+    }
+
+    private void detailRegisterFill() {
         this.detailed = "Fills registers from V[" + this.x + "] to V[" + this.y +
                 "].\nThese are filled from ram pointed by\nindex register" +
                 "at locations starting\nat i, i+1, i+2 etc..";

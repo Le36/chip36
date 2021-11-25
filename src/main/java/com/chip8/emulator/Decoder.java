@@ -377,6 +377,7 @@ public class Decoder {
     }
 
     private void drawDisplay() {
+        pixels.clearSprite();
         // draws display, Dxyn
         // gets x and y coordinates for sprite
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
@@ -384,7 +385,7 @@ public class Decoder {
         // variable register VF (V[15]) keeps track if there were any pixels erased, reset here
         m.varReg(0xF, 0);
         draw(x, y);
-        this.detailed = "Draws 8x8 sprite starting at following\ncoordinates: x: " + this.x + " y: " + this.y;
+        this.detailed = "Draws sprite starting at following\ncoordinates: x: V[" + this.x + "] y: V[" + this.y + "]";
         //display.printDisplay();
     }
 
@@ -406,6 +407,9 @@ public class Decoder {
                     // draws pixel by flipping it
                     display.drawPixel(xx, yy);
                     pixels.draw(xx, yy);
+                    if (i < 8) { // over 8 pixels long sprites rare, also no room on ui for it
+                        pixels.drawSprite(j, i);
+                    }
                 }
             }
         }
@@ -650,12 +654,12 @@ public class Decoder {
     private void detailRegisterDump() {
         this.detailed = "Dumps registers from V[" + this.x + "] to V[" + this.y +
                 "].\nThese are dumped to ram pointed by\nindex register" +
-                "at locations starting\nat i, i+1, i+2 etc..";
+                " at locations starting\nat i, i+1, i+2 etc..";
     }
 
     private void detailRegisterFill() {
         this.detailed = "Fills registers from V[" + this.x + "] to V[" + this.y +
                 "].\nThese are filled from ram pointed by\nindex register" +
-                "at locations starting\nat i, i+1, i+2 etc..";
+                " at locations starting\nat i, i+1, i+2 etc..";
     }
 }

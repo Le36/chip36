@@ -11,12 +11,16 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +57,7 @@ public class Display extends Application {
 
         HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
-        HBox hbox = new HBox(35, hboxLeft, hboxRight);
+        HBox hbox = new HBox(115, hboxLeft, hboxRight);
         ToolBar toolBar = new ToolBar();
         toolBar.getItems().add(hbox);
         toolBar.getStylesheets().add("toolbar.css");
@@ -85,7 +89,16 @@ public class Display extends Application {
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
 
+
+        BorderPane spriteViewerPane = new BorderPane();
+        Canvas spriteCanvas = new Canvas(80, 80);
+        GraphicsContext spritePaint = spriteCanvas.getGraphicsContext2D();
+        spriteViewerPane.setTop(uiElements.makeLabel("Sprite\nviewer:", LabelType.TOOLBAR));
+        spriteViewerPane.setCenter(spriteCanvas);
+
         BorderPane bottomPane = new BorderPane();
+        bottomPane.setCenter(spriteViewerPane);
+
         TextArea hexDumpArea = uiElements.makeTextArea(520, 145);
         bottomPane.setRight(hexDumpArea);
 
@@ -94,10 +107,11 @@ public class Display extends Application {
 
         Canvas canvas = new Canvas(width, height);
         GraphicsContext paint = canvas.getGraphicsContext2D();
+
         BorderPane root = new BorderPane();
         root.setBackground(bg);
         root.setTop(toolBar);
-        root.setRight(canvas);
+        root.setCenter(canvas);
         root.setLeft(vbox);
         root.setBottom(bottomPane);
         Scene scene = new Scene(root);
@@ -116,6 +130,7 @@ public class Display extends Application {
             fileChosen = true;
             pixels.clearDisplay();
             hexDumpArea.setText(executer.getLoader().hexDump());
+            stage.setTitle("Chip8 Emulator | Loaded ROM: " + selectedFile.getName());
         });
 
         resetRom.setOnAction(e -> {
@@ -175,6 +190,9 @@ public class Display extends Application {
                     paint.setFill(Color.BLACK);
                     paint.fillRect(0, 0, width, height);
 
+                    spritePaint.setFill(Color.BLACK);
+                    spritePaint.fillRect(0, 0, 80, 80);
+
                     pixels.fade(); // fades all pixels that have been erased
 
                     // draws fading pixels
@@ -201,6 +219,17 @@ public class Display extends Application {
                         for (int y = 0; y < 64; y++) {
                             if (display[y][x]) {
                                 paint.fillRect(y * 10, x * 10, 10, 10);
+                            }
+                        }
+                    }
+
+                    // paints the current pixels for sprite viewer
+                    boolean[][] spriteViewer = pixels.getSpriteViewer();
+                    spritePaint.setFill(Color.rgb(25, 255, 0));
+                    for (int x = 0; x < 8; x++) {
+                        for (int y = 0; y < 8; y++) {
+                            if (spriteViewer[y][x]) {
+                                spritePaint.fillRect(y * 10, x * 10, 10, 10);
                             }
                         }
                     }
@@ -235,6 +264,10 @@ public class Display extends Application {
                         }
                         instructionList.getItems().add(base + instruction + " | " + il.getSeekString());
                         pc += 2;
+
+                        if (executer.getMemory().getDelayTimer() != 0) {
+                            Toolkit.getDefaultToolkit().beep();
+                        }
                     }
                 });
             }

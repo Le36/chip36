@@ -13,10 +13,11 @@ public class Executer {
     public Executer(String rom, PixelManager pixels, Keys keys) {
         this.memory = new Memory();
 
-        loader = new Loader(rom, memory);
+        this.loader = new Loader(rom, memory);
 
-        loader.readFile();
-        loader.loadToMemory();
+        this.loader.readFile();
+        this.loader.loadToMemory();
+        this.loader.loadFontToRAM();
 
         this.fetcher = new Fetcher(memory);
         this.decoder = new Decoder(memory, fetcher, pixels, keys);

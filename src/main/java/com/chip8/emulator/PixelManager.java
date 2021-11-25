@@ -13,6 +13,7 @@ public class PixelManager {
     private int y = 0;
     private boolean fade;
     private double fadeSpeed;
+    private boolean[][] spriteViewer;
 
     public PixelManager(int width, int height) {
         this.fadeMap = new HashMap<>();
@@ -25,6 +26,7 @@ public class PixelManager {
             }
         }
         this.display = new boolean[width][height];
+        this.spriteViewer = new boolean[8][16];
     }
 
     // generate fade for pixels that are turned off
@@ -58,6 +60,18 @@ public class PixelManager {
                 if (this.display[wid][hei]) {
                     this.draw(wid, hei);
                 }
+            }
+        }
+    }
+
+    public void drawSprite(int x, int y) {
+        this.spriteViewer[x][y] = true;
+    }
+
+    public void clearSprite() {
+        for(int i = 0; i < 8; i++) {
+            for (int j = 0; j < 16; j++) {
+                this.spriteViewer[i][j] = false;
             }
         }
     }

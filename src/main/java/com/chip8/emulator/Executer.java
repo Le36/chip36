@@ -24,11 +24,11 @@ public class Executer {
 
     public void execute() {
         fetcher.fetch();
-        decoder.decode(fetcher.getOpcode(), false);
+        decoder.decode(fetcher.getOpcode());
     }
 
     // used to testing
     public void forceOpcode(short opcode) {
-        decoder.decode(opcode, false);
+        decoder.decode(opcode);
     }
 }

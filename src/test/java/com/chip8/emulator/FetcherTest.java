@@ -35,7 +35,7 @@ public class FetcherTest {
         m.initializeMemory((short) 0x200, (byte) 0x6D);
         m.initializeMemory((short) 0x201, (byte) 0x0A);
         fetcher.fetch();
-        decoder.decode(fetcher.getOpcode(), false);
+        decoder.decode(fetcher.getOpcode());
         assertEquals(0x0A, m.getV()[0xD]);
         assertEquals(0x202, m.getPc());
     }

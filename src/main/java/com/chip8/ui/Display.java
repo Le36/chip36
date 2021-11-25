@@ -3,10 +3,8 @@ package com.chip8.ui;
 import com.chip8.emulator.Executer;
 import com.chip8.emulator.Keys;
 import com.chip8.emulator.PixelManager;
-import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -39,6 +37,7 @@ public class Display extends Application {
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
 
+        InstructionList il = new InstructionList();
         UiElements uiElements = new UiElements();
 
         Button selectRom = uiElements.makeButton("Select ROM");
@@ -152,86 +151,94 @@ public class Display extends Application {
             while (true) {
                 try {
                     Thread.sleep((long) gameSpeed);
-                    if (!pause.isSelected() && fileChosen) executer.execute();
+                    if (!pause.isSelected() && fileChosen) {
+                        int n = 1;
+                        if (gameSpeed < 5) {
+                            n = 4;
+                        } else if (gameSpeed < 20) {
+                            n = 3;
+                        } else if (gameSpeed < 50) {
+                            n = 2;
+                        }
+                        for (int i = 0; i < n; i++) {
+                            executer.execute();
+                        }
+                    }
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
                 Platform.runLater(() -> {
-                });
-            }
-        }).start();
+                    gameSpeed = slider.getValue();
+                    pixels.setFadeSpeed(fadeSlider.getValue());
 
-        new AnimationTimer() {
-            public void handle(long l) {
-                gameSpeed = slider.getValue();
-                pixels.setFadeSpeed(fadeSlider.getValue());
+                    // paints everything black every cycle
+                    paint.setFill(Color.BLACK);
+                    paint.fillRect(0, 0, width, height);
 
-                // paints everything black every cycle
-                paint.setFill(Color.BLACK);
-                paint.fillRect(0, 0, width, height);
+                    pixels.fade(); // fades all pixels that have been erased
 
-                pixels.fade(); // fades all pixels that have been erased
+                    // draws fading pixels
+                    if (!fadeButton.isSelected()) {
+                        HashMap<Integer, HashMap<Integer, Double>> fadeMap = pixels.getFadeMap();
+                        for (int x = 0; x < fadeMap.size(); x++) {
+                            for (int y = 0; y < fadeMap.get(x).size(); y++) {
+                                if (fadeMap.get(x).get(y) > 0.0) {
+                                    double fading = Math.min(0.95, fadeMap.get(x).get(y));
 
-                // draws fading pixels
-                if (!fadeButton.isSelected()) {
-                    HashMap<Integer, HashMap<Integer, Double>> fadeMap = pixels.getFadeMap();
-                    for (int x = 0; x < fadeMap.size(); x++) {
-                        for (int y = 0; y < fadeMap.get(x).size(); y++) {
-                            if (fadeMap.get(x).get(y) > 0.0) {
-                                double fading = Math.min(0.95, fadeMap.get(x).get(y));
+                                    Color color = new Color(fading, fading, fading, 1);
 
-                                Color color = new Color(fading, fading, fading, 1);
-
-                                paint.setFill(color);
-                                paint.fillRect(x * 10, y * 10, 10, 10);
+                                    paint.setFill(color);
+                                    paint.fillRect(x * 10, y * 10, 10, 10);
+                                }
                             }
                         }
                     }
-                }
 
-                // paints the current pixels that are actually on
-                boolean[][] display = pixels.getDisplay();
-                paint.setFill(Color.WHITE);
-                for (int x = 0; x < 32; x++) {
-                    for (int y = 0; y < 64; y++) {
-                        if (display[y][x]) {
-                            paint.fillRect(y * 10, x * 10, 10, 10);
+                    // paints the current pixels that are actually on
+                    boolean[][] display = pixels.getDisplay();
+                    paint.setFill(Color.WHITE);
+                    for (int x = 0; x < 32; x++) {
+                        for (int y = 0; y < 64; y++) {
+                            if (display[y][x]) {
+                                paint.fillRect(y * 10, x * 10, 10, 10);
+                            }
                         }
                     }
-                }
 
-                if (!fileChosen) return;
+                    if (!fileChosen) return;
 
-                currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
-                indexRegister.setText("Index register: 0x" + Integer.toHexString((executer.getMemory().getI() & 0xFFFF)).toUpperCase());
-                programCounter.setText("Program counter: 0x" + Integer.toHexString((executer.getMemory().getPc() & 0xFFFF)).toUpperCase());
-                delayTimer.setText("Delay timer: 0x" + Integer.toHexString((executer.getMemory().getDelayTimer() & 0xFF)).toUpperCase());
+                    currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
+                    indexRegister.setText("Index register: 0x" + Integer.toHexString((executer.getMemory().getI() & 0xFFFF)).toUpperCase());
+                    programCounter.setText("Program counter: 0x" + Integer.toHexString((executer.getMemory().getPc() & 0xFFFF)).toUpperCase());
+                    delayTimer.setText("Delay timer: 0x" + Integer.toHexString((executer.getMemory().getDelayTimer() & 0xFF)).toUpperCase());
 
-                for (int i = 0; i < 16; i++) {
-                    registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
-                }
-
-                currentDetailed.setText(executer.getDecoder().getDetailed());
-
-                instructionList.getItems().clear();
-                short pc = executer.getMemory().getPc();
-                for (int i = 0; i < 7; i++) {
-                    short opcode = executer.getFetcher().seek(pc);
-                    executer.getDecoder().decode(opcode, true);
-                    String instruction = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
-                    String base = "0x";
-                    if (instruction.length() == 1) {
-                        base = "0x000";
-                    } else if (instruction.length() == 2) {
-                        base = "0x00";
-                    } else if (instruction.length() == 3) {
-                        base = "0x0";
+                    for (int i = 0; i < 16; i++) {
+                        registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
                     }
-                    instructionList.getItems().add(base + instruction + " | " + executer.getDecoder().getSeekString());
-                    pc += 2;
-                }
+
+                    currentDetailed.setText(executer.getDecoder().getDetailed());
+
+
+                    instructionList.getItems().clear();
+                    short pc = executer.getMemory().getPc();
+                    for (int i = 0; i < 7; i++) {
+                        short opcode = executer.getFetcher().seek(pc);
+                        il.seek(opcode);
+                        String instruction = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
+                        String base = "0x";
+                        if (instruction.length() == 1) {
+                            base = "0x000";
+                        } else if (instruction.length() == 2) {
+                            base = "0x00";
+                        } else if (instruction.length() == 3) {
+                            base = "0x0";
+                        }
+                        instructionList.getItems().add(base + instruction + " | " + il.getSeekString());
+                        pc += 2;
+                    }
+                });
             }
-        }.start();
+        }).start();
 
         stage.show();
     }

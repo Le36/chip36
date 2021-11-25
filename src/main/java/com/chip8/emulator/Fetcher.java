@@ -17,7 +17,7 @@ public class Fetcher {
     public void fetch() {
         this.opcode = (short) (((m.getRam()[m.getPc()] << 8) & 0xFF00) | (m.getRam()[m.getPc() + 1] & 0x00FF));
         this.incrementPC();
-        m.timerDecrement();
+        this.timerDecrement();
     }
 
     public short seek(short pc) {
@@ -31,4 +31,17 @@ public class Fetcher {
     public void decrementPC() {
         m.setPc((short) (m.getPc() - 2));
     }
+
+
+    public void timerDecrement() {
+        if (Byte.toUnsignedInt(m.getDelayTimer()) > 0) {
+            m.setDelayTimer((byte) (m.getDelayTimer() - 1));
+        }
+        if (Byte.toUnsignedInt(m.getDelayTimer()) > 0) {
+            m.setSoundTimer((byte) (m.getSoundTimer() - 1));
+        }
+    }
+
 }
+
+

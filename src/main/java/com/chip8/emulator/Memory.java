@@ -23,15 +23,6 @@ public class Memory {
         this.stack = new ArrayDeque<>();
     }
 
-    public void timerDecrement() {
-        if (Byte.toUnsignedInt(delayTimer) > 0) {
-            delayTimer--;
-        }
-        if (Byte.toUnsignedInt(soundTimer) > 0) {
-            this.soundTimer--;
-        }
-    }
-
     public void initializeMemory(short address, byte b) {
         this.ram[address] = b;
     }

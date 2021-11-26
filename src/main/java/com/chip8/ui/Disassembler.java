@@ -1,11 +1,13 @@
 package com.chip8.ui;
 
+import com.chip8.emulator.Fetcher;
+import javafx.scene.control.ListView;
 import lombok.Data;
 
 import static java.lang.Integer.toHexString;
 
 @Data
-public class InstructionList {
+public class Disassembler extends ListView {
 
     private String seekString;
     private String x;
@@ -13,7 +15,26 @@ public class InstructionList {
     private String nnn;
     private String nn;
 
-    public void seek(short opcode) {
+    public void update(short pc, Fetcher f) {
+        this.getItems().clear();
+        for (int i = 0; i < 7; i++) {
+            short opcode = f.seek(pc);
+            this.seek(opcode);
+            String instruction = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
+            String base = "0x";
+            if (instruction.length() == 1) {
+                base = "0x000";
+            } else if (instruction.length() == 2) {
+                base = "0x00";
+            } else if (instruction.length() == 3) {
+                base = "0x0";
+            }
+            this.getItems().add(base + instruction + " | " + this.getSeekString());
+            pc += 2;
+        }
+    }
+
+    private void seek(short opcode) {
         this.x = toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase();
         this.y = toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase();
         this.nnn = toHexString(((opcode & 0x0FFF) & 0xFFF)).toUpperCase();

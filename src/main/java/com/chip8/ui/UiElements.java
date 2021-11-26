@@ -63,16 +63,16 @@ public class UiElements {
         return textArea;
     }
 
-    public ListView makeListView() {
-        ListView listView = new ListView();
-        listView.getStylesheets().add("instruction-list.css");
-        listView.setEditable(false);
+    public Disassembler makeDisassembler() {
+        Disassembler disassembler = new Disassembler();
+        disassembler.getStylesheets().add("disassembler.css");
+        disassembler.setEditable(false);
         if (!os.startsWith("Windows")) {
-            listView.setPrefSize(460, 165);
+            disassembler.setPrefSize(460, 165);
         } else {
-            listView.setPrefSize(440, 145);
+            disassembler.setPrefSize(440, 145);
         }
-        return listView;
+        return disassembler;
     }
 
 }

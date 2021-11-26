@@ -2,7 +2,6 @@ package com.chip8.emulator;
 
 import lombok.Data;
 
-import java.time.Instant;
 
 @Data
 public class Fetcher {

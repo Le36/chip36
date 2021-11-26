@@ -210,13 +210,13 @@ public class DecodeDetails {
     }
 
     public String detailRegisterDump() {
-        return "Dumps registers from V[" + this.x + "] to V[" + this.y +
+        return "Dumps registers from V[0] to V[" + this.x +
                 "].\nThese are dumped to ram pointed by\nindex register" +
                 " at locations starting\nat i, i+1, i+2 etc..";
     }
 
     public String detailRegisterFill() {
-        return "Fills registers from V[" + this.x + "] to V[" + this.y +
+        return "Fills registers from V[0] to V[" + this.x +
                 "].\nThese are filled from ram pointed by\nindex register" +
                 " at locations starting\nat i, i+1, i+2 etc..";
     }

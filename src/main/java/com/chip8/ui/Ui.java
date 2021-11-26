@@ -18,7 +18,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -37,8 +36,9 @@ public class Ui extends Application {
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
 
-        InstructionList il = new InstructionList();
         UiElements uiElements = new UiElements();
+
+        Disassembler disassembler = uiElements.makeDisassembler();
 
         Button selectRom = uiElements.makeButton("Select ROM");
         Button resetRom = uiElements.makeButton("Reset ROM");
@@ -97,8 +97,7 @@ public class Ui extends Application {
         TextArea hexDumpArea = uiElements.makeTextArea(520, 145);
         bottomPane.setRight(hexDumpArea);
 
-        ListView instructionList = uiElements.makeListView();
-        bottomPane.setLeft(instructionList);
+        bottomPane.setLeft(disassembler);
 
         RomDisplay romDisplay = new RomDisplay(pixels, width, height);
 
@@ -181,7 +180,8 @@ public class Ui extends Application {
                     if (!fileChosen) return;
 
                     updateLabels(currentInstruction, indexRegister, programCounter, delayTimer, registerLabels, currentDetailed);
-                    instructionListHandler(il, instructionList);
+
+                    disassembler.update(executer.getMemory().getPc(), executer.getFetcher());
 
                     if (executer.getMemory().getDelayTimer() != 0) {
                         // implement sound here
@@ -202,26 +202,6 @@ public class Ui extends Application {
             registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
         }
         currentDetailed.setText(executer.getDecoder().getDetailed());
-    }
-
-    private void instructionListHandler(InstructionList il, ListView instructionList) {
-        instructionList.getItems().clear();
-        short pc = executer.getMemory().getPc();
-        for (int i = 0; i < 7; i++) {
-            short opcode = executer.getFetcher().seek(pc);
-            il.seek(opcode);
-            String instruction = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
-            String base = "0x";
-            if (instruction.length() == 1) {
-                base = "0x000";
-            } else if (instruction.length() == 2) {
-                base = "0x00";
-            } else if (instruction.length() == 3) {
-                base = "0x0";
-            }
-            instructionList.getItems().add(base + instruction + " | " + il.getSeekString());
-            pc += 2;
-        }
     }
 
     public static void main(String[] args) {

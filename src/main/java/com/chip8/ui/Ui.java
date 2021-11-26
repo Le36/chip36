@@ -33,7 +33,6 @@ public class Ui extends Application {
 
     public void start(Stage stage) {
         stage.setTitle("Chip8 Emulator");
-        this.gameSpeed = 1000;
         PixelManager pixels = new PixelManager(64, 32);
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
@@ -48,7 +47,7 @@ public class Ui extends Application {
         ToggleButton fadeButton = uiElements.makeToggleButton("Fade On");
 
         Slider fadeSlider = uiElements.makeSlider(0.0001, 0.3, 0.1);
-        Slider slider = uiElements.makeSlider(1, 100, 20);
+        Slider slider = uiElements.makeSlider(1, 20, 1);
         Label gameSpeedLabel = uiElements.makeLabel("ROM Speed: ", LabelType.TOOLBAR);
         Label fadeSpeedLabel = uiElements.makeLabel("Fade Speed: ", LabelType.TOOLBAR);
 
@@ -160,17 +159,9 @@ public class Ui extends Application {
         new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep((long) gameSpeed);
+                    Thread.sleep(1);
                     if (!pause.isSelected() && fileChosen) {
-                        int n = 1;
-                        if (gameSpeed < 5) {
-                            n = 4;
-                        } else if (gameSpeed < 20) {
-                            n = 3;
-                        } else if (gameSpeed < 50) {
-                            n = 2;
-                        }
-                        for (int i = 0; i < n; i++) {
+                        for (int i = 0; i < gameSpeed; i++) {
                             executer.execute();
                         }
                     }

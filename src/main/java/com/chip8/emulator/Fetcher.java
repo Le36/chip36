@@ -2,14 +2,18 @@ package com.chip8.emulator;
 
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 public class Fetcher {
 
     private short opcode;
     private Memory m;
+    private long currentTime;
 
     public Fetcher(Memory memory) {
         this.m = memory;
+        this.currentTime = 0;
     }
 
     // fetches the opcode with PC, increments PC after
@@ -33,7 +37,15 @@ public class Fetcher {
     }
 
 
+    /**
+     * Accurate timers that are 60 hz just like in the original
+     */
     public void timerDecrement() {
+        if (currentTime + 17 < System.currentTimeMillis()) {
+            currentTime = System.currentTimeMillis();
+        } else {
+            return;
+        }
         if (Byte.toUnsignedInt(m.getDelayTimer()) > 0) {
             m.setDelayTimer((byte) (m.getDelayTimer() - 1));
         }

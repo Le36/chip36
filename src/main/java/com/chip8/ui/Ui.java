@@ -32,12 +32,14 @@ public class Ui extends Application {
     private double gameSpeed;
     final int width = 640;
     final int height = 320;
+    private boolean soundPlaying;
 
     public void start(Stage stage) {
         stage.setTitle("Chip8 Emulator");
         PixelManager pixels = new PixelManager(64, 32);
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
+        soundPlaying = false;
 
         UiElements uiElements = new UiElements();
 
@@ -193,11 +195,13 @@ public class Ui extends Application {
 
                     disassembler.update(executer.getMemory().getPc(), executer.getFetcher());
 
-                    if (executer.getMemory().getSoundTimer() != (byte) 0x0) {
+                    if (executer.getMemory().getSoundTimer() != (byte) 0x0 && !soundPlaying) {
                         // implement sound here
                         mediaPlayer.play();
+                        soundPlaying = true;
                     } else {
                         mediaPlayer.stop();
+                        soundPlaying = false;
                     }
                 });
             }

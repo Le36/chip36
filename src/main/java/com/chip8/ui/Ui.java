@@ -96,10 +96,11 @@ public class Ui extends Application {
 
         TextArea hexDumpArea = uiElements.makeTextArea(520, 145);
         bottomPane.setRight(hexDumpArea);
-
         bottomPane.setLeft(disassembler);
 
         RomDisplay romDisplay = new RomDisplay(pixels, width, height);
+
+        Keyboard keyboard = new Keyboard(keys);
 
         BorderPane root = new BorderPane();
         root.setBackground(bg);
@@ -107,6 +108,7 @@ public class Ui extends Application {
         root.setCenter(romDisplay);
         root.setLeft(vbox);
         root.setBottom(bottomPane);
+        root.setRight(keyboard);
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.sizeToScene();

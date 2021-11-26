@@ -14,11 +14,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Ui extends Application {
@@ -61,7 +64,8 @@ public class Ui extends Application {
         Label currentInstruction = uiElements.makeLabel("Current Instruction: 0x0", LabelType.LABEL);
         Label indexRegister = uiElements.makeLabel("Index Register: 0x0", LabelType.LABEL);
         Label programCounter = uiElements.makeLabel("Program Counter: 0x0", LabelType.LABEL);
-        Label delayTimer = uiElements.makeLabel("Delay Timer: 0x0", LabelType.LABEL);
+        Label delayTimer = uiElements.makeLabel("Delay Timer: 0x0", LabelType.TOOLBAR);
+        Label soundTimer = uiElements.makeLabel("Sound Timer: 0x0", LabelType.TOOLBAR);
 
         GridPane registers = new GridPane();
         ArrayList<Label> registerLabels = new ArrayList<>();
@@ -83,7 +87,7 @@ public class Ui extends Application {
         TextArea currentDetailed = uiElements.makeTextArea(290, 105);
 
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
-        VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
+        VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, soundTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
 
 
         BorderPane spriteViewerPane = new BorderPane();
@@ -157,6 +161,10 @@ public class Ui extends Application {
             }
         });
 
+        URL path = getClass().getClassLoader().getResource("beep.mp3");
+        Media beep = new Media(path.toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(beep);
+
         new Thread(() -> {
             while (true) {
                 try {
@@ -181,12 +189,15 @@ public class Ui extends Application {
 
                     if (!fileChosen) return;
 
-                    updateLabels(currentInstruction, indexRegister, programCounter, delayTimer, registerLabels, currentDetailed);
+                    updateLabels(currentInstruction, indexRegister, programCounter, delayTimer, soundTimer, registerLabels, currentDetailed);
 
                     disassembler.update(executer.getMemory().getPc(), executer.getFetcher());
 
-                    if (executer.getMemory().getDelayTimer() != 0) {
+                    if (executer.getMemory().getSoundTimer() != (byte) 0x0) {
                         // implement sound here
+                        mediaPlayer.play();
+                    } else {
+                        mediaPlayer.stop();
                     }
                 });
             }
@@ -195,11 +206,12 @@ public class Ui extends Application {
         stage.show();
     }
 
-    private void updateLabels(Label currentInstruction, Label indexRegister, Label programCounter, Label delayTimer, ArrayList<Label> registerLabels, TextArea currentDetailed) {
+    private void updateLabels(Label currentInstruction, Label indexRegister, Label programCounter, Label delayTimer, Label soundTimer, ArrayList<Label> registerLabels, TextArea currentDetailed) {
         currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
         indexRegister.setText("Index register: 0x" + Integer.toHexString((executer.getMemory().getI() & 0xFFFF)).toUpperCase());
         programCounter.setText("Program counter: 0x" + Integer.toHexString((executer.getMemory().getPc() & 0xFFFF)).toUpperCase());
-        delayTimer.setText("Delay timer: 0x" + Integer.toHexString((executer.getMemory().getDelayTimer() & 0xFF)).toUpperCase());
+        delayTimer.setText("Delay Timer: 0x" + Integer.toHexString((executer.getMemory().getDelayTimer() & 0xFF)).toUpperCase());
+        soundTimer.setText("Sound Timer: 0x" + Integer.toHexString((executer.getMemory().getSoundTimer() & 0xFF)).toUpperCase());
         for (int i = 0; i < 16; i++) {
             registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
         }

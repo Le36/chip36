@@ -15,6 +15,7 @@ public class DecoderTest {
     @Before
     public void setUp() {
         this.m = new Memory();
+        new Loader("noFileHere", m).loadFontToRAM();
         this.fetcher = new Fetcher(m);
         this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1), new Keys());
     }

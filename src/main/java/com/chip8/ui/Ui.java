@@ -184,7 +184,7 @@ public class Ui extends Application {
                     instructionListHandler(il, instructionList);
 
                     if (executer.getMemory().getDelayTimer() != 0) {
-                        Toolkit.getDefaultToolkit().beep();
+                        // implement sound here
                     }
                 });
             }

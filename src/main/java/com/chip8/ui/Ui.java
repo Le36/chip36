@@ -38,6 +38,8 @@ public class Ui extends Application {
         PixelManager pixels = new PixelManager(64, 32);
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
+        Border border = new Border(new BorderStroke(Color.rgb(35, 255, 0),
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
 
         UiElements uiElements = new UiElements();
 
@@ -60,6 +62,7 @@ public class Ui extends Application {
         ToolBar toolBar = new ToolBar();
         toolBar.getItems().add(hbox);
         toolBar.getStylesheets().add("toolbar.css");
+        toolBar.setBorder(border);
 
         Label currentInstruction = uiElements.makeLabel("Current Instruction: 0x0", LabelType.LABEL);
         Label indexRegister = uiElements.makeLabel("Index Register: 0x0", LabelType.LABEL);
@@ -80,6 +83,7 @@ public class Ui extends Application {
             }
         }
 
+        registers.setBorder(border);
         registers.setHgap(5);
         registers.setVgap(5);
         registers.setMinSize(10.0, 10.0);
@@ -88,14 +92,16 @@ public class Ui extends Application {
 
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, soundTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
-
+        vbox.setBorder(border);
 
         BorderPane spriteViewerPane = new BorderPane();
         SpriteDisplay spriteDisplay = new SpriteDisplay(pixels);
         spriteViewerPane.setTop(uiElements.makeLabel("Sprite\nviewer:", LabelType.TOOLBAR));
         spriteViewerPane.setCenter(spriteDisplay);
+        spriteViewerPane.setBorder(border);
 
         BorderPane bottomPane = new BorderPane();
+        bottomPane.setBorder(border);
         bottomPane.setCenter(spriteViewerPane);
 
         TextArea hexDumpArea = uiElements.makeTextArea(520, 145);
@@ -105,6 +111,7 @@ public class Ui extends Application {
         RomDisplay romDisplay = new RomDisplay(pixels, width, height);
 
         Keyboard keyboard = new Keyboard(keys);
+        keyboard.setBorder(border);
 
         BorderPane root = new BorderPane();
         root.setBackground(bg);
@@ -113,6 +120,7 @@ public class Ui extends Application {
         root.setLeft(vbox);
         root.setBottom(bottomPane);
         root.setRight(keyboard);
+        root.setBorder(border);
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.sizeToScene();

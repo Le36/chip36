@@ -21,7 +21,7 @@ public class SpriteDisplay extends Canvas {
         painter.setFill(Color.BLACK);
         painter.fillRect(0, 0, 80, 80);
         boolean[][] spriteViewer = pixels.getSpriteViewer();
-        painter.setFill(Color.rgb(25, 255, 0));
+        painter.setFill(Color.rgb(35, 255, 0));
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
                 if (spriteViewer[y][x]) {

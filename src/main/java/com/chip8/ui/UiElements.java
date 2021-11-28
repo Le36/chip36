@@ -75,4 +75,11 @@ public class UiElements {
         return disassembler;
     }
 
+    public TextField makeTextField() {
+        TextField textField = new TextField();
+        textField.getStylesheets().add("text-field.css");
+        textField.setPrefSize(50, 20);
+        return textField;
+    }
+
 }

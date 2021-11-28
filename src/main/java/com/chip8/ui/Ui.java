@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -91,12 +92,12 @@ public class Ui extends Application {
         TextArea currentDetailed = uiElements.makeTextArea(290, 105);
 
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
-        VBox vbox = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, soundTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
-        vbox.setBorder(border);
+        VBox vboxLeft = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, soundTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
+        vboxLeft.setBorder(border);
 
         BorderPane spriteViewerPane = new BorderPane();
         SpriteDisplay spriteDisplay = new SpriteDisplay(pixels);
-        spriteViewerPane.setTop(uiElements.makeLabel("Sprite\nviewer:", LabelType.TOOLBAR));
+        spriteViewerPane.setTop(uiElements.makeLabel("Sprite viewer:", LabelType.TOOLBAR));
         spriteViewerPane.setCenter(spriteDisplay);
         spriteViewerPane.setBorder(border);
 
@@ -111,15 +112,30 @@ public class Ui extends Application {
         RomDisplay romDisplay = new RomDisplay(pixels, width, height);
 
         Keyboard keyboard = new Keyboard(keys);
-        keyboard.setBorder(border);
+        VBox vBoxKeyboard = new VBox(5, uiElements.makeLabel("Keyboard:", LabelType.TOOLBAR), keyboard);
+        vBoxKeyboard.setBorder(border);
+        vBoxKeyboard.setPrefSize(130, 140);
+
+        TextField forceOpcodeText = uiElements.makeTextField();
+        forceOpcodeText.setText("0x0000");
+        Button forceOpcodeButton = uiElements.makeButton("Force opcode");
+        VBox vBoxForceOpcode = new VBox(5, uiElements.makeLabel("Force opcode:", LabelType.TOOLBAR), forceOpcodeText, forceOpcodeButton);
+        vBoxForceOpcode.setAlignment(Pos.CENTER_LEFT);
+        vBoxForceOpcode.setBorder(border);
+        vBoxForceOpcode.setPrefSize(130, 60);
+
+        BorderPane rightSide = new BorderPane();
+        rightSide.setTop(vBoxKeyboard);
+        rightSide.setLeft(vBoxForceOpcode);
+        rightSide.setBorder(border);
 
         BorderPane root = new BorderPane();
         root.setBackground(bg);
         root.setTop(toolBar);
         root.setCenter(romDisplay);
-        root.setLeft(vbox);
+        root.setLeft(vboxLeft);
         root.setBottom(bottomPane);
-        root.setRight(keyboard);
+        root.setRight(rightSide);
         root.setBorder(border);
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -166,6 +182,15 @@ public class Ui extends Application {
             } else {
                 fadeButton.setText("Fade Off");
                 pixels.setFade(false);
+            }
+        });
+
+        forceOpcodeButton.setOnAction(e -> {
+            if (selectedFile == null) return;
+            if (forceOpcodeText.getText().matches("0x[0-9A-Fa-f]{4}")) {
+                executer.forceOpcode(Short.decode(forceOpcodeText.getText()));
+            } else {
+                forceOpcodeText.setText("Bad format");
             }
         });
 

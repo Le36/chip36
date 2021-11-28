@@ -28,7 +28,6 @@ public class Executer {
         decoder.decode(fetcher.getOpcode());
     }
 
-    // used to testing
     public void forceOpcode(short opcode) {
         decoder.decode(opcode);
     }

@@ -1,6 +1,7 @@
 package com.chip8.ui;
 
 import com.chip8.emulator.Keys;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 
@@ -19,6 +20,7 @@ public class Keyboard extends GridPane {
         this.setVgap(5);
         addButtonsToPane();
         keyboardEvents();
+        this.setAlignment(Pos.CENTER);
     }
 
     private void keyboardEvents() {

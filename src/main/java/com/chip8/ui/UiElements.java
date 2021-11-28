@@ -1,5 +1,6 @@
 package com.chip8.ui;
 
+import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 
 public class UiElements {
@@ -35,9 +36,9 @@ public class UiElements {
             case LABEL:
                 label.getStylesheets().add("labels.css");
                 if (!os.startsWith("Windows")) {
-                    label.setMinSize(340, 20);
+                    label.setMinSize(340, 10);
                 } else {
-                    label.setMinSize(290, 20);
+                    label.setMinSize(290, 10);
                 }
                 return label;
             case TOOLBAR:
@@ -82,4 +83,15 @@ public class UiElements {
         return textField;
     }
 
+    public CheckBox makeCheckBox(String s) {
+        CheckBox checkBox = new CheckBox(s);
+        checkBox.getStylesheets().add("checkbox.css");
+        return checkBox;
+    }
+
+    public Separator separator() {
+        Separator sep = new Separator(Orientation.HORIZONTAL);
+        sep.getStylesheets().add("separator.css");
+        return sep;
+    }
 }

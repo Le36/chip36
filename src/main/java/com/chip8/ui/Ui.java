@@ -90,9 +90,8 @@ public class Ui extends Application {
         registers.setMinSize(10.0, 10.0);
 
         TextArea currentDetailed = uiElements.makeTextArea(290, 105);
-
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
-        VBox vboxLeft = new VBox(currentInstruction, new Separator(Orientation.HORIZONTAL), indexRegister, new Separator(Orientation.HORIZONTAL), programCounter, new Separator(Orientation.HORIZONTAL), delayTimer, soundTimer, new Separator(Orientation.HORIZONTAL), registers, currentDetailed);
+        VBox vboxLeft = new VBox(currentInstruction, uiElements.separator(), indexRegister, uiElements.separator(), programCounter, uiElements.separator(), delayTimer, soundTimer, registers, currentDetailed);
         vboxLeft.setBorder(border);
 
         BorderPane spriteViewerPane = new BorderPane();
@@ -122,18 +121,21 @@ public class Ui extends Application {
         VBox vBoxForceOpcode = new VBox(5, uiElements.makeLabel("Force opcode:", LabelType.TOOLBAR), forceOpcodeText, forceOpcodeButton);
         vBoxForceOpcode.setAlignment(Pos.CENTER_LEFT);
         vBoxForceOpcode.setBorder(border);
-        vBoxForceOpcode.setPrefSize(130, 60);
+        vBoxForceOpcode.setPrefSize(130, 50);
 
         TextField stepText = uiElements.makeTextField();
-
+        stepText.setEditable(false);
         stepText.setText("2");
         Button stepButton = uiElements.makeButton("Step");
-        Button skipButton = uiElements.makeButton("Skip");
+        Button skipButton = uiElements.makeButton("Skip one");
+        Button stepPlus = uiElements.makeButton("+");
+        Button stepMinus = uiElements.makeButton("-");
+        CheckBox ignoreDelay = uiElements.makeCheckBox("Ignore delay");
 
-        VBox vBoxStepControl = new VBox(5, uiElements.makeLabel("Step control:", LabelType.TOOLBAR), stepText, new HBox(5, stepButton, skipButton));
+        VBox vBoxStepControl = new VBox(5, uiElements.makeLabel("Step control:", LabelType.TOOLBAR), new HBox(5, stepText, stepPlus, stepMinus), new HBox(5, stepButton, skipButton), ignoreDelay);
         vBoxStepControl.setAlignment(Pos.CENTER_LEFT);
         vBoxStepControl.setBorder(border);
-        vBoxStepControl.setPrefSize(130, 90);
+        vBoxStepControl.setPrefSize(130, 100);
 
         BorderPane rightSide = new BorderPane();
         rightSide.setTop(vBoxKeyboard);
@@ -197,12 +199,36 @@ public class Ui extends Application {
             }
         });
 
+        forceOpcodeButton.setOnAction(e -> {
+            if (selectedFile == null) return;
+            if (forceOpcodeText.getText().matches("0x[0-9A-Fa-f]{4}")) {
+                executer.forceOpcode(Short.decode(forceOpcodeText.getText()));
+            } else {
+                forceOpcodeText.setText("Bad format");
+            }
+        });
+
         stepButton.setOnAction(e -> {
             if (selectedFile == null) return;
-            if (stepText.getText().matches("0x[0-9A-Fa-f]{4}")) {
-                executer.forceOpcode(Short.decode(stepText.getText()));
-            } else {
-                stepText.setText("Bad format");
+            for (int i = 0; i < Integer.parseInt(stepText.getText()); i++) {
+                executer.execute();
+            }
+        });
+
+        skipButton.setOnAction(e -> {
+            if (selectedFile == null) return;
+            executer.getFetcher().incrementPC();
+        });
+
+        stepMinus.setOnAction(e -> {
+            if (Integer.parseInt(stepText.getText()) != 0) {
+                stepText.setText(String.valueOf(Integer.parseInt(stepText.getText()) - 1));
+            }
+        });
+
+        stepPlus.setOnAction(e -> {
+            if (Integer.parseInt(stepText.getText()) != 100) {
+                stepText.setText(String.valueOf(Integer.parseInt(stepText.getText()) + 1));
             }
         });
 
@@ -241,6 +267,10 @@ public class Ui extends Application {
                     if (executer.getMemory().getSoundTimer() != (byte) 0x0) {
                         mediaPlayer.stop();
                         mediaPlayer.play();
+                    }
+
+                    if (ignoreDelay.isSelected()) {
+                        executer.getMemory().setDelayTimer((byte) 0);
                     }
                 });
             }

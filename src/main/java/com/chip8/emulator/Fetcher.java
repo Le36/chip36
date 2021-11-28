@@ -48,7 +48,7 @@ public class Fetcher {
         if (Byte.toUnsignedInt(m.getDelayTimer()) > 0) {
             m.setDelayTimer((byte) (m.getDelayTimer() - 1));
         }
-        if (Byte.toUnsignedInt(m.getDelayTimer()) > 0) {
+        if (Byte.toUnsignedInt(m.getSoundTimer()) > 0) {
             m.setSoundTimer((byte) (m.getSoundTimer() - 1));
         }
     }

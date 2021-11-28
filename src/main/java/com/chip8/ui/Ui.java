@@ -59,7 +59,7 @@ public class Ui extends Application {
 
         HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
-        HBox hbox = new HBox(115, hboxLeft, hboxRight);
+        HBox hbox = new HBox(165, hboxLeft, hboxRight);
         ToolBar toolBar = new ToolBar();
         toolBar.getItems().add(hbox);
         toolBar.getStylesheets().add("toolbar.css");
@@ -227,9 +227,8 @@ public class Ui extends Application {
                     disassembler.update(executer.getMemory().getPc(), executer.getFetcher());
 
                     if (executer.getMemory().getSoundTimer() != (byte) 0x0) {
-                        mediaPlayer.play();
-                    } else {
                         mediaPlayer.stop();
+                        mediaPlayer.play();
                     }
                 });
             }

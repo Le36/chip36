@@ -387,9 +387,7 @@ public class Decoder {
                     // draws pixel by flipping it
                     display.drawPixel(xx, yy);
                     pixels.draw(xx, yy);
-                    if (i < 8) { // over 8 pixels long sprites rare, also no room on ui for it
-                        pixels.drawSprite(j, i);
-                    }
+                    pixels.drawSprite(j, i);
                 }
             }
         }

@@ -105,7 +105,7 @@ public class Ui extends Application {
         bottomPane.setBorder(border);
         bottomPane.setCenter(spriteViewerPane);
 
-        TextArea hexDumpArea = uiElements.makeTextArea(520, 145);
+        TextArea hexDumpArea = uiElements.makeTextArea(520, 183);
         bottomPane.setRight(hexDumpArea);
         bottomPane.setLeft(disassembler);
 
@@ -124,9 +124,21 @@ public class Ui extends Application {
         vBoxForceOpcode.setBorder(border);
         vBoxForceOpcode.setPrefSize(130, 60);
 
+        TextField stepText = uiElements.makeTextField();
+
+        stepText.setText("2");
+        Button stepButton = uiElements.makeButton("Step");
+        Button skipButton = uiElements.makeButton("Skip");
+
+        VBox vBoxStepControl = new VBox(5, uiElements.makeLabel("Step control:", LabelType.TOOLBAR), stepText, new HBox(5, stepButton, skipButton));
+        vBoxStepControl.setAlignment(Pos.CENTER_LEFT);
+        vBoxStepControl.setBorder(border);
+        vBoxStepControl.setPrefSize(130, 90);
+
         BorderPane rightSide = new BorderPane();
         rightSide.setTop(vBoxKeyboard);
         rightSide.setLeft(vBoxForceOpcode);
+        rightSide.setBottom(vBoxStepControl);
         rightSide.setBorder(border);
 
         BorderPane root = new BorderPane();
@@ -185,12 +197,12 @@ public class Ui extends Application {
             }
         });
 
-        forceOpcodeButton.setOnAction(e -> {
+        stepButton.setOnAction(e -> {
             if (selectedFile == null) return;
-            if (forceOpcodeText.getText().matches("0x[0-9A-Fa-f]{4}")) {
-                executer.forceOpcode(Short.decode(forceOpcodeText.getText()));
+            if (stepText.getText().matches("0x[0-9A-Fa-f]{4}")) {
+                executer.forceOpcode(Short.decode(stepText.getText()));
             } else {
-                forceOpcodeText.setText("Bad format");
+                stepText.setText("Bad format");
             }
         });
 

@@ -68,9 +68,9 @@ public class UiElements {
         disassembler.getStylesheets().add("disassembler.css");
         disassembler.setEditable(false);
         if (!os.startsWith("Windows")) {
-            disassembler.setPrefSize(460, 165);
+            disassembler.setPrefSize(460, 203);
         } else {
-            disassembler.setPrefSize(440, 145);
+            disassembler.setPrefSize(440, 183);
         }
         return disassembler;
     }

@@ -1,8 +1,14 @@
-# CHIP8 Emulator made with Java #
+# CHIP-8 Emulator made with Java #
 
-Very good emulator
+Very good emulator / interpreter. Currently runs everything made for CHIP-8 instruction set.
+Lots of different features, great tool for learning CHIP-8 or making games for it.
 
 ![Emu](/misc/emul.png)
+
+Quite cool feature is the fact that this emulator tries to remove some of the
+typical stutter and flicker CHIP-8 has by fading pixels rather than turning them
+straight off. The effect works great but has to be adjusted for each rom to get
+the best possible result.
 
 ![Emulator](/misc/emulator.gif)
 
@@ -40,4 +46,10 @@ Checkstyle report
 
 ```
 mvn jxr:jxr checkstyle:checkstyle
+```
+
+Generate JavaDoc with
+
+```
+mvn javadoc:javadoc
 ```

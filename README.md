@@ -2,6 +2,10 @@
 
 Very good emulator
 
+![Emu](/misc/emul.png)
+
+![Emulator](/misc/emulator.gif)
+
 ## How to run ##
 
 ### Start

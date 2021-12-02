@@ -28,7 +28,7 @@ public class Executer {
         decoder.decode(fetcher.getOpcode());
     }
 
-    public void forceOpcode(short opcode) {
-        decoder.decode(opcode);
+    public void forceOpcode(int opcode) {
+        decoder.decode((short) opcode);
     }
 }

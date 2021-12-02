@@ -202,7 +202,7 @@ public class Ui extends Application {
         forceOpcodeButton.setOnAction(e -> {
             if (selectedFile == null) return;
             if (forceOpcodeText.getText().matches("0x[0-9A-Fa-f]{4}")) {
-                executer.forceOpcode(Short.decode(forceOpcodeText.getText()));
+                executer.forceOpcode(Integer.decode(forceOpcodeText.getText()));
             } else {
                 forceOpcodeText.setText("Bad format");
             }

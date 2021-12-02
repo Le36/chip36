@@ -18,12 +18,19 @@ public class Fetcher {
     // fetches the opcode with PC, increments PC after
     // shifts first byte left 8 bits and does bitwise OR
     public void fetch() {
+        if (m.getPc() >= 0xFFF) {
+            this.setOpcode((short) 0x0000);
+            return;
+        }
         this.opcode = (short) (((m.getRam()[m.getPc()] << 8) & 0xFF00) | (m.getRam()[m.getPc() + 1] & 0x00FF));
         this.incrementPC();
         this.timerDecrement();
     }
 
     public short seek(short pc) {
+        if (pc >= 0xFFF) {
+            return 0x0000;
+        }
         return (short) (((m.getRam()[pc] << 8) & 0xFF00) | (m.getRam()[pc + 1] & 0x00FF));
     }
 

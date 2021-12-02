@@ -26,7 +26,9 @@ public class RomDisplay extends Canvas {
     public void draw() {
         painter.setFill(Color.BLACK);
         painter.fillRect(0, 0, width, height);
-        if (fadeSelected) this.drawFading();
+        if (fadeSelected) {
+            this.drawFading();
+        }
         boolean[][] display = pixels.getDisplay();
         painter.setFill(Color.WHITE);
         for (int x = 0; x < height / 10; x++) {

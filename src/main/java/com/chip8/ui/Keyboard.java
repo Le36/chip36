@@ -25,12 +25,12 @@ public class Keyboard extends GridPane {
 
     private void keyboardEvents() {
         for (int i = 0; i < 16; i++) {
-            int test = Integer.parseInt(buttons.get(i).getText(), 16);
+            int pressedKey = Integer.parseInt(buttons.get(i).getText(), 16);
             buttons.get(i).setOnMousePressed(e -> {
-                this.keys.getKeys()[test] = true;
+                this.keys.getKeys()[pressedKey] = true;
             });
             buttons.get(i).setOnMouseReleased(e -> {
-                this.keys.getKeys()[test] = false;
+                this.keys.getKeys()[pressedKey] = false;
             });
         }
     }

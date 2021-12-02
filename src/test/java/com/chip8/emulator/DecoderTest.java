@@ -188,6 +188,96 @@ public class DecoderTest {
     }
 
     @Test
+    public void binaryXor8XY3() {
+        // setup V9 and VD
+        // with binary xor result would be:
+        // 000101 ^ 110001 = 110100
+        m.varReg(0x9, 0b000101);
+        m.varReg(0xD, 0b110001);
+        // do the instuction for V9 and VD
+        decoder.decode((short) 0x89D3);
+        assertEquals((byte) 0b110100, m.getV()[9]);
+    }
+
+    @Test
+    public void binaryAnd8XY2() {
+        // setup V9 and VD
+        // with binary and result would be:
+        // 000101 & 110001 = 000001
+        m.varReg(0x9, 0b000101);
+        m.varReg(0xD, 0b110001);
+        // do the instuction for V9 and VD
+        decoder.decode((short) 0x89D2);
+        assertEquals((byte) 0b000001, m.getV()[9]);
+    }
+
+    @Test
+    public void binaryOr8XY1() {
+        // setup V9 and VD
+        // with binary or result would be:
+        // 000101 | 110001 = 110101
+        m.varReg(0x9, 0b000101);
+        m.varReg(0xD, 0b110001);
+        // do the instuction for V9 and VD
+        decoder.decode((short) 0x89D1);
+        assertEquals((byte) 0b110101, m.getV()[9]);
+    }
+
+    @Test
+    public void setVxToVy8XY0() {
+        // set 0xF2 to V5
+        m.varReg(5, 0xF2);
+        // now generate instruction to set that value to V2
+        decoder.decode((short) 0x8250);
+        assertEquals((byte) 0xF2, m.getV()[2]);
+    }
+
+    @Test
+    public void callSubroutine2NNN() {
+        // check stack empty
+        assertEquals(0, m.getStack().size());
+        // set pc to 0x502
+        m.setPc((short) 0x502);
+        // generate instruction to jump to 0xAAA
+        // so we expect to find pc set to 0xAAA
+        // and stack holding value 0x502
+        decoder.decode((short) 0x2AAA);
+        assertEquals(1, m.getStack().size());
+        assertEquals(0xAAA, m.getPc());
+        assertEquals(0x502, (short) m.getStack().peek());
+    }
+
+    @Test
+    public void returnFromSub00EE() {
+        // sets 0x502 to stack
+        this.callSubroutine2NNN();
+        assertEquals(1, m.getStack().size());
+        assertEquals(0xAAA, m.getPc());
+        // generate instruction to return
+        // we assume pc to be set to 0x502
+        decoder.decode((short) 0x00EE);
+        assertEquals(0, m.getStack().size());
+        assertEquals(0x502, m.getPc());
+    }
+
+    @Test
+    public void addVxVy8XY4() {
+        m.varReg(0x4, 0x04);
+        m.varReg(0xB, 0x0A);
+        decoder.decode((short) 0x84B4);
+        assertEquals((byte) 0x0E, m.getV()[4]);
+        assertEquals(0, m.getV()[0xF]);
+        // now try if VF goes 1 if overflow
+        m.varReg(0xB, 0xFA);
+        decoder.decode((short) 0x84B4);
+        assertEquals(1, m.getV()[0xF]);
+        // 0x0E + 0xFA = 0x108, but since overflow
+        // 0b100001000
+        //   ^ removed first bit value is then 0x08
+        assertEquals((byte) 0x08, m.getV()[4]);
+    }
+
+    @Test
     public void jump1NNN() {
         // set pc to 0x200
         decoder.decode((byte) 0x1200);

@@ -11,13 +11,15 @@ public class DecoderTest {
     private Memory m;
     private Fetcher fetcher;
     private Decoder decoder;
+    private Keys keys;
 
     @Before
     public void setUp() {
         this.m = new Memory();
+        this.keys = new Keys();
         new Loader("noFileHere", m).loadFontToRAM();
         this.fetcher = new Fetcher(m);
-        this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1), new Keys());
+        this.decoder = new Decoder(m, fetcher, new PixelManager(64, 32), keys);
     }
 
     @Test
@@ -188,6 +190,39 @@ public class DecoderTest {
     }
 
     @Test
+    public void skipIfNotEqualRegs9XY0() {
+        // set pc to 0x300
+        m.setPc((short) 0x300);
+        // load instruction 0x9010 to ram at 0x300 - 0x301
+        byte[] ram = m.getRam();
+        ram[0x300] = (byte) 0x90;
+        ram[0x301] = 0x10;
+        m.setRam(ram);
+        // set v[0] to 0x15
+        m.varReg(0x0, 0x15);
+        // set v[1] to 0x15
+        m.varReg(0x1, 0x15);
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // since we are trying to compare values in v[0] and v[1]
+        // and they both contain the same value 0x15
+        // result should be that pc is incremented once
+        assertEquals(0x302, m.getPc());
+        assertNotEquals(0x304, m.getPc());
+
+        // reset pc
+        m.setPc((short) 0x300);
+        // change value in v[1] to different from what is in v[0]
+        m.varReg(0x1, 0x00);
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // now the values in v[0] and v[1] are not equal
+        // pc should only be incremented twice
+        assertEquals(0x304, m.getPc());
+        assertNotEquals(0x302, m.getPc());
+    }
+
+    @Test
     public void binaryXor8XY3() {
         // setup V9 and VD
         // with binary xor result would be:
@@ -275,6 +310,265 @@ public class DecoderTest {
         // 0b100001000
         //   ^ removed first bit value is then 0x08
         assertEquals((byte) 0x08, m.getV()[4]);
+    }
+
+    @Test
+    public void subtract8XY5() {
+        m.varReg(0x0, 0x6F);
+        m.varReg(0x1, 0x0A);
+        decoder.decode((short) 0x8015);
+        // since v0 > v1 VF should be set to 1
+        assertEquals(1, m.getV()[0xF]);
+        assertEquals((byte) 0x65, m.getV()[0]);
+        // now swap condition and VF should be 0
+        m.varReg(0x1, 0x8A);
+        decoder.decode((short) 0x8015);
+        // since v0 < v1 VF should be set to 0
+        // 0x65 - 0x8a = -0x25
+        assertEquals(0, m.getV()[0xF]);
+        assertEquals((byte) -0x25, m.getV()[0]);
+    }
+
+    @Test
+    public void subtract8XY7() {
+        m.varReg(0x0, 0x1F);
+        m.varReg(0x1, 0x4C);
+        decoder.decode((short) 0x8017);
+        // 0x4C - 0x1F = 0x2D
+        // since v1 > v0 VF should be set to 1
+        assertEquals(1, m.getV()[0xF]);
+        assertEquals((byte) 0x2D, m.getV()[0]);
+
+        // this instruction can result in negative Bytes
+        // lets see what happens with them:
+        m.varReg(0x0, -0x65);
+        m.varReg(0x1, 0x8A);
+        decoder.decode((short) 0x8017);
+        // -0x65 (VX)
+        // 10011011 HEXADECIMAL 8-BIT
+        // unsigned	9B (decimal: 155)
+        // signed	-65 (decimal: -101)
+        //
+        // 0x8a (VY)
+        // 10001010 HEXADECIMAL 8-BIT
+        // unsigned	8A (decimal: 138)
+        // signed	-76 (decimal: -118)
+        //
+        // VF is 1 if VY > VX, here it stays 0
+        // 0x8a - (-0x65) = 0xEF
+        assertEquals(0, m.getV()[0xF]);
+        assertEquals((byte) 0xEF, m.getV()[0]);
+    }
+
+    @Test
+    public void shiftRight8XY6() {
+        m.varReg(0, 0b0001001); // 0x09
+        decoder.decode((short) 0x8006);
+        // set VF to 1 if shifted bit was 1, here it should be
+        assertEquals(1, m.getV()[0xF]);
+        // also divides the value in VX by 2
+        assertEquals(0x4, m.getV()[0]);
+
+        m.varReg(0, 0b0011000); // 0x18
+        decoder.decode((short) 0x8006);
+        // set VF to 1 if shifted bit was 1, here it should'nt be
+        assertEquals(0, m.getV()[0xF]);
+        assertEquals(0xC, m.getV()[0]);
+    }
+
+    @Test
+    public void shiftLeft8XYE() {
+        m.varReg(0, 0b0001001); // 0x09
+        decoder.decode((short) 0x800E);
+        // set VF to 1 if shifted bit was 1, here it should'nt be
+        assertEquals(0, m.getV()[0xF]);
+        // also multiplies the value in VX by 2
+        assertEquals(0x12, m.getV()[0]);
+
+        m.varReg(0, 0b11001001); // 0xC9
+        decoder.decode((short) 0x800E);
+        // set VF to 1 if shifted bit was 1, here it should be
+        assertEquals(1, m.getV()[0xF]);
+        // after multiplication val should be 0x192, but in 8-bit:
+        assertEquals((byte) 0x92, m.getV()[0]);
+    }
+
+    @Test
+    public void skipIfKeyEqualEX9E() {
+        // set pc to 0x300
+        m.setPc((short) 0x300);
+        // load instruction 0xE49E to ram at 0x300 - 0x301
+        byte[] ram = m.getRam();
+        ram[0x300] = (byte) 0xE4;
+        ram[0x301] = (byte) 0x9E;
+        m.setRam(ram);
+
+        keys.getKeys()[0xF] = true; // simulate F key pressed
+        m.varReg(4, 0xF); // set F key in V4
+
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // since we had equal keys we skip next instruction
+        // by incrementing pc twice
+        assertEquals(0x304, m.getPc());
+        assertNotEquals(0x302, m.getPc());
+
+        // reset pc to 0x300
+        m.setPc((short) 0x300);
+        m.varReg(4, 0xA); // set A key in V4
+
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // since we have NOT equal keys we don't skip next instruction
+        // A is currently not pressed on keyboard, only F
+        assertEquals(0x302, m.getPc());
+        assertNotEquals(0x304, m.getPc());
+    }
+
+    @Test
+    public void skipIfNotKeyEqualEXA1() {
+        // set pc to 0x300
+        m.setPc((short) 0x300);
+        // load instruction 0xE4A1 to ram at 0x300 - 0x301
+        byte[] ram = m.getRam();
+        ram[0x300] = (byte) 0xE4;
+        ram[0x301] = (byte) 0xA1;
+        m.setRam(ram);
+
+        keys.getKeys()[0xF] = true; // simulate F key pressed
+        m.varReg(4, 0xF); // set F key in V4
+
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // since we have equal keys we DON'T skip
+        assertEquals(0x302, m.getPc());
+        assertNotEquals(0x304, m.getPc());
+
+        // reset pc to 0x300
+        m.setPc((short) 0x300);
+        m.varReg(4, 0xA); // set A key in V4
+
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // since we have NOT equal keys we skip next instruction
+        assertEquals(0x304, m.getPc());
+        assertNotEquals(0x302, m.getPc());
+    }
+
+    @Test
+    public void getKeyFX0A() {
+        // set pc to 0x300
+        m.setPc((short) 0x300);
+        // load instruction 0xF40A to ram at 0x300 - 0x301
+        byte[] ram = m.getRam();
+        ram[0x300] = (byte) 0xF4;
+        ram[0x301] = (byte) 0x0A;
+        m.setRam(ram);
+
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // since there's no key press, we stay in same pc
+        assertEquals(0x300, m.getPc());
+        assertNotEquals(0x302, m.getPc());
+
+        // we can try it in a loop like a rom would just wait for a key
+        for (int i = 0; i < 20; i++) {
+            fetcher.fetch();
+            decoder.decode(fetcher.getOpcode());
+        }
+        // still in same instruction
+        assertEquals(0x300, m.getPc());
+
+        keys.getKeys()[0xC] = true; // simulate C key pressed
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        // since now, we have a keypress C button
+        // we should have C in VX and pc should be incremented
+        assertEquals(0x302, m.getPc());
+        assertEquals(0xC, m.getV()[4]);
+    }
+
+    @Test
+    public void drawDXYN() {
+        // let's test drawing with simple sprite at 0x0 coords
+        // first set 0 x 0 coords to v0 and v1
+        m.varReg(0, 0);
+        m.varReg(1, 0);
+        // check VF is 0
+        assertEquals(0, m.getV()[0XF]);
+        // generate sprite data to ram
+        byte[] ram = m.getRam();
+        ram[0x300] = (byte) 0b11111110;
+        ram[0x301] = (byte) 0b00011000;
+        m.setRam(ram);
+        // set index register to sprite data location
+        m.setI((short) 0x300);
+        // display should be clear at 0x0
+        assertFalse(decoder.getDisplay().getDisplay()[0][0]);
+        // instruction with sprite height of 2
+        decoder.decode((short) 0xD012);
+        // we drew on empty screen, so VF should still be 0
+        assertEquals(0, m.getV()[0XF]);
+        // drawn sprite should be starting from origin 0 x 0
+        // *******
+        //    **
+        // we can test that each of these pixels is on or off:
+        assertTrue(decoder.getDisplay().getDisplay()[0][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[1][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[2][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[3][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[4][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[5][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[6][0]);
+        assertFalse(decoder.getDisplay().getDisplay()[7][0]);
+
+        assertFalse(decoder.getDisplay().getDisplay()[0][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[1][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[2][1]);
+        assertTrue(decoder.getDisplay().getDisplay()[3][1]);
+        assertTrue(decoder.getDisplay().getDisplay()[4][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[5][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[6][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[7][1]);
+
+        // now we want to change the drawn sprite
+        // to look like this:
+        // ***  ***
+        // *  **  *
+        // edit the sprite data in ram
+        ram[0x300] = (byte) 0b00011001;
+        ram[0x301] = (byte) 0b10000001;
+        decoder.decode((short) 0xD012);
+        // this time we erased some pixels, so VF should be 1
+        assertEquals(1, m.getV()[0XF]);
+        // then we can again check each pixel one by one
+        assertTrue(decoder.getDisplay().getDisplay()[0][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[1][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[2][0]);
+        assertFalse(decoder.getDisplay().getDisplay()[3][0]);
+        assertFalse(decoder.getDisplay().getDisplay()[4][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[5][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[6][0]);
+        assertTrue(decoder.getDisplay().getDisplay()[7][0]);
+
+        assertTrue(decoder.getDisplay().getDisplay()[0][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[1][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[2][1]);
+        assertTrue(decoder.getDisplay().getDisplay()[3][1]);
+        assertTrue(decoder.getDisplay().getDisplay()[4][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[5][1]);
+        assertFalse(decoder.getDisplay().getDisplay()[6][1]);
+        assertTrue(decoder.getDisplay().getDisplay()[7][1]);
+
+        // finally we can test clear screen instruction 00E0:
+        decoder.decode((short) 0x00E0);
+        // this should just clear the whole screen, lets test
+        // every pixel on the screen that they are off
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 32; j++) {
+                assertFalse(decoder.getDisplay().getDisplay()[i][j]);
+            }
+        }
     }
 
     @Test
@@ -397,5 +691,4 @@ public class DecoderTest {
         decoder.decode((short) 0xFB1E);
         assertEquals(0x24F, m.getI());
     }
-
 }

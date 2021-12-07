@@ -14,6 +14,7 @@ public class RomDisplay extends Canvas {
     private int width;
     private int height;
     private boolean fadeSelected;
+    private int scale;
 
     public RomDisplay(PixelManager pixels, int width, int height) {
         super(width, height);
@@ -21,6 +22,7 @@ public class RomDisplay extends Canvas {
         this.painter = this.getGraphicsContext2D();
         this.width = width;
         this.height = height;
+        this.scale = width / 64;
     }
 
     public void draw() {
@@ -31,10 +33,10 @@ public class RomDisplay extends Canvas {
         }
         boolean[][] display = pixels.getDisplay();
         painter.setFill(Color.WHITE);
-        for (int x = 0; x < height / 10; x++) {
-            for (int y = 0; y < width / 10; y++) {
+        for (int x = 0; x < height / scale; x++) {
+            for (int y = 0; y < width / scale; y++) {
                 if (display[y][x]) {
-                    painter.fillRect(y * 10, x * 10, 10, 10);
+                    painter.fillRect(y * scale, x * scale, scale, scale);
                 }
             }
         }
@@ -50,7 +52,7 @@ public class RomDisplay extends Canvas {
                     Color color = new Color(fading, fading, fading, 1);
 
                     painter.setFill(color);
-                    painter.fillRect(x * 10, y * 10, 10, 10);
+                    painter.fillRect(x * scale, y * scale, scale, scale);
                 }
             }
         }

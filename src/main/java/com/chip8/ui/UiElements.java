@@ -49,7 +49,11 @@ public class UiElements {
                 return label;
             case REGISTER:
                 label.getStylesheets().add("register-labels.css");
-                label.setMinSize(75, 20);
+                if (!os.startsWith("Windows")) {
+                    label.setMinSize(82, 20);
+                } else {
+                    label.setMinSize(75, 20);
+                }
                 return label;
         }
         return label;

@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class Launcher extends Stage {
@@ -27,7 +28,8 @@ public class Launcher extends Stage {
         HBox hBoxButtons = new HBox(5, extended, normal);
         hBoxButtons.setAlignment(Pos.CENTER);
 
-        Label top = uiElements.makeLabel("Select the mode you want to launch the emulator in", LabelType.TOOLBAR);
+        Label top = uiElements.makeLabel("Select the mode you want to\nlaunch the emulator in", LabelType.TOOLBAR);
+        top.setTextAlignment(TextAlignment.CENTER);
         HBox hBoxTop = new HBox(2, top);
         hBoxTop.setAlignment(Pos.CENTER);
 

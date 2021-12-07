@@ -315,11 +315,10 @@ public class EmulatorUi extends Stage {
         programCounter.setText("Program counter: 0x" + Integer.toHexString((executer.getMemory().getPc() & 0xFFFF)).toUpperCase());
         delayTimer.setText("Delay Timer: 0x" + Integer.toHexString((executer.getMemory().getDelayTimer() & 0xFF)).toUpperCase());
         soundTimer.setText("Sound Timer: 0x" + Integer.toHexString((executer.getMemory().getSoundTimer() & 0xFF)).toUpperCase());
-        int size = executer.getMemory().getStack().size();
-        stackSize.setText("Stack size: " + size);
-        if (size != 0) {
+        stackSize.setText("Stack size: " + executer.getMemory().getStack().size());
+        try {
             stackPeek.setText("Stack peek: 0x" + Integer.toHexString(executer.getMemory().getStack().peek() & 0xFFFF).toUpperCase());
-        } else {
+        } catch (NullPointerException ex) {
             stackPeek.setText("Stack peek: empty");
         }
         for (int i = 0; i < 16; i++) {

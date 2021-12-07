@@ -16,15 +16,20 @@ public class Launcher extends Stage {
     Launcher() {
         UiElements uiElements = new UiElements();
         this.setTitle("Chip8 Launcher");
-        Button yes = uiElements.makeButton("Extended");
-        Button no = uiElements.makeButton("Normal");
-
+        Button extended = uiElements.makeButton("Extended");
+        Button normal = uiElements.makeButton("Normal");
+        extended.setPrefSize(80, 40);
+        normal.setPrefSize(80, 40);
+        HBox hBoxButtons = new HBox(5, extended, normal);
+        hBoxButtons.setAlignment(Pos.CENTER);
         Label top = uiElements.makeLabel("Select the mode you want to launch the emulator in", LabelType.TOOLBAR);
+        HBox hBoxTop = new HBox(2, top);
+        hBoxTop.setAlignment(Pos.CENTER);
         BorderPane launcherRoot = new BorderPane();
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         launcherRoot.setBackground(bg);
-        launcherRoot.setTop(top);
-        launcherRoot.setCenter(new HBox(5, yes, no));
+        launcherRoot.setTop(hBoxTop);
+        launcherRoot.setCenter(hBoxButtons);
 
         Slider resolution = uiElements.makeSlider(1, 60, 15);
         resolution.setSnapToTicks(true);
@@ -35,15 +40,15 @@ public class Launcher extends Stage {
         Button launchNormal = uiElements.makeButton("Launch");
         VBox normalMode = new VBox(5, resolution, gameRes, selectedRes, launchNormal);
         normalMode.setAlignment(Pos.CENTER);
-        this.setScene(new Scene(launcherRoot, 350, 200));
+        this.setScene(new Scene(launcherRoot, 400, 200));
         this.show();
 
-        yes.setOnAction(e -> {
+        extended.setOnAction(e -> {
             this.close();
             new EmulatorUi(true, 10);
         });
 
-        no.setOnAction(e -> {
+        normal.setOnAction(e -> {
             top.setText("Select your resolution");
             launcherRoot.setCenter(normalMode);
         });

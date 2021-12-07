@@ -4,11 +4,19 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import lombok.Data;
 
+/**
+ * handles key presses for emulator, gets pressed keys from ui
+ */
 @Data
 public class Keys {
 
     private boolean[] keys = new boolean[16];
 
+    /**
+     * checks if the key is pressed or released and sets that key to correct state
+     *
+     * @param event keyEvent from javafx stage
+     */
     public void setKey(KeyEvent event) {
         if (event.getEventType().getName().equals("KEY_PRESSED")) {
             this.setKey(true, event.getCode());
@@ -18,6 +26,10 @@ public class Keys {
         }
     }
 
+    /**
+     * @param state is the key pressed or not
+     * @param key the key that is being pressed or released
+     */
     private void setKey(boolean state, KeyCode key) {
         switch (key) {
             case DIGIT1:

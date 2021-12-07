@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 
+/**
+ * handles file loading for emulator and inserts font data into ram
+ */
 @Data
 public class Loader {
 
@@ -16,11 +19,18 @@ public class Loader {
     private String name;
     private Memory memory;
 
+    /**
+     * @param name   file path
+     * @param memory memory for emulator
+     */
     public Loader(String name, Memory memory) {
         this.name = name;
         this.memory = memory;
     }
 
+    /**
+     * reads file and gets byte array of the file
+     */
     public void readFile() {
         File rom = new File(this.name);
         try {
@@ -30,6 +40,9 @@ public class Loader {
         }
     }
 
+    /**
+     * loads file to ram using byte array that readFile() created
+     */
     public void loadToMemory() {
         short address = 0x200; // Chip8 RAM starts at 0x200 / 0d512 for programs, 0x0 - 0x1FF reserved for fonts etc.
         for (byte b : bytes) {
@@ -38,6 +51,11 @@ public class Loader {
         }
     }
 
+    /**
+     * hex dump for ui
+     *
+     * @return outputStream of the loaded file as hex dump
+     */
     public String hexDump() {
         OutputStream os = new ByteArrayOutputStream();
         try {
@@ -48,6 +66,9 @@ public class Loader {
         return os.toString();
     }
 
+    /**
+     * loads font data to rom, this is always same for every rom
+     */
     public void loadFontToRAM() {
         int[] fontData = this.fontData();
         short address = 0x50;
@@ -60,25 +81,27 @@ public class Loader {
         }
     }
 
+    /**
+     * @return font data
+     */
     private int[] fontData() {
         return new int[]{
-            0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-            0x20, 0x60, 0x20, 0x20, 0x70, // 1
-            0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-            0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-            0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-            0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-            0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-            0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-            0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-            0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-            0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-            0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-            0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-            0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-            0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-            0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+                0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+                0x20, 0x60, 0x20, 0x20, 0x70, // 1
+                0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+                0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+                0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+                0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+                0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+                0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+                0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+                0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+                0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+                0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+                0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+                0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+                0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+                0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
     }
-
 }

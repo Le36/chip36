@@ -2,6 +2,9 @@ package com.chip8.emulator;
 
 import lombok.Data;
 
+/**
+ * emulators main class, handles everything
+ */
 @Data
 public class Executer {
 
@@ -23,11 +26,19 @@ public class Executer {
         this.decoder = new Decoder(memory, fetcher, pixels, keys);
     }
 
+    /**
+     * fetch-decode-execute cycle
+     */
     public void execute() {
         fetcher.fetch();
         decoder.decode(fetcher.getOpcode());
     }
 
+    /**
+     * can be used to force opcodes, doesn't increment pc or decrement timers
+     *
+     * @param opcode opcode to be forced
+     */
     public void forceOpcode(int opcode) {
         decoder.decode((short) opcode);
     }

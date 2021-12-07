@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.HashMap;
 
+/**
+ * manages pixels for jfx ui
+ */
 @Data
 public class PixelManager {
 
@@ -15,6 +18,10 @@ public class PixelManager {
     private double fadeSpeed;
     private boolean[][] spriteViewer;
 
+    /**
+     * @param width screen width
+     * @param height screen height
+     */
     public PixelManager(int width, int height) {
         this.fadeMap = new HashMap<>();
         this.fade = true;
@@ -29,8 +36,10 @@ public class PixelManager {
         this.spriteViewer = new boolean[8][16];
     }
 
-    // generate fade for pixels that are turned off
-    // fade is used for smoother look and to get rid of stutter
+    /**
+     * generate fade for pixels that are turned off
+     * fade is used for smoother look and to get rid of stutter and flicker
+     */
     public void fade() {
         for (int x = 0; x < this.fadeMap.size(); x++) {
             for (int y = 0; y < this.fadeMap.get(x).size(); y++) {
@@ -43,8 +52,13 @@ public class PixelManager {
         }
     }
 
-    // if the display is going to be erased, instead of erasing it right away
-    // we are going to add it to a fade map, that lets the pixel fade out slowly
+    /**
+     * if the display is going to be erased, instead of erasing it right away
+     * we are going to add it to a fade map, that lets the pixel fade out slowly
+     *
+     * @param x coordinate x
+     * @param y coordinate y
+     */
     public void draw(int x, int y) {
         if (this.display[x][y] && fade) {
             this.x = x;
@@ -54,6 +68,9 @@ public class PixelManager {
         this.display[x][y] = !this.display[x][y];
     }
 
+    /**
+     * clears display
+     */
     public void clearDisplay() {
         for (int hei = 0; hei < 32; hei++) {
             for (int wid = 0; wid < 64; wid++) {
@@ -64,10 +81,19 @@ public class PixelManager {
         }
     }
 
+    /**
+     * draws sprite on sprite display
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     */
     public void drawSprite(int x, int y) {
         this.spriteViewer[x][y] = true;
     }
 
+    /**
+     * clears sprite display
+     */
     public void clearSprite() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 16; j++) {

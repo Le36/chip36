@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.Random;
 
+/**
+ * decodes given opcode and acts accordingly
+ */
 @Data
 public class Decoder {
 
@@ -26,6 +29,11 @@ public class Decoder {
         this.d = new DecodeDetails();
     }
 
+    /**
+     * decodes the instruction
+     *
+     * @param opcode opcode given by the fetcher
+     */
     public void decode(short opcode) {
         d.update(opcode, m.getPc(), m.getI());
         this.opcode = opcode;

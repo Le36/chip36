@@ -1,5 +1,6 @@
 package com.chip8.ui;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 
@@ -40,9 +41,11 @@ public class UiElements {
                 } else {
                     label.setMinSize(290, 10);
                 }
+                label.setPadding(new Insets(0, 0, 0, 3));
                 return label;
             case TOOLBAR:
                 label.getStylesheets().add("toolbar-labels.css");
+                label.setPadding(new Insets(0, 0, 0, 3));
                 return label;
             case REGISTER:
                 label.getStylesheets().add("register-labels.css");

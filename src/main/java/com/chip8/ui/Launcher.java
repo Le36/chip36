@@ -15,21 +15,29 @@ public class Launcher extends Stage {
 
     Launcher() {
         UiElements uiElements = new UiElements();
+        Border border = new Border(new BorderStroke(Color.rgb(35, 255, 0),
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
         this.setTitle("Chip8 Launcher");
+
         Button extended = uiElements.makeButton("Extended");
         Button normal = uiElements.makeButton("Normal");
         extended.setPrefSize(80, 40);
         normal.setPrefSize(80, 40);
+
         HBox hBoxButtons = new HBox(5, extended, normal);
         hBoxButtons.setAlignment(Pos.CENTER);
+
         Label top = uiElements.makeLabel("Select the mode you want to launch the emulator in", LabelType.TOOLBAR);
         HBox hBoxTop = new HBox(2, top);
         hBoxTop.setAlignment(Pos.CENTER);
+
         BorderPane launcherRoot = new BorderPane();
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         launcherRoot.setBackground(bg);
         launcherRoot.setTop(hBoxTop);
         launcherRoot.setCenter(hBoxButtons);
+        launcherRoot.setBorder(border);
+        launcherRoot.setPadding(new Insets(10, 30, 10, 30));
 
         Slider resolution = uiElements.makeSlider(1, 60, 15);
         resolution.setSnapToTicks(true);

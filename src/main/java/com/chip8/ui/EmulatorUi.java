@@ -66,6 +66,10 @@ public class EmulatorUi extends Stage {
         Label programCounter = uiElements.makeLabel("Program Counter: 0x0", LabelType.LABEL);
         Label delayTimer = uiElements.makeLabel("Delay Timer: 0x0", LabelType.TOOLBAR);
         Label soundTimer = uiElements.makeLabel("Sound Timer: 0x0", LabelType.TOOLBAR);
+        Label stackSize = uiElements.makeLabel("Stack size: 0", LabelType.TOOLBAR);
+        Label stackPeek = uiElements.makeLabel("Stack peek: 0x0", LabelType.TOOLBAR);
+
+        GridPane stackAndTimers = stackTimers(uiElements, delayTimer, soundTimer, stackSize, stackPeek);
 
         GridPane registers = new GridPane();
         ArrayList<Label> registerLabels = new ArrayList<>();
@@ -79,7 +83,6 @@ public class EmulatorUi extends Stage {
                 first = 0;
             }
         }
-
         registers.setBorder(border);
         registers.setHgap(5);
         registers.setVgap(5);
@@ -87,7 +90,7 @@ public class EmulatorUi extends Stage {
 
         TextArea currentDetailed = uiElements.makeTextArea(290, 105);
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
-        VBox vboxLeft = new VBox(currentInstruction, uiElements.separator(), indexRegister, uiElements.separator(), programCounter, uiElements.separator(), delayTimer, soundTimer, registers, currentDetailed);
+        VBox vboxLeft = new VBox(currentInstruction, uiElements.separator(), indexRegister, uiElements.separator(), programCounter, uiElements.separator(), stackAndTimers, registers, currentDetailed);
         vboxLeft.setBorder(border);
 
         BorderPane spriteViewerPane = new BorderPane();
@@ -96,11 +99,11 @@ public class EmulatorUi extends Stage {
         spriteViewerPane.setCenter(spriteDisplay);
         spriteViewerPane.setBorder(border);
 
+        TextArea hexDumpArea = uiElements.makeTextArea(520, 183);
+
         BorderPane bottomPane = new BorderPane();
         bottomPane.setBorder(border);
         bottomPane.setCenter(spriteViewerPane);
-
-        TextArea hexDumpArea = uiElements.makeTextArea(520, 183);
         bottomPane.setRight(hexDumpArea);
         bottomPane.setLeft(disassembler);
 
@@ -109,7 +112,6 @@ public class EmulatorUi extends Stage {
         Keyboard keyboard = new Keyboard(keys);
         VBox vBoxKeyboard = new VBox(5, uiElements.makeLabel("Keyboard:", LabelType.TOOLBAR), keyboard);
         vBoxKeyboard.setBorder(border);
-        vBoxKeyboard.setPrefSize(130, 140);
 
         TextField forceOpcodeText = uiElements.makeTextField();
         forceOpcodeText.setText("0x0000");
@@ -117,7 +119,6 @@ public class EmulatorUi extends Stage {
         VBox vBoxForceOpcode = new VBox(5, uiElements.makeLabel("Force opcode:", LabelType.TOOLBAR), forceOpcodeText, forceOpcodeButton);
         vBoxForceOpcode.setAlignment(Pos.CENTER_LEFT);
         vBoxForceOpcode.setBorder(border);
-        vBoxForceOpcode.setPrefSize(130, 50);
 
         TextField stepText = uiElements.makeTextField();
         stepText.setEditable(false);
@@ -131,13 +132,8 @@ public class EmulatorUi extends Stage {
         VBox vBoxStepControl = new VBox(5, uiElements.makeLabel("Step control:", LabelType.TOOLBAR), new HBox(5, stepText, stepPlus, stepMinus), new HBox(5, stepButton, skipButton), ignoreDelay);
         vBoxStepControl.setAlignment(Pos.CENTER_LEFT);
         vBoxStepControl.setBorder(border);
-        vBoxStepControl.setPrefSize(130, 100);
 
-        BorderPane rightSide = new BorderPane();
-        rightSide.setTop(vBoxKeyboard);
-        rightSide.setLeft(vBoxForceOpcode);
-        rightSide.setBottom(vBoxStepControl);
-        rightSide.setBorder(border);
+        BorderPane rightSide = rightSide(border, vBoxKeyboard, vBoxForceOpcode, vBoxStepControl);
 
         BorderPane root = new BorderPane();
         root.setBorder(border);
@@ -264,7 +260,7 @@ public class EmulatorUi extends Stage {
                     }
 
                     if (mode) {
-                        updateLabels(currentInstruction, indexRegister, programCounter, delayTimer, soundTimer, registerLabels, currentDetailed);
+                        updateLabels(currentInstruction, indexRegister, programCounter, delayTimer, soundTimer, registerLabels, currentDetailed, stackSize, stackPeek);
                         disassembler.update(executer.getMemory().getPc(), executer.getFetcher());
 
                         if (ignoreDelay.isSelected()) {
@@ -278,12 +274,54 @@ public class EmulatorUi extends Stage {
         this.show();
     }
 
-    private void updateLabels(Label currentInstruction, Label indexRegister, Label programCounter, Label delayTimer, Label soundTimer, ArrayList<Label> registerLabels, TextArea currentDetailed) {
+    private BorderPane rightSide(Border border, VBox vBoxKeyboard, VBox vBoxForceOpcode, VBox vBoxStepControl) {
+        BorderPane rightSide = new BorderPane();
+        rightSide.setTop(vBoxKeyboard);
+        rightSide.setLeft(vBoxForceOpcode);
+        rightSide.setBottom(vBoxStepControl);
+        rightSide.setBorder(border);
+        if (!System.getProperty("os.name").startsWith("Windows")) {
+            vBoxKeyboard.setPrefSize(150, 150);
+            vBoxForceOpcode.setPrefSize(150, 50);
+            vBoxStepControl.setPrefSize(150, 100);
+        } else {
+            vBoxKeyboard.setPrefSize(130, 140);
+            vBoxForceOpcode.setPrefSize(130, 50);
+            vBoxStepControl.setPrefSize(130, 100);
+        }
+        vBoxForceOpcode.setPadding(new Insets(1, 5, 3, 3));
+        vBoxStepControl.setPadding(new Insets(1, 1, 1, 3));
+        return rightSide;
+    }
+
+    private GridPane stackTimers(UiElements uiElements, Label delayTimer, Label soundTimer, Label stackSize, Label stackPeek) {
+        GridPane stackAndTimers = new GridPane();
+        stackAndTimers.add(uiElements.separator(), 0, 0);
+        stackAndTimers.add(uiElements.separator(), 0, 1);
+        stackAndTimers.add(delayTimer, 1, 0);
+        stackAndTimers.add(soundTimer, 1, 1);
+        stackAndTimers.add(uiElements.separator(), 2, 0);
+        stackAndTimers.add(uiElements.separator(), 2, 1);
+        stackAndTimers.add(stackSize, 3, 0);
+        stackAndTimers.add(stackPeek, 3, 1);
+        delayTimer.setMinSize(150, 0);
+        soundTimer.setMinSize(150, 0);
+        return stackAndTimers;
+    }
+
+    private void updateLabels(Label currentInstruction, Label indexRegister, Label programCounter, Label delayTimer, Label soundTimer, ArrayList<Label> registerLabels, TextArea currentDetailed, Label stackSize, Label stackPeek) {
         currentInstruction.setText("Current instruction: 0x" + Integer.toHexString((executer.getFetcher().getOpcode() & 0xFFFF)).toUpperCase());
         indexRegister.setText("Index register: 0x" + Integer.toHexString((executer.getMemory().getI() & 0xFFFF)).toUpperCase());
         programCounter.setText("Program counter: 0x" + Integer.toHexString((executer.getMemory().getPc() & 0xFFFF)).toUpperCase());
         delayTimer.setText("Delay Timer: 0x" + Integer.toHexString((executer.getMemory().getDelayTimer() & 0xFF)).toUpperCase());
         soundTimer.setText("Sound Timer: 0x" + Integer.toHexString((executer.getMemory().getSoundTimer() & 0xFF)).toUpperCase());
+        int size = executer.getMemory().getStack().size();
+        stackSize.setText("Stack size: " + size);
+        if (size != 0) {
+            stackPeek.setText("Stack peek: 0x" + Integer.toHexString(executer.getMemory().getStack().peek() & 0xFFFF).toUpperCase());
+        } else {
+            stackPeek.setText("Stack peek: empty");
+        }
         for (int i = 0; i < 16; i++) {
             registerLabels.get(i).setText(" V" + Integer.toHexString(i & 0xF).toUpperCase() + ": 0x" + Integer.toHexString((executer.getMemory().getV()[i] & 0xFF)).toUpperCase());
         }

@@ -106,7 +106,7 @@ public class Disassembler extends ListView {
                 this.seekString = "6XNN: Set V[" + this.x + "] to 0x" + this.nn;
                 return;
             case 0x7000: // 7XNN
-                this.seekString = "7XNN: Add " + this.nn + " to V[" + this.x + "]";
+                this.seekString = "7XNN: Add 0x" + this.nn + " to V[" + this.x + "]";
                 return;
             case 0x9000: // 9XY0
                 this.seekString = "9XY0: Skip next instruction if V[" + this.x + "] != V[" + this.y + "]";

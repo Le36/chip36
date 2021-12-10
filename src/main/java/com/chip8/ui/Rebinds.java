@@ -1,9 +1,8 @@
 package com.chip8.ui;
 
 import com.chip8.emulator.Keys;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Pair;
-
-import java.util.ArrayList;
 
 
 public class Rebinds extends KeyboardPane {
@@ -41,11 +40,11 @@ public class Rebinds extends KeyboardPane {
         }
     }
 
-    public ArrayList<String> getRebinds() {
-        ArrayList<String> newBinds = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
-            newBinds.add(super.getTButtons().get(i).getText());
+    public void keyBind(KeyEvent keyEvent) {
+        if (this.isToggled().getKey()) {
+            int i = this.isToggled().getValue();
+            super.getTButtons().get(i).setText(keyEvent.getCode().getName());
+            super.getTButtons().get(i).setSelected(false);
         }
-        return newBinds;
     }
 }

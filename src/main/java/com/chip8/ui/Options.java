@@ -33,13 +33,7 @@ public class Options extends Stage {
         root.setBottom(hBoxBottom);
         root.setPadding(new Insets(20, 20, 20, 20));
 
-        this.addEventFilter(KeyEvent.ANY, keyEvent -> {
-            if (rebinds.isToggled().getKey()) {
-                int i = rebinds.isToggled().getValue();
-                rebinds.getTButtons().get(i).setText(keyEvent.getCode().getName());
-                rebinds.getTButtons().get(i).setSelected(false);
-            }
-        });
+        this.addEventFilter(KeyEvent.ANY, rebinds::keyBind);
 
         setDefault.setOnAction(e -> {
             rebinds.setDefault();

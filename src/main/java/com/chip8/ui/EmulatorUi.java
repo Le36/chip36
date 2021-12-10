@@ -47,15 +47,16 @@ public class EmulatorUi extends Stage {
         ToggleButton pause = uiElements.makeToggleButton("Pause ROM");
         Button nextStep = uiElements.makeButton("Next Instruction");
         ToggleButton fadeButton = uiElements.makeToggleButton("Fade On");
+        Button options = uiElements.makeButton("Options");
 
         Slider fadeSlider = uiElements.makeSlider(0.0001, 0.3, 0.1);
         Slider slider = uiElements.makeSlider(1, 20, 1);
         Label gameSpeedLabel = uiElements.makeLabel("ROM Speed: ", LabelType.TOOLBAR);
         Label fadeSpeedLabel = uiElements.makeLabel("Fade Speed: ", LabelType.TOOLBAR);
 
-        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton);
+        HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton, options);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
-        HBox hbox = new HBox(165, hboxLeft, hboxRight);
+        HBox hbox = new HBox(105, hboxLeft, hboxRight);
         ToolBar toolBar = new ToolBar();
         toolBar.getItems().add(hbox);
         toolBar.getStylesheets().add("toolbar.css");
@@ -192,6 +193,10 @@ public class EmulatorUi extends Stage {
                 fadeButton.setText("Fade Off");
                 pixels.setFade(false);
             }
+        });
+
+        options.setOnAction(e -> {
+            new Options(keys);
         });
 
         forceOpcodeButton.setOnAction(e -> {

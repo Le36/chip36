@@ -11,6 +11,17 @@ import lombok.Data;
 public class Keys {
 
     private boolean[] keys = new boolean[16];
+    private String[] binds = new String[16];
+
+    /**
+     * initialize default keys in 4*4 keypad
+     */
+    public Keys() {
+        for (int i = 0; i < 16; i++) {
+            String layout = "1234QWERASDFZXCV";
+            binds[i] = layout.substring(i, i + 1);
+        }
+    }
 
     /**
      * checks if the key is pressed or released and sets that key to correct state
@@ -28,58 +39,41 @@ public class Keys {
 
     /**
      * @param state is the key pressed or not
-     * @param key the key that is being pressed or released
+     * @param key   the key that is being pressed or released
      */
     private void setKey(boolean state, KeyCode key) {
-        switch (key) {
-            case DIGIT1:
-                keys[1] = state;
-                break;
-            case DIGIT2:
-                keys[2] = state;
-                break;
-            case DIGIT3:
-                keys[3] = state;
-                break;
-            case DIGIT4:
-                keys[0xC] = state;
-                break;
-            case Q:
-                keys[4] = state;
-                break;
-            case W:
-                keys[5] = state;
-                break;
-            case E:
-                keys[6] = state;
-                break;
-            case R:
-                keys[0xD] = state;
-                break;
-            case A:
-                keys[7] = state;
-                break;
-            case S:
-                keys[8] = state;
-                break;
-            case D:
-                keys[9] = state;
-                break;
-            case F:
-                keys[0xE] = state;
-                break;
-            case Z:
-                keys[0xA] = state;
-                break;
-            case X:
-                keys[0] = state;
-                break;
-            case C:
-                keys[0xB] = state;
-                break;
-            case V:
-                keys[0xF] = state;
-                break;
+        if (binds[0].equals(key.getName())) {
+            keys[1] = state;
+        } else if (binds[1].equals(key.getName())) {
+            keys[2] = state;
+        } else if (binds[2].equals(key.getName())) {
+            keys[3] = state;
+        } else if (binds[3].equals(key.getName())) {
+            keys[0xC] = state;
+        } else if (binds[4].equals(key.getName())) {
+            keys[4] = state;
+        } else if (binds[5].equals(key.getName())) {
+            keys[5] = state;
+        } else if (binds[6].equals(key.getName())) {
+            keys[6] = state;
+        } else if (binds[7].equals(key.getName())) {
+            keys[0xD] = state;
+        } else if (binds[8].equals(key.getName())) {
+            keys[7] = state;
+        } else if (binds[9].equals(key.getName())) {
+            keys[8] = state;
+        } else if (binds[10].equals(key.getName())) {
+            keys[9] = state;
+        } else if (binds[11].equals(key.getName())) {
+            keys[0xE] = state;
+        } else if (binds[12].equals(key.getName())) {
+            keys[0xA] = state;
+        } else if (binds[13].equals(key.getName())) {
+            keys[0] = state;
+        } else if (binds[14].equals(key.getName())) {
+            keys[0xB] = state;
+        } else if (binds[15].equals(key.getName())) {
+            keys[0xF] = state;
         }
     }
 }

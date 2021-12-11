@@ -101,4 +101,10 @@ public class UiElements {
         sep.getStylesheets().add("separator.css");
         return sep;
     }
+
+    public ColorPicker colorPicker() {
+        ColorPicker cp = new ColorPicker();
+        cp.getStylesheets().add("colorpicker.css");
+        return cp;
+    }
 }

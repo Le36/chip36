@@ -1,5 +1,6 @@
 package com.chip8.ui;
 
+import com.chip8.configs.ColorSaver;
 import com.chip8.emulator.PixelManager;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -15,6 +16,8 @@ public class RomDisplay extends Canvas {
     private int height;
     private boolean fadeSelected;
     private int scale;
+    private String bgColor;
+    private String spriteColor;
 
     public RomDisplay(PixelManager pixels, int width, int height) {
         super(width, height);
@@ -23,16 +26,24 @@ public class RomDisplay extends Canvas {
         this.width = width;
         this.height = height;
         this.scale = width / 64;
+        try {
+            ColorSaver cs = new ColorSaver();
+            this.spriteColor = cs.loadColor("SPRITE COLOR");
+            this.bgColor = cs.loadColor("BG COLOR");
+        } catch (Exception ignored) {
+            this.spriteColor = "0xFFFFFF";
+            this.bgColor = "0x000000";
+        }
     }
 
     public void draw() {
-        painter.setFill(Color.BLACK);
+        painter.setFill(Color.web(bgColor));
         painter.fillRect(0, 0, width, height);
         if (fadeSelected) {
             this.drawFading();
         }
         boolean[][] display = pixels.getDisplay();
-        painter.setFill(Color.WHITE);
+        painter.setFill(Color.web(spriteColor));
         for (int x = 0; x < height / scale; x++) {
             for (int y = 0; y < width / scale; y++) {
                 if (display[y][x]) {
@@ -49,7 +60,7 @@ public class RomDisplay extends Canvas {
                 if (fadeMap.get(x).get(y) > 0.0) {
                     double fading = Math.min(0.95, fadeMap.get(x).get(y));
 
-                    Color color = new Color(fading, fading, fading, 1);
+                    Color color = Color.web(spriteColor, fading);
 
                     painter.setFill(color);
                     painter.fillRect(x * scale, y * scale, scale, scale);
@@ -60,5 +71,13 @@ public class RomDisplay extends Canvas {
 
     public void setFadeSelected(boolean fadeSelected) {
         this.fadeSelected = fadeSelected;
+    }
+
+    public void setBgColor(String bgColor) {
+        this.bgColor = bgColor;
+    }
+
+    public void setSpriteColor(String spriteColor) {
+        this.spriteColor = spriteColor;
     }
 }

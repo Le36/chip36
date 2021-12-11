@@ -1,0 +1,39 @@
+.color-picker {
+    -fx-background-color: #000000;
+    -fx-border-color: #23ff00;
+}
+
+.color-picker .color-picker-label {
+    -fx-text-fill: #23ff00;
+}
+
+.color-picker .combo-box-popup {
+    -fx-background-color: #000000;
+    -fx-border-color: #23ff00;
+}
+
+.color-palette {
+    -fx-background-color: #000000;
+    -fx-border-color: #23ff00;
+}
+
+.color-palette .hyperlink {
+    -fx-text-fill: #23ff00;
+    -fx-border-color: #23ff00;
+    -fx-border-radius: 10 10 10 10;
+}
+
+.color-palette .separator *.line {
+    -fx-background-color: #000000;
+    -fx-border-color: #23ff00;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+}
+
+.color-palette .color-picker-grid {
+    -fx-border-color: #23ff00;
+}
+
+.color-palette .grid-pane {
+    -fx-border-color: #23ff00;
+}

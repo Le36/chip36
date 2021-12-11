@@ -49,7 +49,7 @@ public class EmulatorUi extends Stage {
         ToggleButton fadeButton = uiElements.makeToggleButton("Fade On");
         Button options = uiElements.makeButton("Options");
 
-        Slider fadeSlider = uiElements.makeSlider(0.0001, 0.3, 0.1);
+        Slider fadeSlider = uiElements.makeSlider(0.0001, 0.05, 0.05);
         Slider slider = uiElements.makeSlider(1, 20, 1);
         Label gameSpeedLabel = uiElements.makeLabel("ROM Speed: ", LabelType.TOOLBAR);
         Label fadeSpeedLabel = uiElements.makeLabel("Fade Speed: ", LabelType.TOOLBAR);
@@ -196,7 +196,7 @@ public class EmulatorUi extends Stage {
         });
 
         options.setOnAction(e -> {
-            new Options(keys);
+            new Options(keys, romDisplay);
         });
 
         forceOpcodeButton.setOnAction(e -> {

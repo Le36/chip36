@@ -1,5 +1,6 @@
 package com.chip8.emulator;
 
+import com.chip8.db.KeybindSaver;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import lombok.Data;
@@ -17,9 +18,14 @@ public class Keys {
      * initialize default keys in 4*4 keypad
      */
     public Keys() {
-        for (int i = 0; i < 16; i++) {
-            String layout = "1234QWERASDFZXCV";
-            binds[i] = layout.substring(i, i + 1);
+        try {
+            KeybindSaver kb = new KeybindSaver();
+            binds = kb.load();
+        } catch (Exception ignored) {
+            for (int i = 0; i < 16; i++) {
+                String layout = "1234QWERASDFZXCV";
+                binds[i] = layout.substring(i, i + 1);
+            }
         }
     }
 

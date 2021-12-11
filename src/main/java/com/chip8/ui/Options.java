@@ -1,5 +1,6 @@
 package com.chip8.ui;
 
+import com.chip8.db.KeybindSaver;
 import com.chip8.emulator.Keys;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -45,6 +46,11 @@ public class Options extends Stage {
                 binds[i] = rebinds.getTButtons().get(i).getText();
             }
             keys.setBinds(binds);
+            try {
+                KeybindSaver keybindSaver = new KeybindSaver();
+                keybindSaver.save(binds);
+            } catch (Exception ignored) {
+            }
         });
 
         this.setScene(new Scene(root, 450, 250));

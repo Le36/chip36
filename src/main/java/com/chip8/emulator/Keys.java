@@ -1,6 +1,6 @@
 package com.chip8.emulator;
 
-import com.chip8.db.KeybindSaver;
+import com.chip8.configs.KeybindSaver;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import lombok.Data;

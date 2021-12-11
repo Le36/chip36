@@ -1,6 +1,6 @@
 package com.chip8.ui;
 
-import com.chip8.db.KeybindSaver;
+import com.chip8.configs.KeybindSaver;
 import com.chip8.emulator.Keys;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;

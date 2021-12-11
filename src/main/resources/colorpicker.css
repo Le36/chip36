@@ -37,3 +37,7 @@
 .color-palette .grid-pane {
     -fx-border-color: #23ff00;
 }
+
+.color-palette .label {
+    -fx-text-fill: #23ff00;
+}

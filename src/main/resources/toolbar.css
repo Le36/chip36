@@ -1,3 +1,12 @@
 .tool-bar:horizontal {
     -fx-background-color: linear-gradient(#232323, #000000);
 }
+
+.tool-bar .arrow {
+    -fx-background-color: rgb(35, 255, 0);
+}
+
+.context-menu {
+    -fx-background-color: linear-gradient(#232323, #000000);
+    -fx-border-color: rgb(35, 255, 0);
+}

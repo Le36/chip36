@@ -38,8 +38,8 @@ public class Options extends Stage {
             spriteColor.setValue(Color.web(cs.loadColor("SPRITE COLOR")));
             bgColor.setValue(Color.web(cs.loadColor("BG COLOR")));
         } catch (Exception ignored) {
-            spriteColor.setValue(Color.web("0xFFFFFF"));
-            bgColor.setValue(Color.web("0x000000"));
+            spriteColor.setValue(Color.web(romDisplay.getSpriteColor()));
+            bgColor.setValue(Color.web(romDisplay.getBgColor()));
         }
 
         VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor, uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor);

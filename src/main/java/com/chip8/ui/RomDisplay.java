@@ -80,4 +80,12 @@ public class RomDisplay extends Canvas {
     public void setSpriteColor(String spriteColor) {
         this.spriteColor = spriteColor;
     }
+
+    public String getBgColor() {
+        return bgColor;
+    }
+
+    public String getSpriteColor() {
+        return spriteColor;
+    }
 }

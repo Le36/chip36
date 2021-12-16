@@ -5,6 +5,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+/**
+ * creates the display where current sprite is displayed
+ */
 public class SpriteDisplay extends Canvas {
 
     private PixelManager pixels;
@@ -16,6 +19,9 @@ public class SpriteDisplay extends Canvas {
         this.painter = this.getGraphicsContext2D();
     }
 
+    /**
+     * calling this will render the sprite display
+     */
     public void draw() {
         painter.setFill(Color.BLACK);
         painter.fillRect(0, 0, 80, 160);

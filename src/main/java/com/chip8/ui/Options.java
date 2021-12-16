@@ -12,8 +12,15 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+/**
+ * generates the options window for ui that can be found in the toolbar
+ */
 public class Options extends Stage {
 
+    /**
+     * @param keys keyboard presses used for rebinding
+     * @param romDisplay display for rom used for selecting colors
+     */
     Options(Keys keys, RomDisplay romDisplay) {
         this.setTitle("Options");
 
@@ -81,11 +88,25 @@ public class Options extends Stage {
         this.show();
     }
 
+    /**
+     * sets colors to the rom display window in the emulator
+     * main window
+     * @param romDisplay display to set colors to
+     * @param spriteColor color for sprite
+     * @param bgColor color for background
+     */
     private void applyColor(RomDisplay romDisplay, ColorPicker spriteColor, ColorPicker bgColor) {
         romDisplay.setSpriteColor(spriteColor.getValue().toString());
         romDisplay.setBgColor(bgColor.getValue().toString());
     }
 
+    /**
+     * sets the rebinds to the emulator
+     *
+     * @param keys keys used by the emulator
+     * @param rebinds class for keybind handling
+     * @return
+     */
     private String[] applyKeys(Keys keys, Rebinds rebinds) {
         String[] binds = new String[16];
         for (int i = 0; i < 16; i++) {

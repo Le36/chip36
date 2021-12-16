@@ -8,8 +8,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * enables saving selected colors to a file
+ */
 public class ColorSaver {
 
+    /**
+     * saves colors to a file, uses keybinds in same file
+     *
+     * @param bg color of background
+     * @param sprite color of sprite
+     * @throws IOException exception if found file in wrong format
+     */
     public void save(Color bg, Color sprite) throws IOException {
         File configFile = new File("chip8-configs.txt");
 
@@ -30,6 +40,11 @@ public class ColorSaver {
         fw.close();
     }
 
+    /**
+     * @param color bg or sprite color selection
+     * @return returns the loaded color in Color.web(hex)
+     * @throws FileNotFoundException error if file does not exist
+     */
     public String loadColor(String color) throws FileNotFoundException {
         File configFile = new File("chip8-configs.txt");
         Scanner sc = new Scanner(configFile);

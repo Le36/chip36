@@ -5,6 +5,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.util.Pair;
 
 
+/**
+ * allows rebinding of keyboard used by the emulator
+ */
 public class Rebinds extends KeyboardPane {
 
     public Rebinds(Keys keys) {
@@ -12,6 +15,11 @@ public class Rebinds extends KeyboardPane {
         this.keyboardEvents();
     }
 
+    /**
+     * initializes action for toggling the buttons on the options menu,
+     * when selecting key with mouse that is rebinded, untoggles the previous
+     * button if it was toggled
+     */
     private void keyboardEvents() {
         for (int i = 0; i < 16; i++) {
             super.getTButtons().get(i).setOnMousePressed(e -> {
@@ -24,6 +32,12 @@ public class Rebinds extends KeyboardPane {
         }
     }
 
+    /**
+     * used to check if there exists a key that is toggled on options menu,
+     * and returns it with toggle state and identifier number
+     *
+     * @return pressed key and int identifier for it
+     */
     public Pair<Boolean, Integer> isToggled() {
         for (int i = 0; i < 16; i++) {
             if (super.getTButtons().get(i).isSelected()) {
@@ -33,6 +47,9 @@ public class Rebinds extends KeyboardPane {
         return new Pair<>(false, 0);
     }
 
+    /**
+     * sets all keys to their default values
+     */
     public void setDefault() {
         for (int i = 0; i < 16; i++) {
             String layout = "1234QWERASDFZXCV";
@@ -40,6 +57,11 @@ public class Rebinds extends KeyboardPane {
         }
     }
 
+    /**
+     * sets the bind to the currently selected key
+     *
+     * @param keyEvent detected keypress from options menu
+     */
     public void keyBind(KeyEvent keyEvent) {
         if (this.isToggled().getKey()) {
             int i = this.isToggled().getValue();

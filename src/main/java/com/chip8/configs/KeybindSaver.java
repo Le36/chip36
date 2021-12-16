@@ -8,9 +8,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * enables saving set keybinds to a file
+ */
 @Data
 public class KeybindSaver {
 
+    /**
+     * @param binds array of binds for keyboard
+     * @throws IOException if error occurs in format
+     */
     public void save(String[] binds) throws IOException {
         File configFile = new File("chip8-configs.txt");
 
@@ -27,6 +34,12 @@ public class KeybindSaver {
         fw.close();
     }
 
+    /**
+     * loads keybinds from the file
+     *
+     * @return loaded binds in string array
+     * @throws FileNotFoundException if file does not exist
+     */
     public String[] load() throws FileNotFoundException {
         File configFile = new File("chip8-configs.txt");
 

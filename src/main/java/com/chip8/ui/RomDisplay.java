@@ -8,6 +8,9 @@ import javafx.scene.paint.Color;
 
 import java.util.HashMap;
 
+/**
+ * creates the display where rom is drawn
+ */
 public class RomDisplay extends Canvas {
 
     private PixelManager pixels;
@@ -36,6 +39,9 @@ public class RomDisplay extends Canvas {
         }
     }
 
+    /**
+     * calling this will render the rom display
+     */
     public void draw() {
         painter.setFill(Color.web(bgColor));
         painter.fillRect(0, 0, width, height);

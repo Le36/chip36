@@ -1,9 +1,6 @@
 package com.chip8.ui;
 
-import com.chip8.configs.ColorSaver;
-import com.chip8.configs.Configs;
-import com.chip8.configs.ConfigsSaver;
-import com.chip8.configs.KeybindSaver;
+import com.chip8.configs.*;
 import com.chip8.emulator.Keys;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -76,12 +73,13 @@ public class Options extends Stage {
         this.addEventFilter(KeyEvent.ANY, rebinds::keyBind);
 
         setDefault.setOnAction(e -> {
+            DefaultValues d = new DefaultValues();
             rebinds.setDefault();
-            bgColor.setValue(Color.web("0x000000"));
-            spriteColor.setValue(Color.web("0xFFFFFF"));
-            printConsole.setSelected(false);
-            disableUiUpdates.setSelected(false);
-            printableSymbol.setText("█#");
+            bgColor.setValue(Color.web(d.getBgColor()));
+            spriteColor.setValue(Color.web(d.getSpriteColor()));
+            printConsole.setSelected(d.isPrintToDisplay());
+            disableUiUpdates.setSelected(d.isDisableUiUpdates());
+            printableSymbol.setText(d.getPrintSymbol());
         });
 
         saveChanges.setOnAction(e -> {

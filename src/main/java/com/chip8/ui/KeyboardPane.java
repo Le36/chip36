@@ -1,5 +1,6 @@
 package com.chip8.ui;
 
+import com.chip8.configs.DefaultValues;
 import com.chip8.emulator.Keys;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -57,7 +58,7 @@ public class KeyboardPane extends GridPane {
     private void addButtonsToList() {
         for (int i = 0; i < 16; i++) {
             if (state) {
-                String layout = "123C456D789EA0BF";
+                String layout = new DefaultValues().getMouseKbLayout();
                 buttons.add(new UiElements().makeButton(layout.substring(i, i + 1)));
             } else {
                 tButtons.add(new UiElements().makeToggleButton(keys.getBinds()[i]));

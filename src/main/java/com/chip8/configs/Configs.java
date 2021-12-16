@@ -19,9 +19,10 @@ public class Configs {
             this.disableUiUpdates = configsSaver.loadState("disableUiUpdates:");
             this.printSymbol = configsSaver.loadSymbol();
         } catch (Exception ignored) {
-            this.printToConsole = false;
-            this.disableUiUpdates = false;
-            this.printSymbol = "█#";
+            DefaultValues d = new DefaultValues();
+            this.printToConsole = d.isPrintToDisplay();
+            this.disableUiUpdates = d.isDisableUiUpdates();
+            this.printSymbol = d.getPrintSymbol();
         }
     }
 

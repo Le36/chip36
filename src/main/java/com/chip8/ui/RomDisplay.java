@@ -1,6 +1,7 @@
 package com.chip8.ui;
 
 import com.chip8.configs.ColorSaver;
+import com.chip8.configs.DefaultValues;
 import com.chip8.emulator.PixelManager;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -34,8 +35,8 @@ public class RomDisplay extends Canvas {
             this.spriteColor = cs.loadColor("spriteColor:");
             this.bgColor = cs.loadColor("bgColor:");
         } catch (Exception ignored) {
-            this.spriteColor = "0xFFFFFF";
-            this.bgColor = "0x000000";
+            this.spriteColor = new DefaultValues().getSpriteColor();
+            this.bgColor = new DefaultValues().getBgColor();
         }
     }
 
@@ -75,6 +76,9 @@ public class RomDisplay extends Canvas {
         }
     }
 
+    /**
+     * writes warning to display about disabled ui updates
+     */
     public void uiUpdatesDisabled() {
         painter.setFill(Color.web(bgColor));
         painter.fillRect(0, 0, width, height);

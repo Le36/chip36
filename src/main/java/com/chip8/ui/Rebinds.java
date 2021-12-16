@@ -1,5 +1,6 @@
 package com.chip8.ui;
 
+import com.chip8.configs.DefaultValues;
 import com.chip8.emulator.Keys;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Pair;
@@ -52,7 +53,7 @@ public class Rebinds extends KeyboardPane {
      */
     public void setDefault() {
         for (int i = 0; i < 16; i++) {
-            String layout = "1234QWERASDFZXCV";
+            String layout = new DefaultValues().getRebindLayout();
             super.getTButtons().get(i).setText(layout.substring(i, i + 1));
         }
     }

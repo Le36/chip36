@@ -1,5 +1,6 @@
 package com.chip8.emulator;
 
+import com.chip8.configs.Configs;
 import lombok.Data;
 
 import java.util.Random;
@@ -18,15 +19,17 @@ public class Decoder {
     private Keys keys;
     private String detailed;
     private DecodeDetails d;
+    private Configs c;
 
 
-    public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys) {
+    public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys, Configs c) {
         this.display = new ConsoleDisplay();
         this.m = m;
         this.fetcher = fetcher;
         this.pixels = pixels;
         this.keys = keys;
         this.d = new DecodeDetails();
+        this.c = c;
     }
 
     /**
@@ -378,7 +381,9 @@ public class Decoder {
         m.varReg(0xF, 0);
         draw(x, y);
         this.detailed = d.detailDrawDisplay();
-        //display.printDisplay();
+        if (this.c.isPrintToConsole()) {
+            display.printDisplay();
+        }
     }
 
     private void draw(byte x, byte y) {

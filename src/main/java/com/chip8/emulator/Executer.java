@@ -1,5 +1,6 @@
 package com.chip8.emulator;
 
+import com.chip8.configs.Configs;
 import lombok.Data;
 
 /**
@@ -13,7 +14,7 @@ public class Executer {
     private Decoder decoder;
     private Loader loader;
 
-    public Executer(String rom, PixelManager pixels, Keys keys) {
+    public Executer(String rom, PixelManager pixels, Keys keys, Configs c) {
         this.memory = new Memory();
 
         this.loader = new Loader(rom, memory);
@@ -23,7 +24,7 @@ public class Executer {
         this.loader.loadFontToRAM();
 
         this.fetcher = new Fetcher(memory);
-        this.decoder = new Decoder(memory, fetcher, pixels, keys);
+        this.decoder = new Decoder(memory, fetcher, pixels, keys, c);
     }
 
     /**

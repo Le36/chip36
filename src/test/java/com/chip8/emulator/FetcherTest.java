@@ -3,6 +3,7 @@ package com.chip8.emulator;
 
 import static org.junit.Assert.*;
 
+import com.chip8.configs.Configs;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ public class FetcherTest {
     public void setUp() {
         this.m = new Memory();
         this.fetcher = new Fetcher(m);
-        this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1), new Keys());
+        this.decoder = new Decoder(m, fetcher, new PixelManager(1, 1), new Keys(), new Configs());
     }
 
     @Test

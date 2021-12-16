@@ -1,11 +1,13 @@
 package com.chip8.ui;
 
 import com.chip8.configs.ColorSaver;
+import com.chip8.configs.Configs;
 import com.chip8.configs.KeybindSaver;
 import com.chip8.emulator.Keys;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -20,8 +22,9 @@ public class Options extends Stage {
     /**
      * @param keys       keyboard presses used for rebinding
      * @param romDisplay display for rom used for selecting colors
+     * @param configs    configurations for emu and ui
      */
-    Options(Keys keys, RomDisplay romDisplay) {
+    Options(Keys keys, RomDisplay romDisplay, Configs configs) {
         this.setTitle("Options");
 
         UiElements uiElements = new UiElements();
@@ -31,11 +34,13 @@ public class Options extends Stage {
         Background bg = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY));
         BorderPane root = new BorderPane();
 
-        Rebinds rebinds = new Rebinds(keys);
         Button setDefault = uiElements.makeButton("Set default");
         Button saveChanges = uiElements.makeButton("Save changes");
         Button applyChanges = uiElements.makeButton("Apply changes");
         HBox hBoxBottom = new HBox(10, setDefault, saveChanges, applyChanges);
+
+        Rebinds rebinds = new Rebinds(keys);
+        VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.LABEL), rebinds);
 
         ColorPicker spriteColor = uiElements.colorPicker();
         ColorPicker bgColor = uiElements.colorPicker();
@@ -49,10 +54,13 @@ public class Options extends Stage {
             bgColor.setValue(Color.web(romDisplay.getBgColor()));
         }
 
-        VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor, uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor);
+        CheckBox printConsole = uiElements.makeCheckBox("Print to console");
+        CheckBox disableRomDisplay = uiElements.makeCheckBox("Disable ui updates");
+        printConsole.setSelected(configs.isPrintToConsole());
+        disableRomDisplay.setSelected(configs.isDisableUiUpdates());
+        VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor, uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor, printConsole, disableRomDisplay);
 
-        root.setTop(uiElements.makeLabel("Rebind your keys: ", LabelType.LABEL));
-        root.setCenter(rebinds);
+        root.setLeft(vBoxBinds);
         root.setBackground(bg);
         root.setBorder(border);
         root.setBottom(hBoxBottom);
@@ -77,11 +85,15 @@ public class Options extends Stage {
             } catch (Exception ignored) {
             }
             applyColor(romDisplay, spriteColor, bgColor);
+            configs.setPrintToConsole(printConsole.isSelected());
+            configs.setDisableUiUpdates(disableRomDisplay.isSelected());
         });
 
         applyChanges.setOnAction(e -> {
             applyKeys(keys, rebinds);
             applyColor(romDisplay, spriteColor, bgColor);
+            configs.setPrintToConsole(printConsole.isSelected());
+            configs.setDisableUiUpdates(disableRomDisplay.isSelected());
         });
 
         this.setScene(new Scene(root, 550, 250));

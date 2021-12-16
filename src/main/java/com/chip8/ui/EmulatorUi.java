@@ -158,7 +158,8 @@ public class EmulatorUi extends Stage {
 
         selectRom.setOnAction(e -> {
             selectedFile = fileChooser.showOpenDialog(this);
-            if (selectedFile == null || selectedFile.length() > 4096 || selectedFile.length() < 2) return;
+            // 4096 total memory, - 512 reserved = 3584 max
+            if (selectedFile == null || selectedFile.length() > 3584 || selectedFile.length() < 2) return;
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys);
             fileChosen = true;
             pixels.clearDisplay();

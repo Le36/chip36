@@ -45,13 +45,8 @@ public class Options extends Stage {
         ColorPicker bgColor = uiElements.colorPicker();
         ColorSaver cs = new ColorSaver();
 
-        try {
-            spriteColor.setValue(Color.web(cs.loadColor("SPRITE COLOR")));
-            bgColor.setValue(Color.web(cs.loadColor("BG COLOR")));
-        } catch (Exception ignored) {
-            spriteColor.setValue(Color.web(romDisplay.getSpriteColor()));
-            bgColor.setValue(Color.web(romDisplay.getBgColor()));
-        }
+        spriteColor.setValue(Color.web(romDisplay.getSpriteColor()));
+        bgColor.setValue(Color.web(romDisplay.getBgColor()));
 
         CheckBox printConsole = uiElements.makeCheckBox("Print to console");
         CheckBox disableUiUpdates = uiElements.makeCheckBox("Disable ui updates");

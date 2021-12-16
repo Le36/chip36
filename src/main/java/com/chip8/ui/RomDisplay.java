@@ -31,8 +31,8 @@ public class RomDisplay extends Canvas {
         this.scale = width / 64;
         try {
             ColorSaver cs = new ColorSaver();
-            this.spriteColor = cs.loadColor("SPRITE COLOR");
-            this.bgColor = cs.loadColor("BG COLOR");
+            this.spriteColor = cs.loadColor("spriteColor:");
+            this.bgColor = cs.loadColor("bgColor:");
         } catch (Exception ignored) {
             this.spriteColor = "0xFFFFFF";
             this.bgColor = "0x000000";
@@ -73,6 +73,13 @@ public class RomDisplay extends Canvas {
                 }
             }
         }
+    }
+
+    public void uiUpdatesDisabled() {
+        painter.setFill(Color.web(bgColor));
+        painter.fillRect(0, 0, width, height);
+        painter.setFill(Color.web(spriteColor));
+        painter.fillText("Ui updates have been disabled\nenable them in options menu", 50, 50);
     }
 
     public void setFadeSelected(boolean fadeSelected) {

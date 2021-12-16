@@ -19,13 +19,15 @@ public class ConsoleDisplay {
     /**
      * print rom display to console
      */
-    public void printDisplay() {
+    public void printDisplay(String symbol) {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (this.display[j][i]) {
-                    System.out.print("X");
+                    System.out.print(symbol);
                 } else {
-                    System.out.print(" ");
+                    for (int n = 0; n < symbol.length(); n++) {
+                        System.out.print(" ");
+                    }
                 }
             }
             System.out.println();

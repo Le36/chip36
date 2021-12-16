@@ -10,10 +10,19 @@ public class Configs {
 
     private boolean printToConsole;
     private boolean disableUiUpdates;
+    private String printSymbol;
 
     public Configs() {
-        printToConsole = false;
-        disableUiUpdates = false;
+        try {
+            ConfigsSaver configsSaver = new ConfigsSaver();
+            this.printToConsole = configsSaver.loadState("printToConsole:");
+            this.disableUiUpdates = configsSaver.loadState("disableUiUpdates:");
+            this.printSymbol = configsSaver.loadSymbol();
+        } catch (Exception ignored) {
+            this.printToConsole = false;
+            this.disableUiUpdates = false;
+            this.printSymbol = "█#";
+        }
     }
 
 }

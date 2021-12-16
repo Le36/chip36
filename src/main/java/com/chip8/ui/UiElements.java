@@ -2,7 +2,9 @@ package com.chip8.ui;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.text.TextAlignment;
 
 /**
  * class used to generate all the ui elements used by this emulator ui
@@ -85,6 +87,11 @@ public class UiElements {
                 } else {
                     label.setMinSize(75, 20);
                 }
+                return label;
+            case SMALL:
+                label.getStylesheets().add("small-labels.css");
+                label.setAlignment(Pos.CENTER);
+                label.setPadding(new Insets(5, 0, 0, 0));
                 return label;
         }
         return label;

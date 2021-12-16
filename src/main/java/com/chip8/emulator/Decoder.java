@@ -382,7 +382,7 @@ public class Decoder {
         draw(x, y);
         this.detailed = d.detailDrawDisplay();
         if (this.c.isPrintToConsole()) {
-            display.printDisplay();
+            display.printDisplay(c.getPrintSymbol());
         }
     }
 

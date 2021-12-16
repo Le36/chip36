@@ -2,6 +2,7 @@ package com.chip8.ui;
 
 import com.chip8.configs.ColorSaver;
 import com.chip8.configs.Configs;
+import com.chip8.configs.ConfigsSaver;
 import com.chip8.configs.KeybindSaver;
 import com.chip8.emulator.Keys;
 import javafx.geometry.Insets;
@@ -9,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -55,10 +57,14 @@ public class Options extends Stage {
         }
 
         CheckBox printConsole = uiElements.makeCheckBox("Print to console");
-        CheckBox disableRomDisplay = uiElements.makeCheckBox("Disable ui updates");
+        CheckBox disableUiUpdates = uiElements.makeCheckBox("Disable ui updates");
         printConsole.setSelected(configs.isPrintToConsole());
-        disableRomDisplay.setSelected(configs.isDisableUiUpdates());
-        VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor, uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor, printConsole, disableRomDisplay);
+        disableUiUpdates.setSelected(configs.isDisableUiUpdates());
+        TextField printableSymbol = uiElements.makeTextField();
+        printableSymbol.setText(configs.getPrintSymbol());
+        VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor,
+                uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor, printConsole,
+                new HBox(5, uiElements.makeLabel("Print symbol:", LabelType.SMALL), printableSymbol), disableUiUpdates);
 
         root.setLeft(vBoxBinds);
         root.setBackground(bg);
@@ -73,6 +79,9 @@ public class Options extends Stage {
             rebinds.setDefault();
             bgColor.setValue(Color.web("0x000000"));
             spriteColor.setValue(Color.web("0xFFFFFF"));
+            printConsole.setSelected(false);
+            disableUiUpdates.setSelected(false);
+            printableSymbol.setText("█#");
         });
 
         saveChanges.setOnAction(e -> {
@@ -82,21 +91,25 @@ public class Options extends Stage {
                 keybindSaver.save(binds);
                 ColorSaver colorSaver = new ColorSaver();
                 colorSaver.save(bgColor.getValue(), spriteColor.getValue());
+                ConfigsSaver configsSaver = new ConfigsSaver();
+                configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected());
             } catch (Exception ignored) {
             }
             applyColor(romDisplay, spriteColor, bgColor);
             configs.setPrintToConsole(printConsole.isSelected());
-            configs.setDisableUiUpdates(disableRomDisplay.isSelected());
+            configs.setDisableUiUpdates(disableUiUpdates.isSelected());
+            configs.setPrintSymbol(printableSymbol.getText());
         });
 
         applyChanges.setOnAction(e -> {
             applyKeys(keys, rebinds);
             applyColor(romDisplay, spriteColor, bgColor);
             configs.setPrintToConsole(printConsole.isSelected());
-            configs.setDisableUiUpdates(disableRomDisplay.isSelected());
+            configs.setDisableUiUpdates(disableUiUpdates.isSelected());
+            configs.setPrintSymbol(printableSymbol.getText());
         });
 
-        this.setScene(new Scene(root, 550, 250));
+        this.setScene(new Scene(root, 550, 280));
         this.show();
     }
 

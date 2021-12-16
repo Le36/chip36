@@ -290,6 +290,8 @@ public class EmulatorUi extends Stage {
                                 executer.getMemory().setDelayTimer((byte) 0);
                             }
                         }
+                    } else {
+                        romDisplay.uiUpdatesDisabled();
                     }
                 });
             }

@@ -34,7 +34,7 @@ public class ColorSaver {
             file.append(sc.nextLine()).append("\n");
         }
 
-        String colors = file + "BG COLOR\n" + bg.toString() + "\nSPRITE COLOR\n" + sprite.toString();
+        String colors = file + "bgColor:\n" + bg.toString() + "\nspriteColor:\n" + sprite.toString();
         FileWriter fw = new FileWriter("chip8-configs.txt");
         fw.write(colors);
         fw.close();

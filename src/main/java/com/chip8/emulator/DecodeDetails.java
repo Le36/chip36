@@ -2,6 +2,10 @@ package com.chip8.emulator;
 
 import lombok.Data;
 
+/**
+ * after decoding the instruction, generates a text
+ * to explain what the instruction did, used by ui
+ */
 @Data
 public class DecodeDetails {
 
@@ -16,6 +20,14 @@ public class DecodeDetails {
     private String pc;
     private boolean state;
 
+    /**
+     * updates emulator memory states to string and hex format,
+     * these are used by the methods here
+     *
+     * @param opcode current opcode
+     * @param pc     current program counter
+     * @param i      current index register
+     */
     public void update(short opcode, short pc, short i) {
         this.state = false;
         this.x = Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase();

@@ -19,7 +19,7 @@ public class PixelManager {
     private boolean[][] spriteViewer;
 
     /**
-     * @param width screen width
+     * @param width  screen width
      * @param height screen height
      */
     public PixelManager(int width, int height) {

@@ -20,6 +20,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * emulators main ui scene
+ */
 public class EmulatorUi extends Stage {
 
     private Executer executer;
@@ -29,6 +32,12 @@ public class EmulatorUi extends Stage {
     final int width = 64;
     final int height = 32;
 
+    /**
+     * generates ui for emulator
+     *
+     * @param mode  if using the extended or normal mode
+     * @param scale scale for drawing the emulator display
+     */
     EmulatorUi(boolean mode, int scale) {
         UiElements uiElements = new UiElements();
 

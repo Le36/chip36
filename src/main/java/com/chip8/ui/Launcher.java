@@ -12,8 +12,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
+/**
+ * launcher for emulator, possibility to select the emulator
+ * state and resolution for normal mode
+ */
 public class Launcher extends Stage {
 
+    /**
+     * creates the ui for launcher
+     */
     Launcher() {
         UiElements uiElements = new UiElements();
         Border border = new Border(new BorderStroke(Color.rgb(35, 255, 0),

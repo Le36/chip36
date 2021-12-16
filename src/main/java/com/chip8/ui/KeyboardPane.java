@@ -10,6 +10,10 @@ import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 
+/**
+ * base used for clickable keyboard in ui and also
+ * for the rebinding possibility in options menu
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class KeyboardPane extends GridPane {
@@ -19,6 +23,10 @@ public class KeyboardPane extends GridPane {
     private final Keys keys;
     private boolean state;
 
+    /**
+     * @param keys  keys used by the emulator
+     * @param state true = clickable keyboard, false = rebindable keyboard
+     */
     public KeyboardPane(Keys keys, boolean state) {
         this.buttons = new ArrayList<>();
         this.tButtons = new ArrayList<>();

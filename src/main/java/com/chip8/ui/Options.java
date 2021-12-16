@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 public class Options extends Stage {
 
     /**
-     * @param keys keyboard presses used for rebinding
+     * @param keys       keyboard presses used for rebinding
      * @param romDisplay display for rom used for selecting colors
      */
     Options(Keys keys, RomDisplay romDisplay) {
@@ -91,9 +91,10 @@ public class Options extends Stage {
     /**
      * sets colors to the rom display window in the emulator
      * main window
-     * @param romDisplay display to set colors to
+     *
+     * @param romDisplay  display to set colors to
      * @param spriteColor color for sprite
-     * @param bgColor color for background
+     * @param bgColor     color for background
      */
     private void applyColor(RomDisplay romDisplay, ColorPicker spriteColor, ColorPicker bgColor) {
         romDisplay.setSpriteColor(spriteColor.getValue().toString());
@@ -103,7 +104,7 @@ public class Options extends Stage {
     /**
      * sets the rebinds to the emulator
      *
-     * @param keys keys used by the emulator
+     * @param keys    keys used by the emulator
      * @param rebinds class for keybind handling
      * @return
      */

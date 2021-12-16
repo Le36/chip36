@@ -2,8 +2,16 @@ package com.chip8.ui;
 
 import com.chip8.emulator.Keys;
 
+/**
+ * creates clickable keyboard for emulator ui
+ */
 public class Keyboard extends KeyboardPane {
 
+    /**
+     * creates the keyboard
+     *
+     * @param keys keys used by emulator
+     */
     public Keyboard(Keys keys) {
         super(keys, true);
         this.keyboardEvents();

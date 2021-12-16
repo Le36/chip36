@@ -6,6 +6,11 @@ import lombok.Data;
 
 import static java.lang.Integer.toHexString;
 
+/**
+ * creates the ui element disassembler,
+ * that shows the upcoming instructions from ram
+ * pointer by program counter
+ */
 @Data
 public class Disassembler extends ListView {
 
@@ -15,6 +20,13 @@ public class Disassembler extends ListView {
     private String nnn;
     private String nn;
 
+    /**
+     * gets the upcoming instructions from ram
+     * and adds them to the listview
+     *
+     * @param pc current program counter
+     * @param f  fetcher that gets the instruction from ram
+     */
     public void update(short pc, Fetcher f) {
         this.getItems().clear();
         for (int i = 0; i < 9; i++) {

@@ -156,8 +156,12 @@ public class Decoder {
     private void returnFromSubroutine() {
         // returns to program popping the pc from stack
         int stackSizeBefore = m.getStack().size();
-        m.setPc(m.getStack().pop());
-        this.detailed = d.detailReturnFrom(stackSizeBefore, m.getStack().size());
+        try {
+            m.setPc(m.getStack().pop());
+            this.detailed = d.detailReturnFrom(stackSizeBefore, m.getStack().size());
+        } catch (Exception ignored) {
+            this.detailed = "Error:\n00EE instruction, but stack is empty!";
+        }
     }
 
     private void jumpAddress() {

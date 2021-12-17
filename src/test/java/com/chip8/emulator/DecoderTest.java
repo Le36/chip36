@@ -294,6 +294,10 @@ public class DecoderTest {
         decoder.decode((short) 0x00EE);
         assertEquals(0, m.getStack().size());
         assertEquals(0x502, m.getPc());
+
+        // no exception even when trying for empty stack
+        decoder.decode((short) 0x00EE);
+        assertEquals("Error:\n00EE instruction, but stack is empty!", decoder.getDetailed());
     }
 
     @Test

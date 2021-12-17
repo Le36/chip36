@@ -1,5 +1,6 @@
 package com.chip8.emulator;
 
+import com.chip8.configs.DefaultValues;
 import com.chip8.configs.KeybindSaver;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -23,7 +24,7 @@ public class Keys {
             binds = kb.load();
         } catch (Exception ignored) {
             for (int i = 0; i < 16; i++) {
-                String layout = "1234QWERASDFZXCV";
+                String layout = new DefaultValues().getRebindLayout();
                 binds[i] = layout.substring(i, i + 1);
             }
         }

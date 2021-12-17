@@ -34,6 +34,7 @@ public class FileSavingTest {
         System.gc();
         File file = new File("chip8-configs.txt");
         file.delete();
+        file.deleteOnExit();
     }
 
     @Test

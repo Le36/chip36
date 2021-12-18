@@ -72,7 +72,7 @@ public class Options extends Stage {
             rebinds.setDefault();
             bgColor.setValue(Color.web(d.getBgColor()));
             spriteColor.setValue(Color.web(d.getSpriteColor()));
-            printConsole.setSelected(d.isPrintToDisplay());
+            printConsole.setSelected(d.isPrintToConsole());
             disableUiUpdates.setSelected(d.isDisableUiUpdates());
             printableSymbol.setText(d.getPrintSymbol());
         });
@@ -102,7 +102,7 @@ public class Options extends Stage {
             configs.setPrintSymbol(printableSymbol.getText());
         });
 
-        this.setScene(new Scene(root, 550, 280));
+        this.setScene(new Scene(root, 550, 300));
         this.show();
     }
 

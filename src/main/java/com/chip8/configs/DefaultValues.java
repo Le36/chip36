@@ -13,7 +13,7 @@ public class DefaultValues {
     private String bgColor;
     private String spriteColor;
     private String printSymbol;
-    private boolean printToDisplay;
+    private boolean printToConsole;
     private boolean disableUiUpdates;
 
     /**
@@ -25,7 +25,7 @@ public class DefaultValues {
         this.bgColor = "0x000000";
         this.spriteColor = "0xFFFFFF";
         this.printSymbol = "█#";
-        this.printToDisplay = false;
+        this.printToConsole = false;
         this.disableUiUpdates = false;
     }
 }

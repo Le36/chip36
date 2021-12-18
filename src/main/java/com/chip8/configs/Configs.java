@@ -20,7 +20,7 @@ public class Configs {
             this.printSymbol = configsSaver.loadSymbol();
         } catch (Exception ignored) {
             DefaultValues d = new DefaultValues();
-            this.printToConsole = d.isPrintToDisplay();
+            this.printToConsole = d.isPrintToConsole();
             this.disableUiUpdates = d.isDisableUiUpdates();
             this.printSymbol = d.getPrintSymbol();
         }

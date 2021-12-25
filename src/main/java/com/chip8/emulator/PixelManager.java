@@ -17,6 +17,7 @@ public class PixelManager {
     private boolean fade;
     private double fadeSpeed;
     private boolean[][] spriteViewer;
+    private int spriteHeight;
 
     /**
      * @param width  screen width
@@ -34,6 +35,7 @@ public class PixelManager {
         }
         this.display = new boolean[width][height];
         this.spriteViewer = new boolean[8][16];
+        this.spriteHeight = 0;
     }
 
     /**

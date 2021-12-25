@@ -106,8 +106,13 @@ public class EmulatorUi extends Stage {
         vboxLeft.setBorder(border);
 
         BorderPane spriteViewerPane = new BorderPane();
-        SpriteDisplay spriteDisplay = new SpriteDisplay(pixels);
+        SpriteDisplay spriteDisplay = new SpriteDisplay(pixels, configs);
+        Button spriteExtract = uiElements.makeButton("Extract sprites");
+        BorderPane paneSpriteButton = new BorderPane();
+        paneSpriteButton.setPadding(new Insets(0, 5, 5, 5));
+        paneSpriteButton.setCenter(spriteExtract);
         spriteViewerPane.setTop(uiElements.makeLabel("Sprite viewer:", LabelType.TOOLBAR));
+        spriteViewerPane.setBottom(paneSpriteButton);
         spriteViewerPane.setCenter(spriteDisplay);
         spriteViewerPane.setBorder(border);
 
@@ -242,6 +247,10 @@ public class EmulatorUi extends Stage {
             if (Integer.parseInt(stepText.getText()) != 100) {
                 stepText.setText(String.valueOf(Integer.parseInt(stepText.getText()) + 1));
             }
+        });
+
+        spriteExtract.setOnAction(e -> {
+            new SpriteExtractor(configs, spriteDisplay);
         });
 
         URL path = getClass().getClassLoader().getResource("beep.mp3");

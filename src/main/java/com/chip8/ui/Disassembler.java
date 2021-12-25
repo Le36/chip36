@@ -29,7 +29,7 @@ public class Disassembler extends ListView {
      */
     public void update(short pc, Fetcher f) {
         this.getItems().clear();
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 10; i++) {
             short opcode = f.seek(pc);
             this.seek(opcode);
             String instruction = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();

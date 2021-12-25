@@ -388,7 +388,8 @@ public class Decoder {
 
     private void draw(byte x, byte y) {
         // first nibble indicating height of the sprite
-        for (int i = 0; i < (opcode & 0x000F); i++) {
+        pixels.setSpriteHeight(opcode & 0x000F);
+        for (int i = 0; i < pixels.getSpriteHeight(); i++) {
             // gets sprite row data from ram
             byte spriteData = m.getRam()[m.getI() + i];
             for (int j = 0; j < 8; j++) {

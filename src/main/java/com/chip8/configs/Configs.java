@@ -11,6 +11,7 @@ public class Configs {
     private boolean printToConsole;
     private boolean disableUiUpdates;
     private String printSymbol;
+    private boolean spriteExtracting;
 
     public Configs() {
         try {
@@ -24,6 +25,7 @@ public class Configs {
             this.disableUiUpdates = d.isDisableUiUpdates();
             this.printSymbol = d.getPrintSymbol();
         }
+        this.spriteExtracting = false;
     }
 
 }

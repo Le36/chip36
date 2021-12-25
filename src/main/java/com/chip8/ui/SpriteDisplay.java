@@ -51,16 +51,20 @@ public class SpriteDisplay extends Canvas {
             }
         }
         if (configs.isSpriteExtracting()) {
-            if (galleryHashes.add(Arrays.deepHashCode(spriteViewer))) {
-                // deep copying
-                boolean[][] temp = new boolean[8][spriteHeight];
-                for (int i = 0; i < 8; i++) {
-                    for (int j = 0; j < spriteHeight; j++) {
-                        temp[i][j] = spriteViewer[i][j];
-                    }
+            extractSprite(spriteViewer, spriteHeight);
+        }
+    }
+
+    private void extractSprite(boolean[][] spriteViewer, int spriteHeight) {
+        if (galleryHashes.add(Arrays.deepHashCode(spriteViewer))) {
+            // deep copying
+            boolean[][] temp = new boolean[8][spriteHeight];
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < spriteHeight; j++) {
+                    temp[i][j] = spriteViewer[i][j];
                 }
-                gallery.add(new Pair(temp, spriteHeight));
             }
+            gallery.add(new Pair(temp, spriteHeight));
         }
     }
 }

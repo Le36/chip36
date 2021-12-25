@@ -67,9 +67,19 @@ public class EmulatorUi extends Stage {
 
         HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton, options);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
-        HBox hbox = new HBox(105, hboxLeft, hboxRight);
+        HBox toolbarHBoxTop = new HBox(105, hboxLeft, hboxRight);
+
+
+        Button extDisassembler = uiElements.makeButton("Extended disassembler");
+        Button extStack = uiElements.makeButton("Extended stack");
+        HBox toolbarHBoxBottom = new HBox(4, extDisassembler, extStack);
+        VBox toolbarVBox = new VBox(5, toolbarHBoxTop, toolbarHBoxBottom);
         ToolBar toolBar = new ToolBar();
-        toolBar.getItems().add(hbox);
+        if (mode) {
+            toolBar.getItems().add(toolbarVBox);
+        } else {
+            toolBar.getItems().add(toolbarHBoxTop);
+        }
         toolBar.getStylesheets().add("toolbar.css");
         toolBar.setBorder(border);
 
@@ -251,6 +261,11 @@ public class EmulatorUi extends Stage {
 
         spriteExtract.setOnAction(e -> {
             new SpriteExtractor(configs, spriteDisplay);
+        });
+
+        extDisassembler.setOnAction(e -> {
+            if (selectedFile == null) return;
+            new ExtendedDisassembler(executer);
         });
 
         URL path = getClass().getClassLoader().getResource("beep.mp3");

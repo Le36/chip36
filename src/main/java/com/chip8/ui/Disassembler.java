@@ -2,6 +2,8 @@ package com.chip8.ui;
 
 import com.chip8.emulator.Fetcher;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Text;
 import lombok.Data;
 
 import static java.lang.Integer.toHexString;
@@ -44,6 +46,44 @@ public class Disassembler extends ListView {
             this.getItems().add(base + instruction + " | " + this.getSeekString());
             pc += 2;
         }
+    }
+
+    /**
+     * gets data for extended disassembler
+     * and shows the content in loaded ram
+     *
+     * @param pc     current program counter
+     * @param f      fetcher that gets the instruction from ram
+     * @param scroll if scroll is enabled for view
+     */
+    public void updateFull(short pc, Fetcher f, boolean scroll) {
+        UiElements uiElements = new UiElements();
+        this.getItems().clear();
+        for (int i = 0; i < 0xFFF; i++) {
+            BorderPane pane = new BorderPane();
+            short opcode = f.seek((short) i);
+            this.seek(opcode);
+            String content = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
+            StringBuilder temp = new StringBuilder();
+            if (content.length() > 2) {
+                temp = new StringBuilder(content.substring(0, 2));
+                int h = Integer.parseInt(temp.toString(), 16);
+                byte b = (byte) (h ^ 0x100);
+                temp = new StringBuilder();
+                for (int j = 0; j < 8; j++) {
+                    if (((b & (0b10000000 >>> j)) != 0)) {
+                        temp.append("██");
+                    } else {
+                        temp.append("  ");
+                    }
+                }
+            }
+            pane.setLeft(uiElements.makeLabel("RAM: 0x" + Integer.toString(i, 16).toUpperCase() + " | 0x" + content + " | " + this.getSeekString(), LabelType.SMALL));
+            pane.setRight(uiElements.makeLabel(temp.toString(), LabelType.SMALL));
+
+            this.getItems().add(pane);
+        }
+        if (scroll) this.scrollTo(pc);
     }
 
     private void seek(short opcode) {

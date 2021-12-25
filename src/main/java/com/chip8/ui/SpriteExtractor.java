@@ -27,11 +27,12 @@ public class SpriteExtractor extends Stage {
 
         BorderPane topButton = new BorderPane();
         ToggleButton startExtractor = uiElements.makeToggleButton("Start extractor");
+        topButton.setPadding(new Insets(5, 5, 5, 5));
+        topButton.setBorder(border);
         topButton.setCenter(startExtractor);
         root.setTop(topButton);
         root.setBackground(bg);
         root.setBorder(border);
-        root.setPadding(new Insets(20, 20, 20, 20));
 
         SpriteGallery spriteGallery = new SpriteGallery(sprites);
 
@@ -49,7 +50,7 @@ public class SpriteExtractor extends Stage {
 
         this.setOnCloseRequest(windowEvent -> configs.setSpriteExtracting(false));
 
-        this.setScene(new Scene(root, 550, 300));
+        this.setScene(new Scene(root, 440, 400));
         this.show();
 
         new AnimationTimer() {

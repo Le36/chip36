@@ -1,5 +1,5 @@
 .text-area {
-    -fx-background-color: black;
+    -fx-background-color: transparent;
     -fx-font-family: Consolas;
     -fx-font-weight: bold;
     -fx-font-size: 12px;

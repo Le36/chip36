@@ -56,7 +56,7 @@ public class Disassembler extends ListView {
      * @param f      fetcher that gets the instruction from ram
      * @param scroll if scroll is enabled for view
      */
-    public void updateFull(short pc, Fetcher f, boolean scroll) {
+    public void updateFull(short pc, Fetcher f, boolean scroll, String symbol) {
         UiElements uiElements = new UiElements();
         this.getItems().clear();
         for (int i = 0; i < 0xFFF; i++) {
@@ -72,9 +72,11 @@ public class Disassembler extends ListView {
                 temp = new StringBuilder();
                 for (int j = 0; j < 8; j++) {
                     if (((b & (0b10000000 >>> j)) != 0)) {
-                        temp.append("██");
+                        temp.append(symbol);
                     } else {
-                        temp.append("  ");
+                        for (int m = 0; m < symbol.length(); m++) {
+                            temp.append(" ");
+                        }
                     }
                 }
             }

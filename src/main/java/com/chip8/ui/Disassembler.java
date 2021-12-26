@@ -3,7 +3,6 @@ package com.chip8.ui;
 import com.chip8.emulator.Fetcher;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Text;
 import lombok.Data;
 
 import static java.lang.Integer.toHexString;

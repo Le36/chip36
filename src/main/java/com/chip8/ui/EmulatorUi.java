@@ -21,6 +21,7 @@ import java.io.File;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * emulators main ui scene
@@ -73,13 +74,14 @@ public class EmulatorUi extends Stage {
 
         Button extDisassembler = uiElements.makeButton("Extended Disassembler");
         Button extStack = uiElements.makeButton("Extended Stack");
+        ToggleButton randomColors = uiElements.makeToggleButton("Random");
         Label multiplierLabel = uiElements.makeLabel("ROM Speed Multiplier: ", LabelType.TOOLBAR);
         Slider multiplier = uiElements.makeSlider(1, 50, 1);
         DecimalFormat df = new DecimalFormat("+#,###0.00;-#");
         Label currentSpeedLabel = uiElements.makeLabel("Current speed: " + df.format(gameSpeed), LabelType.TOOLBAR);
-        HBox hboxBotLeft = new HBox(4, extDisassembler, extStack);
+        HBox hboxBotLeft = new HBox(4, extDisassembler, extStack, randomColors);
         HBox hboxBotRight = new HBox(4, multiplierLabel, multiplier, currentSpeedLabel);
-        HBox toolbarHBoxBottom = new HBox(360, hboxBotLeft, hboxBotRight);
+        HBox toolbarHBoxBottom = new HBox(270, hboxBotLeft, hboxBotRight);
         VBox toolbarVBox = new VBox(5, toolbarHBoxTop, toolbarHBoxBottom);
         ToolBar toolBar = new ToolBar();
         if (mode) {
@@ -327,6 +329,10 @@ public class EmulatorUi extends Stage {
                             disassembler.update(executer.getMemory().getPc(), executer.getFetcher());
                             if (ignoreDelay.isSelected()) {
                                 executer.getMemory().setDelayTimer((byte) 0);
+                            }
+                            if (randomColors.isSelected()) {
+                                romDisplay.setBgColor(new RandomColors().getColor());
+                                romDisplay.setSpriteColor(new RandomColors().getColor());
                             }
                         }
                     } else {

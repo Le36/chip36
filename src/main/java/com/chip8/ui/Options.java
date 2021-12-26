@@ -2,12 +2,13 @@ package com.chip8.ui;
 
 import com.chip8.configs.*;
 import com.chip8.emulator.Keys;
+import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
+import javafx.scene.AccessibleAction;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -25,8 +26,9 @@ public class Options extends Stage {
      */
     Options(Keys keys, RomDisplay romDisplay, Configs configs) {
         this.setTitle("Options");
-
         UiElements uiElements = new UiElements();
+
+        EffectController effectController = new EffectController(romDisplay);
 
         Border border = new Border(new BorderStroke(Color.rgb(35, 255, 0),
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
@@ -43,23 +45,43 @@ public class Options extends Stage {
 
         ColorPicker spriteColor = uiElements.colorPicker();
         ColorPicker bgColor = uiElements.colorPicker();
-        ColorSaver cs = new ColorSaver();
 
         spriteColor.setValue(Color.web(romDisplay.getSpriteColor()));
         bgColor.setValue(Color.web(romDisplay.getBgColor()));
+        // colors so we can restore them if not applied / saved
+        configs.setSpriteColor(romDisplay.getSpriteColor());
+        configs.setBgColor(romDisplay.getBgColor());
 
         CheckBox printConsole = uiElements.makeCheckBox("Print to console");
         CheckBox disableUiUpdates = uiElements.makeCheckBox("Disable ui updates");
-        CheckBox roundPixels = uiElements.makeCheckBox("Round pixels");
         printConsole.setSelected(configs.isPrintToConsole());
         disableUiUpdates.setSelected(configs.isDisableUiUpdates());
-        roundPixels.setSelected(configs.isRoundPixels());
         TextField printableSymbol = uiElements.makeTextField();
         printableSymbol.setText(configs.getPrintSymbol());
+
         VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor,
                 uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor, printConsole,
-                new HBox(5, uiElements.makeLabel("Print symbol:", LabelType.SMALL), printableSymbol), disableUiUpdates, roundPixels);
+                new HBox(5, uiElements.makeLabel("Print symbol:", LabelType.SMALL), printableSymbol), disableUiUpdates);
 
+        CheckBox roundPixels = uiElements.makeCheckBox("Round pixels");
+        roundPixels.setSelected(configs.isRoundPixels());
+
+        Label blurLabel = uiElements.makeLabel("Blur strength:", LabelType.TOOLBAR);
+        Slider blurSlider = uiElements.makeSlider(0, 50, 0);
+        blurSlider.setValue(configs.getBlurValue());
+        CheckBox blurEnabled = uiElements.makeCheckBox("Enable blur");
+        blurEnabled.setSelected(configs.isBlur());
+
+        Label glowLabel = uiElements.makeLabel("Glow strength:", LabelType.TOOLBAR);
+        Slider glowSlider = uiElements.makeSlider(0, 1, 0);
+        glowSlider.setValue(configs.getGlowValue());
+        CheckBox glowEnabled = uiElements.makeCheckBox("Enable glow");
+        glowEnabled.setSelected(configs.isGlow());
+
+        VBox effects = new VBox(10, blurLabel, blurSlider, blurEnabled, glowLabel, glowSlider, glowEnabled, roundPixels);
+        effects.setPadding(new Insets(0, 10, 10, 10));
+
+        root.setCenter(effects);
         root.setLeft(vBoxBinds);
         root.setBackground(bg);
         root.setBorder(border);
@@ -78,6 +100,10 @@ public class Options extends Stage {
             disableUiUpdates.setSelected(d.isDisableUiUpdates());
             printableSymbol.setText(d.getPrintSymbol());
             roundPixels.setSelected(d.isRoundPixels());
+            blurEnabled.setSelected(d.isBlur());
+            glowEnabled.setSelected(d.isGlow());
+            blurSlider.setValue(d.getBlurValue());
+            glowSlider.setValue(d.getGlowValue());
         });
 
         saveChanges.setOnAction(e -> {
@@ -88,28 +114,73 @@ public class Options extends Stage {
                 ColorSaver colorSaver = new ColorSaver();
                 colorSaver.save(bgColor.getValue(), spriteColor.getValue());
                 ConfigsSaver configsSaver = new ConfigsSaver();
-                configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected(), roundPixels.isSelected());
+                configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected(), roundPixels.isSelected(), blurEnabled.isSelected(), glowEnabled.isSelected(), blurSlider.getValue(), glowSlider.getValue());
             } catch (Exception ignored) {
             }
-            apply(keys, romDisplay, configs, rebinds, spriteColor, bgColor, printConsole, disableUiUpdates, roundPixels, printableSymbol);
+            // apply it too
+            applyChanges.executeAccessibleAction(AccessibleAction.FIRE);
         });
 
         applyChanges.setOnAction(e -> {
-            apply(keys, romDisplay, configs, rebinds, spriteColor, bgColor, printConsole, disableUiUpdates, roundPixels, printableSymbol);
+            applyKeys(keys, rebinds);
+            applyColor(romDisplay, spriteColor, bgColor);
+            configs.setSpriteColor(romDisplay.getSpriteColor());
+            configs.setBgColor(romDisplay.getBgColor());
+
+            configs.setPrintToConsole(printConsole.isSelected());
+            configs.setDisableUiUpdates(disableUiUpdates.isSelected());
+            configs.setPrintSymbol(printableSymbol.getText());
+            configs.setRoundPixels(roundPixels.isSelected());
+
+            effectController.roundPixels(roundPixels.isSelected());
+
+            configs.setBlur(blurEnabled.isSelected());
+            configs.setGlow(glowEnabled.isSelected());
+            configs.setBlurValue(blurSlider.getValue());
+            configs.setGlowValue(glowSlider.getValue());
         });
 
-        this.setScene(new Scene(root, 550, 300));
+        this.setScene(new Scene(root, 700, 310));
         this.show();
-    }
 
-    private void apply(Keys keys, RomDisplay romDisplay, Configs configs, Rebinds rebinds, ColorPicker spriteColor, ColorPicker bgColor, CheckBox printConsole, CheckBox disableUiUpdates, CheckBox roundPixels, TextField printableSymbol) {
-        applyKeys(keys, rebinds);
-        applyColor(romDisplay, spriteColor, bgColor);
-        configs.setPrintToConsole(printConsole.isSelected());
-        configs.setDisableUiUpdates(disableUiUpdates.isSelected());
-        configs.setPrintSymbol(printableSymbol.getText());
-        configs.setRoundPixels(roundPixels.isSelected());
-        romDisplay.setRoundPixels(roundPixels.isSelected());
+        AnimationTimer liveChanges = new AnimationTimer() {
+            @Override
+            public void handle(long l) {
+                if (glowEnabled.isSelected() && blurEnabled.isSelected()) {
+                    effectController.applyBlurGlow(blurSlider.getValue(), glowSlider.getValue());
+                } else if (glowEnabled.isSelected()) {
+                    effectController.applyGlow(glowSlider.getValue());
+                } else if (blurEnabled.isSelected()) {
+                    effectController.applyBlur(blurSlider.getValue());
+                } else {
+                    effectController.removeEffects();
+                }
+                effectController.roundPixels(roundPixels.isSelected());
+                applyColor(romDisplay, spriteColor, bgColor);
+            }
+        };
+
+        this.setOnCloseRequest(windowEvent -> {
+            // this is to restore settings if they were not applied / saved
+            liveChanges.stop();
+            effectController.removeEffects();
+            if (configs.isGlow() && configs.isBlur()) {
+                effectController.applyBlurGlow(configs.getBlurValue(), configs.getGlowValue());
+            } else if (configs.isGlow()) {
+                effectController.applyGlow(configs.getGlowValue());
+            } else if (configs.isBlur()) {
+                effectController.applyBlur(configs.getBlurValue());
+            }
+            effectController.roundPixels(configs.isRoundPixels());
+            if (configs.getBgColor() != romDisplay.getBgColor()) {
+                romDisplay.setBgColor(configs.getBgColor());
+            }
+            if (configs.getSpriteColor() != romDisplay.getSpriteColor()) {
+                romDisplay.setSpriteColor(configs.getSpriteColor());
+            }
+        });
+
+        liveChanges.start();
     }
 
     /**

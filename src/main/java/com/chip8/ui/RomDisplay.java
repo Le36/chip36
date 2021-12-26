@@ -36,8 +36,8 @@ public class RomDisplay extends Canvas {
             ColorSaver cs = new ColorSaver();
             this.spriteColor = cs.loadColor("spriteColor:");
             this.bgColor = cs.loadColor("bgColor:");
-            ConfigsSaver configsSaver = new ConfigsSaver();
-            this.roundPixels = configsSaver.loadState("roundPixels:");
+            EffectController effectController = new EffectController(this);
+            effectController.onLoad();
         } catch (Exception ignored) {
             this.spriteColor = new DefaultValues().getSpriteColor();
             this.bgColor = new DefaultValues().getBgColor();

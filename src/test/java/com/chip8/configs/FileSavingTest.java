@@ -26,7 +26,7 @@ public class FileSavingTest {
         Keys keys = new Keys();
         this.keybindSaver.save(keys.getBinds());
         this.colorSaver.save(Color.BLACK, Color.WHITE);
-        this.configsSaver.save(false, "*", false, false);
+        this.configsSaver.save(false, "*", false, false, false, false, 0.0, 0.0);
     }
 
     @AfterClass

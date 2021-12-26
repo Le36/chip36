@@ -20,7 +20,7 @@ public class ConfigsSaver {
      * @param roundPixels enable or disable round pixels in emulator display
      * @throws IOException error in file handling
      */
-    public void save(boolean print, String symbol, boolean uiUpdates, boolean roundPixels) throws IOException {
+    public void save(boolean print, String symbol, boolean uiUpdates, boolean roundPixels, boolean blur, boolean glow, double blurValue, double glowValue) throws IOException {
         File configFile = new File("chip8-configs.txt");
 
         if (!configFile.exists()) {
@@ -35,7 +35,8 @@ public class ConfigsSaver {
         }
 
         String configs = file + "printToConsole:\n" + print + "\nsymbol:\n" + symbol + "\ndisableUiUpdates:\n" + uiUpdates
-                + "\nroundPixels:\n" + roundPixels;
+                + "\nroundPixels:\n" + roundPixels + "\nblur:\n" + blur + "\nglow:\n" + glow + "\nblurValue:\n" + blurValue
+                + "\nglowValue:\n" + glowValue;
         FileWriter fw = new FileWriter("chip8-configs.txt");
         fw.write(configs);
         fw.close();
@@ -73,6 +74,20 @@ public class ConfigsSaver {
         while (sc.hasNextLine()) {
             if (sc.nextLine().equals(state)) {
                 getter = Boolean.parseBoolean(sc.nextLine());
+            }
+        }
+        sc.close();
+        return getter;
+    }
+
+    public double loadValue(String val) throws FileNotFoundException {
+        File configFile = new File("chip8-configs.txt");
+        Scanner sc = new Scanner(configFile);
+        double getter = 0.0;
+
+        while (sc.hasNextLine()) {
+            if (sc.nextLine().equals(val)) {
+                getter = Double.parseDouble(sc.nextLine());
             }
         }
         sc.close();

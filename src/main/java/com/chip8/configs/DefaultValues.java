@@ -16,6 +16,10 @@ public class DefaultValues {
     private boolean printToConsole;
     private boolean disableUiUpdates;
     private boolean roundPixels;
+    private boolean blur;
+    private boolean glow;
+    private double blurValue;
+    private double glowValue;
 
     /**
      * edit these if you want to change some default values
@@ -29,5 +33,9 @@ public class DefaultValues {
         this.printToConsole = false;
         this.disableUiUpdates = false;
         this.roundPixels = false;
+        this.blur = false;
+        this.glow = false;
+        this.blurValue = 0.0;
+        this.glowValue = 0.0;
     }
 }

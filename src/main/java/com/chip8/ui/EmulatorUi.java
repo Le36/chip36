@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -70,9 +71,15 @@ public class EmulatorUi extends Stage {
         HBox toolbarHBoxTop = new HBox(105, hboxLeft, hboxRight);
 
 
-        Button extDisassembler = uiElements.makeButton("Extended disassembler");
-        Button extStack = uiElements.makeButton("Extended stack");
-        HBox toolbarHBoxBottom = new HBox(4, extDisassembler, extStack);
+        Button extDisassembler = uiElements.makeButton("Extended Disassembler");
+        Button extStack = uiElements.makeButton("Extended Stack");
+        Label multiplierLabel = uiElements.makeLabel("ROM Speed Multiplier: ", LabelType.TOOLBAR);
+        Slider multiplier = uiElements.makeSlider(1, 50, 1);
+        DecimalFormat df = new DecimalFormat("+#,###0.00;-#");
+        Label currentSpeedLabel = uiElements.makeLabel("Current speed: " + df.format(gameSpeed), LabelType.TOOLBAR);
+        HBox hboxBotLeft = new HBox(4, extDisassembler, extStack);
+        HBox hboxBotRight = new HBox(4, multiplierLabel, multiplier, currentSpeedLabel);
+        HBox toolbarHBoxBottom = new HBox(360, hboxBotLeft, hboxBotRight);
         VBox toolbarVBox = new VBox(5, toolbarHBoxTop, toolbarHBoxBottom);
         ToolBar toolBar = new ToolBar();
         if (mode) {
@@ -297,11 +304,15 @@ public class EmulatorUi extends Stage {
                 Platform.runLater(() -> {
                     gameSpeed = slider.getValue();
                     pixels.setFadeSpeed(fadeSlider.getValue());
-
                     romDisplay.setFadeSelected(!fadeButton.isSelected());
+                    gameSpeed *= multiplier.getValue();
+
                     if (!configs.isDisableUiUpdates()) {
                         romDisplay.draw();
-                        if (mode) spriteDisplay.draw();
+                        if (mode) {
+                            spriteDisplay.draw();
+                            currentSpeedLabel.setText("Current speed: " + df.format(gameSpeed));
+                        }
 
                         pixels.fade(); // fades all pixels that have been erased
 
@@ -314,7 +325,6 @@ public class EmulatorUi extends Stage {
                         if (mode) {
                             updateLabels(currentInstruction, indexRegister, programCounter, delayTimer, soundTimer, registerLabels, currentDetailed, stackSize, stackPeek);
                             disassembler.update(executer.getMemory().getPc(), executer.getFetcher());
-
                             if (ignoreDelay.isSelected()) {
                                 executer.getMemory().setDelayTimer((byte) 0);
                             }

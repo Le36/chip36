@@ -31,7 +31,6 @@ public class ExtendedStack extends Stage {
         root.setBorder(border);
         root.setCenter(listView);
 
-
         this.setScene(new Scene(root, 250, 300));
         this.show();
 

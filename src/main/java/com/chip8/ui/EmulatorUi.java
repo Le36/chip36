@@ -268,6 +268,11 @@ public class EmulatorUi extends Stage {
             new ExtendedDisassembler(executer);
         });
 
+        extStack.setOnAction(e -> {
+            if (selectedFile == null) return;
+            new ExtendedStack(executer);
+        });
+
         URL path = getClass().getClassLoader().getResource("beep.mp3");
         Media beep = new Media(path.toString());
         MediaPlayer mediaPlayer = new MediaPlayer(beep);

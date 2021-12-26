@@ -49,11 +49,18 @@ public class ExtendedDisassembler extends Stage {
         this.setScene(new Scene(root, 640, 550));
         this.show();
 
-        new AnimationTimer() {
+        AnimationTimer screenUpdater = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 disassembler.updateFull(executer.getMemory().getPc(), executer.getFetcher(), follow.isSelected());
             }
-        }.start();
+        };
+
+        this.setOnCloseRequest(windowEvent -> {
+            screenUpdater.stop();
+            this.close();
+        });
+
+        screenUpdater.start();
     }
 }

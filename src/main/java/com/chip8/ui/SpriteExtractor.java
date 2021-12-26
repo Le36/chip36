@@ -48,17 +48,23 @@ public class SpriteExtractor extends Stage {
             }
         });
 
-        this.setOnCloseRequest(windowEvent -> configs.setSpriteExtracting(false));
-
         this.setScene(new Scene(root, 440, 400));
         this.show();
 
-        new AnimationTimer() {
+        AnimationTimer screenUpdater = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 spriteGallery.update();
             }
-        }.start();
+        };
+
+        this.setOnCloseRequest(windowEvent -> {
+            configs.setSpriteExtracting(false);
+            screenUpdater.stop();
+            this.close();
+        });
+
+        screenUpdater.start();
     }
 
 }

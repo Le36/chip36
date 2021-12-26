@@ -18,6 +18,7 @@ public class Loader {
     private byte[] bytes;
     private String name;
     private Memory memory;
+    private File loadedRom;
 
     /**
      * @param name   file path
@@ -32,9 +33,9 @@ public class Loader {
      * reads file and gets byte array of the file
      */
     public void readFile() {
-        File rom = new File(this.name);
+        this.loadedRom = new File(this.name);
         try {
-            bytes = Files.readAllBytes(rom.toPath());
+            bytes = Files.readAllBytes(loadedRom.toPath());
         } catch (IOException e) {
             e.printStackTrace();
         }

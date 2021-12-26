@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 public class ExtendedDisassembler extends Stage {
 
     ExtendedDisassembler(Executer executer) {
-        this.setTitle("ROM Disassembler: " + executer.getLoader().getName());
+        this.setTitle("ROM Disassembler: " + executer.getLoader().getLoadedRom().getName());
         UiElements uiElements = new UiElements();
 
         Border border = new Border(new BorderStroke(Color.rgb(35, 255, 0),

@@ -50,13 +50,15 @@ public class Options extends Stage {
 
         CheckBox printConsole = uiElements.makeCheckBox("Print to console");
         CheckBox disableUiUpdates = uiElements.makeCheckBox("Disable ui updates");
+        CheckBox roundPixels = uiElements.makeCheckBox("Round pixels");
         printConsole.setSelected(configs.isPrintToConsole());
         disableUiUpdates.setSelected(configs.isDisableUiUpdates());
+        roundPixels.setSelected(configs.isRoundPixels());
         TextField printableSymbol = uiElements.makeTextField();
         printableSymbol.setText(configs.getPrintSymbol());
         VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor,
                 uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor, printConsole,
-                new HBox(5, uiElements.makeLabel("Print symbol:", LabelType.SMALL), printableSymbol), disableUiUpdates);
+                new HBox(5, uiElements.makeLabel("Print symbol:", LabelType.SMALL), printableSymbol), disableUiUpdates, roundPixels);
 
         root.setLeft(vBoxBinds);
         root.setBackground(bg);
@@ -75,6 +77,7 @@ public class Options extends Stage {
             printConsole.setSelected(d.isPrintToConsole());
             disableUiUpdates.setSelected(d.isDisableUiUpdates());
             printableSymbol.setText(d.getPrintSymbol());
+            roundPixels.setSelected(d.isRoundPixels());
         });
 
         saveChanges.setOnAction(e -> {
@@ -85,25 +88,28 @@ public class Options extends Stage {
                 ColorSaver colorSaver = new ColorSaver();
                 colorSaver.save(bgColor.getValue(), spriteColor.getValue());
                 ConfigsSaver configsSaver = new ConfigsSaver();
-                configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected());
+                configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected(), roundPixels.isSelected());
             } catch (Exception ignored) {
             }
-            applyColor(romDisplay, spriteColor, bgColor);
-            configs.setPrintToConsole(printConsole.isSelected());
-            configs.setDisableUiUpdates(disableUiUpdates.isSelected());
-            configs.setPrintSymbol(printableSymbol.getText());
+            apply(keys, romDisplay, configs, rebinds, spriteColor, bgColor, printConsole, disableUiUpdates, roundPixels, printableSymbol);
         });
 
         applyChanges.setOnAction(e -> {
-            applyKeys(keys, rebinds);
-            applyColor(romDisplay, spriteColor, bgColor);
-            configs.setPrintToConsole(printConsole.isSelected());
-            configs.setDisableUiUpdates(disableUiUpdates.isSelected());
-            configs.setPrintSymbol(printableSymbol.getText());
+            apply(keys, romDisplay, configs, rebinds, spriteColor, bgColor, printConsole, disableUiUpdates, roundPixels, printableSymbol);
         });
 
         this.setScene(new Scene(root, 550, 300));
         this.show();
+    }
+
+    private void apply(Keys keys, RomDisplay romDisplay, Configs configs, Rebinds rebinds, ColorPicker spriteColor, ColorPicker bgColor, CheckBox printConsole, CheckBox disableUiUpdates, CheckBox roundPixels, TextField printableSymbol) {
+        applyKeys(keys, rebinds);
+        applyColor(romDisplay, spriteColor, bgColor);
+        configs.setPrintToConsole(printConsole.isSelected());
+        configs.setDisableUiUpdates(disableUiUpdates.isSelected());
+        configs.setPrintSymbol(printableSymbol.getText());
+        configs.setRoundPixels(roundPixels.isSelected());
+        romDisplay.setRoundPixels(roundPixels.isSelected());
     }
 
     /**

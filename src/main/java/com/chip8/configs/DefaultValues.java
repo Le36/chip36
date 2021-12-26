@@ -15,6 +15,7 @@ public class DefaultValues {
     private String printSymbol;
     private boolean printToConsole;
     private boolean disableUiUpdates;
+    private boolean roundPixels;
 
     /**
      * edit these if you want to change some default values
@@ -27,5 +28,6 @@ public class DefaultValues {
         this.printSymbol = "█#";
         this.printToConsole = false;
         this.disableUiUpdates = false;
+        this.roundPixels = false;
     }
 }

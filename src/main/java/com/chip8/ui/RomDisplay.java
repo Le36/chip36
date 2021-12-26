@@ -1,6 +1,7 @@
 package com.chip8.ui;
 
 import com.chip8.configs.ColorSaver;
+import com.chip8.configs.ConfigsSaver;
 import com.chip8.configs.DefaultValues;
 import com.chip8.emulator.PixelManager;
 import javafx.scene.canvas.Canvas;
@@ -22,6 +23,7 @@ public class RomDisplay extends Canvas {
     private int scale;
     private String bgColor;
     private String spriteColor;
+    private boolean roundPixels;
 
     public RomDisplay(PixelManager pixels, int width, int height) {
         super(width, height);
@@ -34,9 +36,12 @@ public class RomDisplay extends Canvas {
             ColorSaver cs = new ColorSaver();
             this.spriteColor = cs.loadColor("spriteColor:");
             this.bgColor = cs.loadColor("bgColor:");
+            ConfigsSaver configsSaver = new ConfigsSaver();
+            this.roundPixels = configsSaver.loadState("roundPixels:");
         } catch (Exception ignored) {
             this.spriteColor = new DefaultValues().getSpriteColor();
             this.bgColor = new DefaultValues().getBgColor();
+            this.roundPixels = new DefaultValues().isRoundPixels();
         }
     }
 
@@ -54,7 +59,11 @@ public class RomDisplay extends Canvas {
         for (int x = 0; x < height / scale; x++) {
             for (int y = 0; y < width / scale; y++) {
                 if (display[y][x]) {
-                    painter.fillRect(y * scale, x * scale, scale, scale);
+                    if (roundPixels) {
+                        painter.fillOval(y * scale, x * scale, scale, scale);
+                    } else {
+                        painter.fillRect(y * scale, x * scale, scale, scale);
+                    }
                 }
             }
         }
@@ -66,11 +75,14 @@ public class RomDisplay extends Canvas {
             for (int y = 0; y < fadeMap.get(x).size(); y++) {
                 if (fadeMap.get(x).get(y) > 0.0) {
                     double fading = Math.min(0.95, fadeMap.get(x).get(y));
-
                     Color color = Color.web(spriteColor, fading);
-
                     painter.setFill(color);
-                    painter.fillRect(x * scale, y * scale, scale, scale);
+
+                    if (roundPixels) {
+                        painter.fillOval(x * scale, y * scale, scale, scale);
+                    } else {
+                        painter.fillRect(x * scale, y * scale, scale, scale);
+                    }
                 }
             }
         }
@@ -104,5 +116,9 @@ public class RomDisplay extends Canvas {
 
     public String getSpriteColor() {
         return spriteColor;
+    }
+
+    public void setRoundPixels(boolean roundPixels) {
+        this.roundPixels = roundPixels;
     }
 }

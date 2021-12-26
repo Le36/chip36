@@ -14,12 +14,13 @@ public class ConfigsSaver {
     /**
      * saves configs, appends them to config file after keybindings and colors
      *
-     * @param print if printing to console is on
-     * @param symbol what symbol to use when printing
-     * @param uiUpdates enable or disable ui updates
+     * @param print       if printing to console is on
+     * @param symbol      what symbol to use when printing
+     * @param uiUpdates   enable or disable ui updates
+     * @param roundPixels enable or disable round pixels in emulator display
      * @throws IOException error in file handling
      */
-    public void save(boolean print, String symbol, boolean uiUpdates) throws IOException {
+    public void save(boolean print, String symbol, boolean uiUpdates, boolean roundPixels) throws IOException {
         File configFile = new File("chip8-configs.txt");
 
         if (!configFile.exists()) {
@@ -33,7 +34,8 @@ public class ConfigsSaver {
             file.append(sc.nextLine()).append("\n");
         }
 
-        String configs = file + "printToConsole:\n" + print + "\nsymbol:\n" + symbol + "\ndisableUiUpdates:\n" + uiUpdates;
+        String configs = file + "printToConsole:\n" + print + "\nsymbol:\n" + symbol + "\ndisableUiUpdates:\n" + uiUpdates
+                + "\nroundPixels:\n" + roundPixels;
         FileWriter fw = new FileWriter("chip8-configs.txt");
         fw.write(configs);
         fw.close();

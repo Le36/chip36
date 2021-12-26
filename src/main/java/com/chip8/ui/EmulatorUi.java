@@ -21,7 +21,6 @@ import java.io.File;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * emulators main ui scene

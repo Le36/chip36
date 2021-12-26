@@ -26,7 +26,7 @@ public class FileSavingTest {
         Keys keys = new Keys();
         this.keybindSaver.save(keys.getBinds());
         this.colorSaver.save(Color.BLACK, Color.WHITE);
-        this.configsSaver.save(false, "*", false);
+        this.configsSaver.save(false, "*", false, false);
     }
 
     @AfterClass
@@ -53,6 +53,7 @@ public class FileSavingTest {
     public void configLoad() throws FileNotFoundException {
         assertFalse(configsSaver.loadState("printToConsole:"));
         assertFalse(configsSaver.loadState("disableUiUpdates:"));
+        assertFalse(configsSaver.loadState("roundPixels:"));
         assertEquals("*", configsSaver.loadSymbol());
     }
 }

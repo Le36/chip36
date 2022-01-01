@@ -6,7 +6,7 @@
 
 .list-cell:odd {
     -fx-text-fill: rgb(35, 255, 0);
-    -fx-font-family: Consolas;
+    -fx-font-family: "Inconsolata SemiExpanded";
     -fx-font-weight: bold;
     -fx-font-size: 12px;
     -fx-background-color: #000000;
@@ -14,7 +14,7 @@
 
 .list-cell:even {
     -fx-text-fill: rgb(35, 255, 0);
-    -fx-font-family: Consolas;
+    -fx-font-family: "Inconsolata SemiExpanded";
     -fx-font-weight: bold;
     -fx-font-size: 12px;
     -fx-background-color: #151515;

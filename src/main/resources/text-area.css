@@ -1,9 +1,13 @@
 .text-area {
-    -fx-background-color: transparent;
-    -fx-font-family: Consolas;
+    -fx-background-color: black;
+    -fx-font-family: "Inconsolata SemiExpanded";
     -fx-font-weight: bold;
     -fx-font-size: 12px;
     -fx-text-fill: rgb(35, 255, 0);
+}
+
+.text-area .text {
+    -fx-font-smoothing-type: gray;
 }
 
 .text-area .scroll-pane {

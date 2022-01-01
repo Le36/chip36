@@ -350,15 +350,9 @@ public class EmulatorUi extends Stage {
         rightSide.setLeft(vBoxForceOpcode);
         rightSide.setBottom(vBoxStepControl);
         rightSide.setBorder(border);
-        if (!System.getProperty("os.name").startsWith("Windows")) {
-            vBoxKeyboard.setPrefSize(150, 150);
-            vBoxForceOpcode.setPrefSize(150, 50);
-            vBoxStepControl.setPrefSize(150, 100);
-        } else {
-            vBoxKeyboard.setPrefSize(130, 140);
-            vBoxForceOpcode.setPrefSize(130, 50);
-            vBoxStepControl.setPrefSize(130, 100);
-        }
+        vBoxKeyboard.setPrefSize(130, 140);
+        vBoxForceOpcode.setPrefSize(130, 50);
+        vBoxStepControl.setPrefSize(130, 100);
         vBoxForceOpcode.setPadding(new Insets(1, 5, 3, 3));
         vBoxStepControl.setPadding(new Insets(1, 1, 1, 3));
         return rightSide;

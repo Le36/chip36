@@ -4,18 +4,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.text.TextAlignment;
 
 /**
  * class used to generate all the ui elements used by this emulator ui
  */
 public class UiElements {
-
-    private String os;
-
-    public UiElements() {
-        this.os = System.getProperty("os.name");
-    }
 
     /**
      * adds buttons.css stylesheet to the button
@@ -69,11 +62,7 @@ public class UiElements {
         switch (type) {
             case LABEL:
                 label.getStylesheets().add("labels.css");
-                if (!os.startsWith("Windows")) {
-                    label.setMinSize(340, 10);
-                } else {
-                    label.setMinSize(290, 10);
-                }
+                label.setMinSize(290, 10);
                 label.setPadding(new Insets(0, 0, 0, 3));
                 return label;
             case TOOLBAR:
@@ -82,11 +71,7 @@ public class UiElements {
                 return label;
             case REGISTER:
                 label.getStylesheets().add("register-labels.css");
-                if (!os.startsWith("Windows")) {
-                    label.setMinSize(82, 20);
-                } else {
-                    label.setMinSize(75, 20);
-                }
+                label.setMinSize(75, 20);
                 return label;
             case SMALL:
                 label.getStylesheets().add("small-labels.css");
@@ -108,11 +93,7 @@ public class UiElements {
         TextArea textArea = new TextArea();
         textArea.getStylesheets().add("text-area.css");
         textArea.setEditable(false);
-        if (!os.startsWith("Windows")) {
-            textArea.setPrefSize(v + 50, v1 + 20);
-        } else {
-            textArea.setPrefSize(v, v1);
-        }
+        textArea.setPrefSize(v, v1);
         return textArea;
     }
 
@@ -125,11 +106,7 @@ public class UiElements {
         Disassembler disassembler = new Disassembler();
         disassembler.getStylesheets().add("disassembler.css");
         disassembler.setEditable(false);
-        if (!os.startsWith("Windows")) {
-            disassembler.setPrefSize(460, 203);
-        } else {
-            disassembler.setPrefSize(440, 183);
-        }
+        disassembler.setPrefSize(440, 183);
         return disassembler;
     }
 

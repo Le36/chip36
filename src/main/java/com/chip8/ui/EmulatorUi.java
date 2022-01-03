@@ -214,6 +214,13 @@ public class EmulatorUi extends Stage {
             pixels.clearDisplay();
             hexDumpArea.setText(executer.getLoader().hexDump());
             this.setTitle("Chip8 Emulator | Loaded ROM: " + selectedFile.getName());
+
+            // check here if its 64x64 rom for hires mode
+            if (executer.getMemory().getRam()[0x200] == 0x12 && executer.getMemory().getRam()[0x201] == 0x60) {
+                executer.getDecoder().setResolutionMode(true);
+                pixels.setResolutionMode(true);
+                executer.getMemory().setPc((short) 0x2c0);
+            }
         });
 
         resetRom.setOnAction(e -> {

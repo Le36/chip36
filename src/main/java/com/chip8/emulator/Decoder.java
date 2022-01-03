@@ -48,7 +48,11 @@ public class Decoder {
                 this.returnFromSubroutine();
                 return;
             case 0x00FB: // 00FB -- Super chip
+                pixels.scrollRight();
+                this.detailed = "Scroll right display by 4 pixels.";
             case 0x00FC: // 00FC -- Super chip
+                pixels.scrollLeft();
+                this.detailed = "Scroll left display by 4 pixels.";
             case 0x00FE: // 00FE -- Super chip
                 this.resolutionMode = false;
                 pixels.setResolutionMode(false);

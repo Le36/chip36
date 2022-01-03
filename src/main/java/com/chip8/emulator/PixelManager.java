@@ -140,11 +140,23 @@ public class PixelManager {
         }
     }
 
-    private void drawScrolling(int x, int y, int amount) {
+    private void drawScrolling(int x, int y, int amount, Scroll dir) {
         if (this.display[x][y] && fade) {
             this.fadeMap.get(x).put(y, 0.95);
         }
-        this.display[x][y] = display[x][y - amount];
+        switch (dir) {
+            case DOWN:
+                this.display[x][y] = display[x][y - amount];
+                return;
+            case LEFT:
+                this.display[x][y] = display[x + amount][y];
+                return;
+            case RIGHT:
+                this.display[x][y] = display[x - amount][y];
+                return;
+            case UP:
+                this.display[x][y] = display[x][y + amount];
+        }
     }
 
     private void erase(int x, int y) {
@@ -159,13 +171,11 @@ public class PixelManager {
      * @param amount how many pixels to scroll down to
      */
     public void scrollDown(int amount) {
-        if (!resolutionMode) {
-            amount /= 2;
-        }
+        amount = scrollBy(amount);
         // draw screen bottom to top
         for (int y = 63; y >= amount; y--) {
             for (int x = 0; x < 128; x++) {
-                drawScrolling(x, y, amount);
+                drawScrolling(x, y, amount, Scroll.DOWN);
             }
         }
 
@@ -178,10 +188,41 @@ public class PixelManager {
     }
 
     public void scrollRight() {
+        int amount = scrollBy(4);
 
+        for (int y = 0; y < 64; y++) {
+            for (int x = 127; x >= amount; x--) {
+                drawScrolling(x, y, amount, Scroll.RIGHT);
+            }
+        }
+
+        for (int x = 0; x < amount; x++) {
+            for (int y = 0; y < 64; y++) {
+                erase(x, y);
+            }
+        }
     }
 
     public void scrollLeft() {
+        int amount = scrollBy(4);
 
+        for (int y = 0; y < 64; y++) {
+            for (int x = 127 - amount; x >= 0; x--) {
+                drawScrolling(x, y, amount, Scroll.LEFT);
+            }
+        }
+
+        for (int x = 128 - amount; x < 128; x++) {
+            for (int y = 0; y < 64; y++) {
+                erase(x, y);
+            }
+        }
+    }
+
+    private int scrollBy(int amount) {
+        if (resolutionMode) {
+            return amount;
+        }
+        return amount / 2;
     }
 }

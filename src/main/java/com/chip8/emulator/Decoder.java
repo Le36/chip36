@@ -42,6 +42,7 @@ public class Decoder {
         this.opcode = opcode;
         switch (opcode) {
             case 0x00E0: // 00E0
+            case 0x0230: // 0230 -- hires mode clear screen
                 this.clearDisplay();
                 return;
             case 0x00EE: // 00EE
@@ -50,22 +51,27 @@ public class Decoder {
             case 0x00FB: // 00FB -- Super chip
                 pixels.scrollRight();
                 this.detailed = "Scroll right display by 4 pixels.";
+                return;
             case 0x00FC: // 00FC -- Super chip
                 pixels.scrollLeft();
                 this.detailed = "Scroll left display by 4 pixels.";
+                return;
             case 0x00FE: // 00FE -- Super chip
                 this.resolutionMode = false;
                 pixels.setResolutionMode(false);
                 this.detailed = "Set lores mode";
+                return;
             case 0x00FF: // 00FF -- Super chip
                 this.resolutionMode = true;
                 pixels.setResolutionMode(true);
                 this.detailed = "Set hires mode";
+                return;
         }
         switch (opcode & 0xFFF0) {
             case 0x00C0: // 00CN -- Super chip
                 pixels.scrollDown(opcode & 0x000F);
                 this.detailed = "Scroll down display\nby " + d.getN() + " pixels.";
+                return;
         }
         switch (opcode & 0xF0FF) {
             case 0xE09E: // EX9E

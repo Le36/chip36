@@ -20,6 +20,7 @@ public class Disassembler extends ListView {
     private String y;
     private String nnn;
     private String nn;
+    private String n;
 
     /**
      * gets the upcoming instructions from ram
@@ -92,6 +93,7 @@ public class Disassembler extends ListView {
         this.y = toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase();
         this.nnn = toHexString(((opcode & 0x0FFF) & 0xFFF)).toUpperCase();
         this.nn = toHexString(((opcode & 0x00FF) & 0xFF)).toUpperCase();
+        this.n = toHexString(((opcode & 0x000F) & 0xF)).toUpperCase();
 
         switch (opcode) {
             case 0x0000:
@@ -102,6 +104,25 @@ public class Disassembler extends ListView {
                 return;
             case 0x00EE: // 00EE
                 this.seekString = "00EE: Returns from a subroutine";
+                return;
+            case 0x00FB: // 00FB -- Super chip
+                this.seekString = "00FB: Scroll right display by 4 pixels.";
+                return;
+            case 0x00FC: // 00FC -- Super chip
+                this.seekString = "00FC: Scroll left display by 4 pixels.";
+                return;
+            case 0x00FE: // 00FE -- Super chip
+                this.seekString = "00FE: Set LoRes mode";
+                return;
+            case 0x00FF: // 00FF -- Super chip
+                this.seekString = "00FF: Set HiRes mode";
+                return;
+            case 0x0230: // 0230 -- hires mode clear screen
+                this.seekString = "0230: Clear display HiRes mode";
+        }
+        switch (opcode & 0xFFF0) {
+            case 0x00C0: // 00CN -- Super chip
+                this.seekString = "00CN: Scroll down display by " + n + " pixels.";
                 return;
         }
         switch (opcode & 0xF0FF) {

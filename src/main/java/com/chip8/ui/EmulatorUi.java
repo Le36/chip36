@@ -9,6 +9,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
@@ -17,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -31,8 +36,8 @@ public class EmulatorUi extends Stage {
     private boolean fileChosen;
     private File selectedFile;
     private double gameSpeed;
-    final int width = 64;
-    final int height = 32;
+    final int width = 128;
+    final int height = 64;
 
     /**
      * generates ui for emulator
@@ -185,6 +190,15 @@ public class EmulatorUi extends Stage {
         this.setScene(scene);
         this.sizeToScene();
 
+        if (!mode) {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            int width = gd.getDisplayMode().getWidth();
+            int height = gd.getDisplayMode().getHeight();
+            if (scale * 128 > width || (scale + 5) * 64 > height) {
+                this.setMaximized(true);
+            }
+        }
+
         // keyboard for emulator
         scene.addEventFilter(KeyEvent.ANY, keys::setKey);
 
@@ -195,6 +209,7 @@ public class EmulatorUi extends Stage {
             // 4096 total memory, - 512 reserved = 3584 max
             if (selectedFile == null || selectedFile.length() > 3584 || selectedFile.length() < 2) return;
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys, configs);
+            pixels.setResolutionMode(false);
             fileChosen = true;
             pixels.clearDisplay();
             hexDumpArea.setText(executer.getLoader().hexDump());

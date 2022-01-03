@@ -30,7 +30,7 @@ public class RomDisplay extends Canvas {
         this.painter = this.getGraphicsContext2D();
         this.width = width;
         this.height = height;
-        this.scale = width / 64;
+        this.scale = width / 128;
         try {
             ColorSaver cs = new ColorSaver();
             this.spriteColor = cs.loadColor("spriteColor:");
@@ -58,11 +58,7 @@ public class RomDisplay extends Canvas {
         for (int x = 0; x < height / scale; x++) {
             for (int y = 0; y < width / scale; y++) {
                 if (display[y][x]) {
-                    if (roundPixels) {
-                        painter.fillOval(y * scale, x * scale, scale, scale);
-                    } else {
-                        painter.fillRect(y * scale, x * scale, scale, scale);
-                    }
+                    paint(y, x);
                 }
             }
         }
@@ -76,14 +72,21 @@ public class RomDisplay extends Canvas {
                     double fading = Math.min(0.95, fadeMap.get(x).get(y));
                     Color color = Color.web(spriteColor, fading);
                     painter.setFill(color);
-
-                    if (roundPixels) {
-                        painter.fillOval(x * scale, y * scale, scale, scale);
-                    } else {
-                        painter.fillRect(x * scale, y * scale, scale, scale);
-                    }
+                    paint(x, y);
                 }
             }
+        }
+    }
+
+    private void paint(int x, int y) {
+        int scaled = scale;
+        if (!pixels.isResolutionMode()) {
+            scaled *= 2;
+        }
+        if (roundPixels) {
+            painter.fillOval(x * scaled, y * scaled, scaled, scaled);
+        } else {
+            painter.fillRect(x * scaled, y * scaled, scaled, scaled);
         }
     }
 

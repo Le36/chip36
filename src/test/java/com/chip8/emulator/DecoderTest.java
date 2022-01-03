@@ -20,7 +20,7 @@ public class DecoderTest {
         this.keys = new Keys();
         new Loader("noFileHere", m).loadFontToRAM();
         this.fetcher = new Fetcher(m);
-        this.decoder = new Decoder(m, fetcher, new PixelManager(64, 32), keys, new Configs());
+        this.decoder = new Decoder(m, fetcher, new PixelManager(128, 64), keys, new Configs());
     }
 
     @Test

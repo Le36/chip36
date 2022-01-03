@@ -48,7 +48,7 @@ public class Launcher extends Stage {
         launcherRoot.setBorder(border);
         launcherRoot.setPadding(new Insets(10, 30, 10, 30));
 
-        Slider resolution = uiElements.makeSlider(1, 60, 15);
+        Slider resolution = uiElements.makeSlider(1, 30, 15);
         resolution.setSnapToTicks(true);
         resolution.setMajorTickUnit(1.0);
         resolution.setMinorTickCount(1);
@@ -62,7 +62,7 @@ public class Launcher extends Stage {
 
         extended.setOnAction(e -> {
             this.close();
-            new EmulatorUi(true, 10);
+            new EmulatorUi(true, 5);
         });
 
         normal.setOnAction(e -> {
@@ -79,7 +79,7 @@ public class Launcher extends Stage {
             @Override
             public void handle(long l) {
                 int val = (int) resolution.getValue();
-                selectedRes.setText(val * 64 + "x" + val * 32);
+                selectedRes.setText(val * 128 + "x" + val * 64);
             }
         }.start();
     }

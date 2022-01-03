@@ -29,6 +29,7 @@ public class Decoder {
         this.keys = keys;
         this.d = new DecodeDetails();
         this.c = c;
+        this.resolutionMode = false;
     }
 
     /**
@@ -409,8 +410,8 @@ public class Decoder {
                 // using binary mask to check each bit in sprite if that bit should be drawn or not
                 if ((spriteData & (0b10000000 >> j)) != 0) {
                     // modulo to wrap sprites around the screen
-                    int xx = Math.abs((x + j) % 64);
-                    int yy = Math.abs((y + i) % 32);
+                    int xx = Math.abs((x + j) % 128);
+                    int yy = Math.abs((y + i) % 64);
                     // if we erased pixel then set VF register to 1
                     if (pixels.getPixel(xx, yy)) {
                         m.varReg(0xF, 1);

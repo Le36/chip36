@@ -75,8 +75,8 @@ public class PixelManager {
      * clears display
      */
     public void clearDisplay() {
-        for (int x = 0; x < 64; x++) {
-            for (int y = 0; y < 32; y++) {
+        for (int x = 0; x < 128; x++) {
+            for (int y = 0; y < 64; y++) {
                 if (this.display[x][y]) {
                     this.draw(x, y);
                 }
@@ -115,11 +115,19 @@ public class PixelManager {
     }
 
     /**
-     * print rom display to console
+     * print rom display to console according to resolution mode
+     *
+     * @param symbol symbol that is used to print rom to console
      */
     public void printDisplay(String symbol) {
-        for (int y = 0; y < 32; y++) {
-            for (int x = 0; x < 64; x++) {
+        int xlim = 64;
+        int ylim = 32;
+        if (resolutionMode) {
+            xlim *= 2;
+            ylim *= 2;
+        }
+        for (int y = 0; y < ylim; y++) {
+            for (int x = 0; x < xlim; x++) {
                 if (this.display[x][y]) {
                     System.out.print(symbol);
                 } else {
@@ -151,15 +159,18 @@ public class PixelManager {
      * @param amount how many pixels to scroll down to
      */
     public void scrollDown(int amount) {
+        if (!resolutionMode) {
+            amount /= 2;
+        }
         // draw screen bottom to top
-        for (int y = 31; y >= amount; y--) {
-            for (int x = 0; x < 64; x++) {
+        for (int y = 63; y >= amount; y--) {
+            for (int x = 0; x < 128; x++) {
                 drawScrolling(x, y, amount);
             }
         }
 
         // now clear top side
-        for (int x = 0; x < 64; x++) {
+        for (int x = 0; x < 128; x++) {
             for (int y = 0; y < amount; y++) {
                 erase(x, y);
             }
@@ -167,6 +178,10 @@ public class PixelManager {
     }
 
     public void scrollRight() {
+
+    }
+
+    public void scrollLeft() {
 
     }
 }

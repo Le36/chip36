@@ -103,4 +103,57 @@ public class PixelManager {
             }
         }
     }
+
+    /**
+     * @param i x coord
+     * @param j y coord
+     * @return state of that pixel
+     */
+    public boolean getPixel(int i, int j) {
+        return this.display[i][j];
+    }
+
+    /**
+     * print rom display to console
+     */
+    public void printDisplay(String symbol) {
+        for (int i = 0; i < 32; i++) {
+            for (int j = 0; j < 64; j++) {
+                if (this.display[j][i]) {
+                    System.out.print(symbol);
+                } else {
+                    for (int n = 0; n < symbol.length(); n++) {
+                        System.out.print(" ");
+                    }
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    /**
+     * scrolls down screen in for a given amount
+     *
+     * @param amount how many pixels to scroll down to
+     */
+    public void scrollDown(int amount) {
+        // draw screen bottom to top
+        for (int j = 31; j >= amount; j--) {
+            for (int i = 0; i < 64; i++) {
+                display[i][j] = display[i][j - amount];
+                if (display[i][j]) {
+                    this.fadeMap.get(i).put(j, 0.95);
+                }
+            }
+        }
+
+        // now clear top side
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < amount; j++) {
+                if (display[i][j]) {
+                    this.draw(i, j);
+                }
+            }
+        }
+    }
 }

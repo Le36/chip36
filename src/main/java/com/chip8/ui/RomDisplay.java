@@ -1,7 +1,6 @@
 package com.chip8.ui;
 
 import com.chip8.configs.ColorSaver;
-import com.chip8.configs.ConfigsSaver;
 import com.chip8.configs.DefaultValues;
 import com.chip8.emulator.PixelManager;
 import javafx.scene.canvas.Canvas;

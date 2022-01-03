@@ -509,7 +509,7 @@ public class DecoderTest {
         // set index register to sprite data location
         m.setI((short) 0x300);
         // display should be clear at 0x0
-        assertFalse(decoder.getDisplay().getDisplay()[0][0]);
+        assertFalse(decoder.getPixels().getDisplay()[0][0]);
         // instruction with sprite height of 2
         decoder.decode((short) 0xD012);
         // we drew on empty screen, so VF should still be 0
@@ -518,23 +518,23 @@ public class DecoderTest {
         // *******
         //    **
         // we can test that each of these pixels is on or off:
-        assertTrue(decoder.getDisplay().getDisplay()[0][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[1][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[2][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[3][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[4][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[5][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[6][0]);
-        assertFalse(decoder.getDisplay().getDisplay()[7][0]);
+        assertTrue(decoder.getPixels().getDisplay()[0][0]);
+        assertTrue(decoder.getPixels().getDisplay()[1][0]);
+        assertTrue(decoder.getPixels().getDisplay()[2][0]);
+        assertTrue(decoder.getPixels().getDisplay()[3][0]);
+        assertTrue(decoder.getPixels().getDisplay()[4][0]);
+        assertTrue(decoder.getPixels().getDisplay()[5][0]);
+        assertTrue(decoder.getPixels().getDisplay()[6][0]);
+        assertFalse(decoder.getPixels().getDisplay()[7][0]);
 
-        assertFalse(decoder.getDisplay().getDisplay()[0][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[1][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[2][1]);
-        assertTrue(decoder.getDisplay().getDisplay()[3][1]);
-        assertTrue(decoder.getDisplay().getDisplay()[4][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[5][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[6][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[7][1]);
+        assertFalse(decoder.getPixels().getDisplay()[0][1]);
+        assertFalse(decoder.getPixels().getDisplay()[1][1]);
+        assertFalse(decoder.getPixels().getDisplay()[2][1]);
+        assertTrue(decoder.getPixels().getDisplay()[3][1]);
+        assertTrue(decoder.getPixels().getDisplay()[4][1]);
+        assertFalse(decoder.getPixels().getDisplay()[5][1]);
+        assertFalse(decoder.getPixels().getDisplay()[6][1]);
+        assertFalse(decoder.getPixels().getDisplay()[7][1]);
 
         // now we want to change the drawn sprite
         // to look like this:
@@ -547,23 +547,23 @@ public class DecoderTest {
         // this time we erased some pixels, so VF should be 1
         assertEquals(1, m.getV()[0XF]);
         // then we can again check each pixel one by one
-        assertTrue(decoder.getDisplay().getDisplay()[0][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[1][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[2][0]);
-        assertFalse(decoder.getDisplay().getDisplay()[3][0]);
-        assertFalse(decoder.getDisplay().getDisplay()[4][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[5][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[6][0]);
-        assertTrue(decoder.getDisplay().getDisplay()[7][0]);
+        assertTrue(decoder.getPixels().getDisplay()[0][0]);
+        assertTrue(decoder.getPixels().getDisplay()[1][0]);
+        assertTrue(decoder.getPixels().getDisplay()[2][0]);
+        assertFalse(decoder.getPixels().getDisplay()[3][0]);
+        assertFalse(decoder.getPixels().getDisplay()[4][0]);
+        assertTrue(decoder.getPixels().getDisplay()[5][0]);
+        assertTrue(decoder.getPixels().getDisplay()[6][0]);
+        assertTrue(decoder.getPixels().getDisplay()[7][0]);
 
-        assertTrue(decoder.getDisplay().getDisplay()[0][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[1][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[2][1]);
-        assertTrue(decoder.getDisplay().getDisplay()[3][1]);
-        assertTrue(decoder.getDisplay().getDisplay()[4][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[5][1]);
-        assertFalse(decoder.getDisplay().getDisplay()[6][1]);
-        assertTrue(decoder.getDisplay().getDisplay()[7][1]);
+        assertTrue(decoder.getPixels().getDisplay()[0][1]);
+        assertFalse(decoder.getPixels().getDisplay()[1][1]);
+        assertFalse(decoder.getPixels().getDisplay()[2][1]);
+        assertTrue(decoder.getPixels().getDisplay()[3][1]);
+        assertTrue(decoder.getPixels().getDisplay()[4][1]);
+        assertFalse(decoder.getPixels().getDisplay()[5][1]);
+        assertFalse(decoder.getPixels().getDisplay()[6][1]);
+        assertTrue(decoder.getPixels().getDisplay()[7][1]);
 
         // finally we can test clear screen instruction 00E0:
         decoder.decode((short) 0x00E0);
@@ -571,7 +571,7 @@ public class DecoderTest {
         // every pixel on the screen that they are off
         for (int i = 0; i < 64; i++) {
             for (int j = 0; j < 32; j++) {
-                assertFalse(decoder.getDisplay().getDisplay()[i][j]);
+                assertFalse(decoder.getPixels().getDisplay()[i][j]);
             }
         }
     }

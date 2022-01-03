@@ -11,7 +11,6 @@ import java.util.Random;
 @Data
 public class Decoder {
 
-    private ConsoleDisplay display;
     private Memory m;
     private Fetcher fetcher;
     private PixelManager pixels;
@@ -23,7 +22,6 @@ public class Decoder {
 
 
     public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys, Configs c) {
-        this.display = new ConsoleDisplay();
         this.m = m;
         this.fetcher = fetcher;
         this.pixels = pixels;
@@ -47,6 +45,12 @@ public class Decoder {
             case 0x00EE: // 00EE
                 this.returnFromSubroutine();
                 return;
+            case 0x00FB: // 00FB -- Super chip
+            case 0x00FC: // 00FC -- Super chip
+        }
+        switch (opcode & 0xFFF0) {
+            case 0x00C0: // 00CN -- Super chip
+                pixels.scrollDown(opcode & 0x000F);
         }
         switch (opcode & 0xF0FF) {
             case 0xE09E: // EX9E
@@ -151,7 +155,6 @@ public class Decoder {
     }
 
     private void clearDisplay() {
-        display.clearDisplay();
         pixels.clearDisplay();
         this.detailed = "Clears the display";
     }
@@ -382,7 +385,7 @@ public class Decoder {
         draw(x, y);
         this.detailed = d.detailDrawDisplay();
         if (this.c.isPrintToConsole()) {
-            display.printDisplay(c.getPrintSymbol());
+            pixels.printDisplay(c.getPrintSymbol());
         }
     }
 
@@ -396,14 +399,13 @@ public class Decoder {
                 // using binary mask to check each bit in sprite if that bit should be drawn or not
                 if ((spriteData & (0b10000000 >> j)) != 0) {
                     // modulo to wrap sprites around the screen
-                    int xx = Math.abs((x + j) % display.getWidth());
-                    int yy = Math.abs((y + i) % display.getHeight());
+                    int xx = Math.abs((x + j) % 64);
+                    int yy = Math.abs((y + i) % 32);
                     // if we erased pixel then set VF register to 1
-                    if (display.getPixel(xx, yy)) {
+                    if (pixels.getPixel(xx, yy)) {
                         m.varReg(0xF, 1);
                     }
                     // draws pixel by flipping it
-                    display.drawPixel(xx, yy);
                     pixels.draw(xx, yy);
                     pixels.drawSprite(j, i);
                 }

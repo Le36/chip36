@@ -18,6 +18,7 @@ public class PixelManager {
     private double fadeSpeed;
     private boolean[][] spriteViewer;
     private int spriteHeight;
+    private boolean resolutionMode; // true = hires, false = lores
 
     /**
      * @param width  screen width
@@ -74,10 +75,10 @@ public class PixelManager {
      * clears display
      */
     public void clearDisplay() {
-        for (int hei = 0; hei < 32; hei++) {
-            for (int wid = 0; wid < 64; wid++) {
-                if (this.display[wid][hei]) {
-                    this.draw(wid, hei);
+        for (int x = 0; x < 64; x++) {
+            for (int y = 0; y < 32; y++) {
+                if (this.display[x][y]) {
+                    this.draw(x, y);
                 }
             }
         }
@@ -97,29 +98,29 @@ public class PixelManager {
      * clears sprite display
      */
     public void clearSprite() {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 16; j++) {
-                this.spriteViewer[i][j] = false;
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 16; y++) {
+                this.spriteViewer[x][y] = false;
             }
         }
     }
 
     /**
-     * @param i x coord
-     * @param j y coord
+     * @param x x coordinate
+     * @param y y coordinate
      * @return state of that pixel
      */
-    public boolean getPixel(int i, int j) {
-        return this.display[i][j];
+    public boolean getPixel(int x, int y) {
+        return this.display[x][y];
     }
 
     /**
      * print rom display to console
      */
     public void printDisplay(String symbol) {
-        for (int i = 0; i < 32; i++) {
-            for (int j = 0; j < 64; j++) {
-                if (this.display[j][i]) {
+        for (int y = 0; y < 32; y++) {
+            for (int x = 0; x < 64; x++) {
+                if (this.display[x][y]) {
                     System.out.print(symbol);
                 } else {
                     for (int n = 0; n < symbol.length(); n++) {
@@ -131,6 +132,19 @@ public class PixelManager {
         }
     }
 
+    private void drawScrolling(int x, int y, int amount) {
+        if (this.display[x][y] && fade) {
+            this.fadeMap.get(x).put(y, 0.95);
+        }
+        this.display[x][y] = display[x][y - amount];
+    }
+
+    private void erase(int x, int y) {
+        if (display[x][y]) {
+            this.draw(x, y);
+        }
+    }
+
     /**
      * scrolls down screen in for a given amount
      *
@@ -138,22 +152,21 @@ public class PixelManager {
      */
     public void scrollDown(int amount) {
         // draw screen bottom to top
-        for (int j = 31; j >= amount; j--) {
-            for (int i = 0; i < 64; i++) {
-                display[i][j] = display[i][j - amount];
-                if (display[i][j]) {
-                    this.fadeMap.get(i).put(j, 0.95);
-                }
+        for (int y = 31; y >= amount; y--) {
+            for (int x = 0; x < 64; x++) {
+                drawScrolling(x, y, amount);
             }
         }
 
         // now clear top side
-        for (int i = 0; i < 64; i++) {
-            for (int j = 0; j < amount; j++) {
-                if (display[i][j]) {
-                    this.draw(i, j);
-                }
+        for (int x = 0; x < 64; x++) {
+            for (int y = 0; y < amount; y++) {
+                erase(x, y);
             }
         }
+    }
+
+    public void scrollRight() {
+
     }
 }

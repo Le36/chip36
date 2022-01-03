@@ -19,6 +19,7 @@ public class Decoder {
     private String detailed;
     private DecodeDetails d;
     private Configs c;
+    private boolean resolutionMode; // true = hires, false = lores
 
 
     public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys, Configs c) {
@@ -47,10 +48,19 @@ public class Decoder {
                 return;
             case 0x00FB: // 00FB -- Super chip
             case 0x00FC: // 00FC -- Super chip
+            case 0x00FE: // 00FE -- Super chip
+                this.resolutionMode = false;
+                pixels.setResolutionMode(false);
+                this.detailed = "Set lores mode";
+            case 0x00FF: // 00FF -- Super chip
+                this.resolutionMode = true;
+                pixels.setResolutionMode(true);
+                this.detailed = "Set hires mode";
         }
         switch (opcode & 0xFFF0) {
             case 0x00C0: // 00CN -- Super chip
                 pixels.scrollDown(opcode & 0x000F);
+                this.detailed = "Scroll down display\nby " + d.getN() + " pixels.";
         }
         switch (opcode & 0xF0FF) {
             case 0xE09E: // EX9E

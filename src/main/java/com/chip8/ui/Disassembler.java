@@ -63,10 +63,17 @@ public class Disassembler extends ListView {
             BorderPane pane = new BorderPane();
             short opcode = f.seek((short) i);
             this.seek(opcode);
-            String content = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
+            String instruction = Integer.toHexString((opcode & 0xFFFF)).toUpperCase();
+            if (instruction.length() == 1) {
+                instruction = "000" + instruction;
+            } else if (instruction.length() == 2) {
+                instruction = "00" + instruction;
+            } else if (instruction.length() == 3) {
+                instruction = "0" + instruction;
+            }
             StringBuilder temp = new StringBuilder();
-            if (content.length() > 2) {
-                temp = new StringBuilder(content.substring(0, 2));
+            if (instruction.length() > 2) {
+                temp = new StringBuilder(instruction.substring(0, 2));
                 int h = Integer.parseInt(temp.toString(), 16);
                 byte b = (byte) (h ^ 0x100);
                 temp = new StringBuilder();
@@ -80,7 +87,7 @@ public class Disassembler extends ListView {
                     }
                 }
             }
-            pane.setLeft(uiElements.makeLabel("RAM: 0x" + Integer.toString(i, 16).toUpperCase() + " | 0x" + content + " | " + this.getSeekString(), LabelType.SMALL));
+            pane.setLeft(uiElements.makeLabel("RAM: 0x" + Integer.toString(i, 16).toUpperCase() + " | 0x" + instruction + " | " + this.getSeekString(), LabelType.SMALL));
             pane.setRight(uiElements.makeLabel(temp.toString(), LabelType.SMALL));
 
             this.getItems().add(pane);

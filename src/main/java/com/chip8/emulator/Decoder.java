@@ -98,6 +98,9 @@ public class Decoder {
             case 0xF029: //FX29
                 this.font();
                 return;
+            case 0xF030: // FX30
+                this.largeFont();
+                return;
             case 0xF033: // FX33
                 this.bcd();
                 return;
@@ -495,7 +498,15 @@ public class Decoder {
         // Font Fx29, x points to the character in V[x]
         // then I is set ram address that contains data for that character
         int x = ((opcode & 0x0F00) >> 8); // 0 - F
-        m.setI((short) (0x50 + (5 * m.getV()[x])));
+        m.setI((short) (5 * m.getV()[x]));
+        this.detailed = d.detailFont();
+    }
+
+    private void largeFont() {
+        // Larger Font Fx30, x points to the character in V[x]
+        // then I is set ram address that contains data for that character
+        int x = ((opcode & 0x0F00) >> 8); // 0 - F
+        m.setI((short) (0x60 + (10 * m.getV()[x])));
         this.detailed = d.detailFont();
     }
 

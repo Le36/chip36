@@ -56,6 +56,12 @@ public class Decoder {
                 pixels.scrollLeft();
                 this.detailed = "Scroll left display by 4 pixels.";
                 return;
+            case 0x00FD: // 00FD -- Super chip
+                // just an infinite loop
+                // used to "exit" the emulator
+                this.fetcher.decrementPC();
+                this.detailed = "Reset ROM to continue.";
+                return;
             case 0x00FE: // 00FE -- Super chip
                 this.resolutionMode = false;
                 pixels.setResolutionMode(false);
@@ -406,7 +412,12 @@ public class Decoder {
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
         // variable register VF (V[15]) keeps track if there were any pixels erased, reset here
         m.varReg(0xF, 0);
-        draw(x, y);
+        // in hires with n=0 it means sprite is 16x16
+        if (resolutionMode && (opcode & 0x000F) == 0) {
+            draw16x16(x, y);
+        } else {
+            draw(x, y);
+        }
         this.detailed = d.detailDrawDisplay();
         if (this.c.isPrintToConsole()) {
             pixels.printDisplay(c.getPrintSymbol());
@@ -432,6 +443,28 @@ public class Decoder {
                     // draws pixel by flipping it
                     pixels.draw(xx, yy);
                     pixels.drawSprite(j, i);
+                }
+            }
+        }
+    }
+
+    private void draw16x16(byte x, byte y) {
+        for (int i = 0, spriteIndex = 0; i < 16; i++, spriteIndex += 2) {
+            // gets sprite row data from ram
+            int spriteData = (short) (((m.getRam()[m.getI() + spriteIndex] << 8) & 0xFF00) | (m.getRam()[m.getI() + spriteIndex + 1] & 0x00FF));
+            for (int j = 0; j < 16; j++) {
+                // using binary mask to check each bit in sprite if that bit should be drawn or not
+                if ((spriteData & (0x8000 >> j)) != 0) {
+                    // modulo to wrap sprites around the screen
+                    int xx = Math.abs((x + j) % 128);
+                    int yy = Math.abs((y + i) % 64);
+                    // if we erased pixel then set VF register to 1
+                    if (pixels.getPixel(xx, yy)) {
+                        m.varReg(0xF, 1);
+                    }
+                    // draws pixel by flipping it
+                    pixels.draw(xx, yy);
+                    // increase to 16x16 pixels.drawSprite(j, i);
                 }
             }
         }

@@ -206,8 +206,8 @@ public class PixelManager {
     public void scrollLeft() {
         int amount = scrollBy(4);
 
-        for (int y = 0; y < 64; y++) {
-            for (int x = 127 - amount; x >= 0; x--) {
+        for (int y = 63; y >= 0; y--) {
+            for (int x = 0; x < 127 - amount + 1; x++) {
                 drawScrolling(x, y, amount, Scroll.LEFT);
             }
         }

@@ -19,16 +19,18 @@ public class DecodeDetails {
     private String i;
     private String pc;
     private boolean state;
+    private boolean resolutionMode;
 
     /**
      * updates emulator memory states to string and hex format,
      * these are used by the methods here
      *
-     * @param opcode current opcode
-     * @param pc     current program counter
-     * @param i      current index register
+     * @param opcode  current opcode
+     * @param pc      current program counter
+     * @param i       current index register
+     * @param resMode true if hires or false if lores
      */
-    public void update(short opcode, short pc, short i) {
+    public void update(short opcode, short pc, short i, boolean resMode) {
         this.state = false;
         this.x = Integer.toHexString((((opcode & 0x0F00) >> 8) & 0xF)).toUpperCase();
         this.y = Integer.toHexString((((opcode & 0x00F0) >> 4) & 0xF)).toUpperCase();
@@ -38,6 +40,51 @@ public class DecodeDetails {
         this.iBefore = Integer.toHexString((i & 0xFFF)).toUpperCase();
         this.pc = Integer.toHexString((pc & 0xFFFF)).toUpperCase();
         this.i = Integer.toHexString((pc & 0xFFFF)).toUpperCase();
+        this.resolutionMode = resMode;
+    }
+
+    public String scrollRight() {
+        if (resolutionMode) {
+            return "Scrolls display right by 4 pixels.\nHigh resolution mode.";
+        } else {
+            return "Scrolls display right by 2 pixels.\nLow resolution mode";
+        }
+    }
+
+    public String scrollLeft() {
+        if (resolutionMode) {
+            return "Scrolls display left by 4 pixels.\nHigh resolution mode.";
+        } else {
+            return "Scrolls display left by 2 pixels.\nLow resolution mode";
+        }
+    }
+
+    public String exit() {
+        return "Emulator has been exited.\nReset rom to continue\nor load a new one.";
+    }
+
+    public String lores() {
+        return "Screen resolution set to 64x32\nLow resolution mode.";
+    }
+
+    public String hires() {
+        return "Screen resolution set to 128x64\nHigh resolution mode.";
+    }
+
+    public String scrollDown() {
+        if (resolutionMode) {
+            return "Scrolls display down by " + this.n + " pixels.\nHigh resolution mode.";
+        } else {
+            return "Scrolls display down by " + (opcode & 0x000F) / 2 + " pixels.\nLow resolution mode";
+        }
+    }
+
+    public String clearDisplay() {
+        return "Clears the display";
+    }
+
+    public String detailReturnFromEx() {
+        return "Error:\n00EE instruction, but stack is empty!";
     }
 
     public String detailReturnFrom(int stackSizeBefore, int stackSize) {

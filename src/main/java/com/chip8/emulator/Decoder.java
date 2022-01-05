@@ -38,7 +38,7 @@ public class Decoder {
      * @param opcode opcode given by the fetcher
      */
     public void decode(short opcode) {
-        d.update(opcode, m.getPc(), m.getI());
+        d.update(opcode, m.getPc(), m.getI(), resolutionMode);
         this.opcode = opcode;
         switch (opcode) {
             case 0x00E0: // 00E0
@@ -49,34 +49,24 @@ public class Decoder {
                 this.returnFromSubroutine();
                 return;
             case 0x00FB: // 00FB -- Super chip
-                pixels.scrollRight();
-                this.detailed = "Scroll right display by 4 pixels.";
+                this.scrollRight();
                 return;
             case 0x00FC: // 00FC -- Super chip
-                pixels.scrollLeft();
-                this.detailed = "Scroll left display by 4 pixels.";
+                this.scrollLeft();
                 return;
             case 0x00FD: // 00FD -- Super chip
-                // just an infinite loop
-                // used to "exit" the emulator
-                this.fetcher.decrementPC();
-                this.detailed = "Reset ROM to continue.";
+                this.exit();
                 return;
             case 0x00FE: // 00FE -- Super chip
-                this.resolutionMode = false;
-                pixels.setResolutionMode(false);
-                this.detailed = "Set lores mode";
+                this.lores();
                 return;
             case 0x00FF: // 00FF -- Super chip
-                this.resolutionMode = true;
-                pixels.setResolutionMode(true);
-                this.detailed = "Set hires mode";
+                this.hires();
                 return;
         }
         switch (opcode & 0xFFF0) {
             case 0x00C0: // 00CN -- Super chip
-                pixels.scrollDown(opcode & 0x000F);
-                this.detailed = "Scroll down display\nby " + d.getN() + " pixels.";
+                this.scrollDown();
                 return;
         }
         switch (opcode & 0xF0FF) {
@@ -186,7 +176,7 @@ public class Decoder {
 
     private void clearDisplay() {
         pixels.clearDisplay();
-        this.detailed = "Clears the display";
+        this.detailed = d.clearDisplay();
     }
 
     private void returnFromSubroutine() {
@@ -196,8 +186,41 @@ public class Decoder {
             m.setPc(m.getStack().pop());
             this.detailed = d.detailReturnFrom(stackSizeBefore, m.getStack().size());
         } catch (Exception ignored) {
-            this.detailed = "Error:\n00EE instruction, but stack is empty!";
+            this.detailed = d.detailReturnFromEx();
         }
+    }
+
+    private void scrollRight() {
+        pixels.scrollRight();
+        this.detailed = d.scrollRight();
+    }
+
+    private void scrollLeft() {
+        pixels.scrollLeft();
+        this.detailed = d.scrollLeft();
+    }
+
+    private void exit() {
+        // simulates exiting the simulator by going into
+        // infinite loop by decrementing pc
+        this.fetcher.decrementPC();
+        this.detailed = d.exit();
+    }
+
+    private void lores() {
+        this.resolutionMode = false;
+        pixels.setResolutionMode(false);
+        this.detailed = d.lores();
+    }
+
+    private void hires() {
+        this.detailed = d.hires();
+    }
+
+    private void scrollDown() {
+        // scrolls pixels down by 00C(n) amount
+        pixels.scrollDown(opcode & 0x000F);
+        this.detailed = d.scrollDown();
     }
 
     private void jumpAddress() {

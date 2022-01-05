@@ -191,11 +191,13 @@ public class Decoder {
     }
 
     private void scrollRight() {
+        // scroll right screen
         pixels.scrollRight();
         this.detailed = d.scrollRight();
     }
 
     private void scrollLeft() {
+        // scroll left screen
         pixels.scrollLeft();
         this.detailed = d.scrollLeft();
     }
@@ -208,12 +210,16 @@ public class Decoder {
     }
 
     private void lores() {
+        // normal resolution mode
         this.resolutionMode = false;
         pixels.setResolutionMode(false);
         this.detailed = d.lores();
     }
 
     private void hires() {
+        // set resolution mode for 128x64
+        this.resolutionMode = true;
+        pixels.setResolutionMode(true);
         this.detailed = d.hires();
     }
 

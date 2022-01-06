@@ -48,7 +48,7 @@ public class SpriteExtractor extends Stage {
             }
         });
 
-        this.setScene(new Scene(root, 440, 400));
+        this.setScene(new Scene(root, 480, 400));
         this.show();
 
         AnimationTimer screenUpdater = new AnimationTimer() {

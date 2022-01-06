@@ -43,13 +43,19 @@ public class SpriteDisplay extends Canvas {
         boolean[][] spriteViewer = pixels.getSpriteViewer();
         int spriteHeight = pixels.getSpriteHeight();
         painter.setFill(Color.rgb(35, 255, 0));
+
+        // check if 16x16 sprite or normal
+        int ylim = spriteHeight == -1 ? 16 : 8;
+        int sc = spriteHeight == -1 ? 5 : 10;
+
         for (int x = 0; x < 16; x++) {
-            for (int y = 0; y < 8; y++) {
+            for (int y = 0; y < ylim; y++) {
                 if (spriteViewer[y][x]) {
-                    painter.fillRect(y * 10, x * 10, 10, 10);
+                    painter.fillRect(y * sc, x * sc, sc, sc);
                 }
             }
         }
+
         if (configs.isSpriteExtracting()) {
             extractSprite(spriteViewer, spriteHeight);
         }
@@ -57,10 +63,10 @@ public class SpriteDisplay extends Canvas {
 
     private void extractSprite(boolean[][] spriteViewer, int spriteHeight) {
         if (galleryHashes.add(Arrays.deepHashCode(spriteViewer))) {
-            // deep copying
-            boolean[][] temp = new boolean[8][spriteHeight];
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < spriteHeight; j++) {
+            // deep copying, check if 16x16 or normal sprite
+            boolean[][] temp = spriteHeight == -1 ? new boolean[16][16] : new boolean[8][spriteHeight];
+            for (int i = 0; i < (spriteHeight == -1 ? 16 : 8); i++) {
+                for (int j = 0; j < (spriteHeight == -1 ? 16 : spriteHeight); j++) {
                     temp[i][j] = spriteViewer[i][j];
                 }
             }

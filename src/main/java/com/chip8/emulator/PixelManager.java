@@ -35,7 +35,7 @@ public class PixelManager {
             }
         }
         this.display = new boolean[width][height];
-        this.spriteViewer = new boolean[8][16];
+        this.spriteViewer = new boolean[16][16];
         this.spriteHeight = 0;
     }
 
@@ -98,7 +98,7 @@ public class PixelManager {
      * clears sprite display
      */
     public void clearSprite() {
-        for (int x = 0; x < 8; x++) {
+        for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
                 this.spriteViewer[x][y] = false;
             }
@@ -120,12 +120,8 @@ public class PixelManager {
      * @param symbol symbol that is used to print rom to console
      */
     public void printDisplay(String symbol) {
-        int xlim = 64;
-        int ylim = 32;
-        if (resolutionMode) {
-            xlim *= 2;
-            ylim *= 2;
-        }
+        int xlim = resolutionMode ? 128 : 64;
+        int ylim = resolutionMode ? 64 : 32;
         for (int y = 0; y < ylim; y++) {
             for (int x = 0; x < xlim; x++) {
                 if (this.display[x][y]) {
@@ -220,9 +216,6 @@ public class PixelManager {
     }
 
     private int scrollBy(int amount) {
-        if (resolutionMode) {
-            return amount;
-        }
-        return amount / 2;
+        return resolutionMode ? amount : amount / 2;
     }
 }

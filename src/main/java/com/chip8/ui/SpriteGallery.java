@@ -34,8 +34,9 @@ public class SpriteGallery extends ListView {
             this.height = p.getValue();
 
             UiElements uiElements = new UiElements();
-            TextArea text = uiElements.makeTextArea(350, 35);
+            TextArea text = uiElements.makeTextArea(340, 35);
             text.setText(this.getHexData());
+            text.setWrapText(true);
             HBox hBox = new HBox(10, this.drawSprite(), text);
 
             this.getItems().add(hBox);
@@ -44,38 +45,44 @@ public class SpriteGallery extends ListView {
     }
 
     private String getHexData() {
+        int xlim = height == -1 ? 16 : height;
+        int ylim = height == -1 ? 16 : 8;
+
         StringBuilder spriteHexData = new StringBuilder();
-        for (int x = 0; x < height; x++) {
+        for (int x = 0; x < xlim; x++) {
             StringBuilder binary = new StringBuilder();
-            for (int y = 0; y < 8; y++) {
-                if (spriteArray[y][x]) {
-                    binary.append("1");
+            StringBuilder binary2 = new StringBuilder();
+            for (int y = 0; y < ylim; y++) {
+                if (y >= 8) {
+                    binary2.append(this.spriteArray[y][x] ? "1" : "0");
                 } else {
-                    binary.append("0");
+                    binary.append(this.spriteArray[y][x] ? "1" : "0");
                 }
             }
-            int decimalForm = Integer.parseInt(binary.toString(), 2);
-            String hexForm = Integer.toString(decimalForm, 16).toUpperCase();
-            spriteHexData.append("0x").append(hexForm).append(" ");
-            if (x == 8) {
-                spriteHexData.append("\n");
+            for (int i = 0; i < (height == -1 ? 2 : 1); i++) {
+                int decimalForm = i == 0 ? Integer.parseInt(binary.toString(), 2) : Integer.parseInt(binary2.toString(), 2);
+                String hexForm = Integer.toString(decimalForm, 16).toUpperCase();
+                spriteHexData.append("0x").append(hexForm).append(" ");
             }
         }
         return spriteHexData.toString();
     }
 
     private Canvas drawSprite() {
-        Canvas canvas = new Canvas(40, height * 5);
+        // check if 16x16 sprite
+        Canvas canvas = height == -1 ? new Canvas(80, 80) : new Canvas(40, height * 5);
+
         GraphicsContext painter = canvas.getGraphicsContext2D();
-        if (galleryIndex % 2 == 1) {
-            painter.setFill(Color.BLACK);
-        } else {
-            painter.setFill(Color.rgb(21, 21, 21));
-        }
-        painter.fillRect(0, 0, 40, height * 5);
+        // odd even split for row colors
+        painter.setFill((galleryIndex & 1) == 1 ? Color.BLACK : Color.rgb(21, 21, 21));
+
+        int xlim = height == -1 ? 16 : height;
+        int ylim = height == -1 ? 16 : 8;
+
+        painter.fillRect(0, 0, 80, 80);
         painter.setFill(Color.rgb(35, 255, 0));
-        for (int x = 0; x < height; x++) {
-            for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < xlim; x++) {
+            for (int y = 0; y < ylim; y++) {
                 if (spriteArray[y][x]) {
                     painter.fillRect(y * 5, x * 5, 5, 5);
                 }

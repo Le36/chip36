@@ -478,6 +478,8 @@ public class Decoder {
     }
 
     private void draw16x16(byte x, byte y) {
+        // special value to detect 16x16 sprite
+        pixels.setSpriteHeight(-1);
         for (int i = 0, spriteIndex = 0; i < 16; i++, spriteIndex += 2) {
             // gets sprite row data from ram
             int spriteData = (short) (((m.getRam()[m.getI() + spriteIndex] << 8) & 0xFF00) | (m.getRam()[m.getI() + spriteIndex + 1] & 0x00FF));
@@ -493,7 +495,7 @@ public class Decoder {
                     }
                     // draws pixel by flipping it
                     pixels.draw(xx, yy);
-                    // increase to 16x16 pixels.drawSprite(j, i);
+                    pixels.drawSprite(j, i);
                 }
             }
         }

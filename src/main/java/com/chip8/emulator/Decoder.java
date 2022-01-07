@@ -348,7 +348,7 @@ public class Decoder {
 
     private void subtract5(byte x, byte y) {
         // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
-        if (Byte.toUnsignedInt(x) > Byte.toUnsignedInt(y)) {
+        if (Byte.toUnsignedInt(x) >= Byte.toUnsignedInt(y)) {
             m.varReg(0xF, 1);
             d.setState(true);
         } else {
@@ -362,7 +362,7 @@ public class Decoder {
 
     private void subtract7(byte x, byte y) {
         // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
-        if (Byte.toUnsignedInt(y) > Byte.toUnsignedInt(x)) {
+        if (Byte.toUnsignedInt(y) >= Byte.toUnsignedInt(x)) {
             m.varReg(0xF, 1);
             d.setState(true);
         } else {

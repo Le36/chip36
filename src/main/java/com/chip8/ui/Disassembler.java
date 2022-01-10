@@ -166,6 +166,12 @@ public class Disassembler extends ListView {
             case 0xF065: // FX65
                 this.seekString = "FX65: Fill registers V[0] - V[" + this.x + "] from index locations";
                 return;
+            case 0xF075: // FX75 -- Super chip
+                this.seekString = "FX75: Dump V[0] - V[" + this.x + "] to RPL[0] - RPL[" + this.x + "]";
+                return;
+            case 0xF085: // FX85 -- Super chip
+                this.seekString = "FX85: Fill V[0] - V[" + this.x + "] from RPL[0] - RPL[" + this.x + "]";
+                return;
         }
         switch (opcode & 0xF000) {
             case 0x1000: // 1NNN

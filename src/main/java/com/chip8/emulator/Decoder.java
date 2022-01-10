@@ -106,6 +106,12 @@ public class Decoder {
             case 0xF065: // FX65
                 this.registerFill();
                 return;
+            case 0xF075: // FX75 -- Super chip
+                this.rplDump();
+                return;
+            case 0xF085: // FX85 -- Super chip
+                this.rplFill();
+                return;
         }
         switch (opcode & 0xF000) {
             case 0x1000: // 1NNN
@@ -553,7 +559,11 @@ public class Decoder {
     }
 
     private void addToIndex() {
-        // add v[x] to index
+        // add v[x] to index, if overflow then VF set to 1
+        if (m.getI() + Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]) > 0x0FFF) {
+            m.varReg(0xF, 1);
+            d.setState(true);
+        }
         m.setI((short) (m.getI() + Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8])));
         this.detailed = d.detailAddToIndex();
     }
@@ -608,5 +618,21 @@ public class Decoder {
             m.varReg(i, ram[tempI]);
         }
         this.detailed = d.detailRegisterFill();
+    }
+
+    private void rplDump() {
+        // dump variable registers to rpl user flags -- Super chip
+        byte[] rpl = m.getRpl();
+        System.arraycopy(m.getV(), 0, rpl, 0, ((opcode & 0x0F00) >> 8) + 1);
+        m.setRpl(rpl);
+        this.detailed = d.detailRplDump();
+    }
+
+    private void rplFill() {
+        // fill variable registers from rpl user flags -- Super chip
+        for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
+            m.varReg(i, m.getRpl()[i]);
+        }
+        this.detailed = d.detailRplFill();
     }
 }

@@ -45,37 +45,46 @@ public class DecodeDetails {
 
     public String scrollRight() {
         if (resolutionMode) {
-            return "Scrolls display right by 4 pixels.\nHigh resolution mode.";
+            return "Scrolls display right by 4 pixels.\nHigh resolution mode." +
+                    "\nSuper-chip extended instruction";
         } else {
-            return "Scrolls display right by 2 pixels.\nLow resolution mode";
+            return "Scrolls display right by 2 pixels.\nLow resolution mode" +
+                    "\nSuper-chip extended instruction";
         }
     }
 
     public String scrollLeft() {
         if (resolutionMode) {
-            return "Scrolls display left by 4 pixels.\nHigh resolution mode.";
+            return "Scrolls display left by 4 pixels.\nHigh resolution mode." +
+                    "\nSuper-chip extended instruction";
         } else {
-            return "Scrolls display left by 2 pixels.\nLow resolution mode";
+            return "Scrolls display left by 2 pixels.\nLow resolution mode" +
+                    "\nSuper-chip extended instruction";
         }
     }
 
     public String exit() {
-        return "Emulator has been exited.\nReset rom to continue\nor load a new one.";
+        return "Emulator has been exited.\nReset rom to continue\nor load a new one." +
+                "\nSuper-chip extended instruction";
     }
 
     public String lores() {
-        return "Screen resolution set to 64x32\nLow resolution mode.";
+        return "Screen resolution set to 64x32\nLow resolution mode." +
+                "\nSuper-chip extended instruction";
     }
 
     public String hires() {
-        return "Screen resolution set to 128x64\nHigh resolution mode.";
+        return "Screen resolution set to 128x64\nHigh resolution mode." +
+                "\nSuper-chip extended instruction";
     }
 
     public String scrollDown() {
         if (resolutionMode) {
-            return "Scrolls display down by " + this.n + " pixels.\nHigh resolution mode.";
+            return "Scrolls display down by " + this.n + " pixels.\nHigh resolution mode." +
+                    "\nSuper-chip extended instruction";
         } else {
-            return "Scrolls display down by " + (opcode & 0x000F) / 2 + " pixels.\nLow resolution mode";
+            return "Scrolls display down by " + (opcode & 0x000F) / 2 + " pixels.\nLow resolution mode" +
+                    "\nSuper-chip extended instruction";
         }
     }
 
@@ -251,7 +260,8 @@ public class DecodeDetails {
 
     public String detailAddToIndex() {
         return "Adds value in V[" + this.x + "] to index register." +
-                "\nIndex register value before operation: 0x" + iBefore;
+                "\nIndex register value before operation: 0x" + iBefore +
+                "\nIf overflow then VF set to 1\nVF set to 1: " + state;
     }
 
     public String detailFont() {
@@ -280,4 +290,15 @@ public class DecodeDetails {
                 " at locations starting\nat i, i+1, i+2 etc..";
     }
 
+    public String detailRplDump() {
+        return "Dumps registers from V[0] to V[" + this.x +
+                "].\nThese are dumped to\nrpl user flags\nRPL[0] to RPL[" + this.x +
+                "]\nSuper-chip extended instruction";
+    }
+
+    public String detailRplFill() {
+        return "Fills registers from V[0] to V[" + this.x +
+                "].\nThese are filled from\nrpl user flags\nRPL[0] to RPL[" + this.x +
+                "]\nSuper-chip extended instruction";
+    }
 }

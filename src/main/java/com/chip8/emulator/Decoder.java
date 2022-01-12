@@ -48,25 +48,28 @@ public class Decoder {
             case 0x00EE: // 00EE
                 this.returnFromSubroutine();
                 return;
-            case 0x00FB: // 00FB -- Super chip
+            case 0x00FB: // 00FB -- Super-Chip
                 this.scrollRight();
                 return;
-            case 0x00FC: // 00FC -- Super chip
+            case 0x00FC: // 00FC -- Super-Chip
                 this.scrollLeft();
                 return;
-            case 0x00FD: // 00FD -- Super chip
+            case 0x00FD: // 00FD -- Super-Chip
                 this.exit();
                 return;
-            case 0x00FE: // 00FE -- Super chip
+            case 0x00FE: // 00FE -- Super-Chip
                 this.lores();
                 return;
-            case 0x00FF: // 00FF -- Super chip
+            case 0x00FF: // 00FF -- Super-Chip
                 this.hires();
                 return;
         }
         switch (opcode & 0xFFF0) {
-            case 0x00C0: // 00CN -- Super chip
+            case 0x00C0: // 00CN -- Super-Chip
                 this.scrollDown();
+                return;
+            case 0x00D0: // 00DN -- XO-Chip
+                this.scrollUp();
                 return;
         }
         switch (opcode & 0xF0FF) {
@@ -106,10 +109,10 @@ public class Decoder {
             case 0xF065: // FX65
                 this.registerFill();
                 return;
-            case 0xF075: // FX75 -- Super chip
+            case 0xF075: // FX75 -- Super-Chip
                 this.rplDump();
                 return;
-            case 0xF085: // FX85 -- Super chip
+            case 0xF085: // FX85 -- Super-Chip
                 this.rplFill();
                 return;
         }
@@ -233,6 +236,12 @@ public class Decoder {
         // scrolls pixels down by 00C(n) amount
         pixels.scrollDown(opcode & 0x000F);
         this.detailed = d.scrollDown();
+    }
+
+    private void scrollUp() {
+        // scrolls pixels up by 00D(n) amount
+        pixels.scrollUp(opcode & 0x000F);
+        this.detailed = d.scrollUp();
     }
 
     private void jumpAddress() {

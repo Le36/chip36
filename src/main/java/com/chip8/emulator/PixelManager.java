@@ -183,6 +183,30 @@ public class PixelManager {
         }
     }
 
+    /**
+     * scrolls up screen in for a given amount
+     *
+     * @param amount how many pixels to scroll up to
+     */
+    public void scrollUp(int amount) {
+        amount = scrollBy(amount);
+        for (int y = 0; y < 64 - amount; y++) {
+            for (int x = 0; x < 128; x++) {
+                drawScrolling(x, y, amount, Scroll.UP);
+            }
+        }
+
+        for (int x = 0; x < 128; x++) {
+            for (int y = 64 - amount; y < 64; y++) {
+                erase(x, y);
+            }
+        }
+    }
+
+    /**
+     * scrolls screen right by 4 pixels
+     * or 2 pixels in lores mode
+     */
     public void scrollRight() {
         int amount = scrollBy(4);
 
@@ -199,6 +223,10 @@ public class PixelManager {
         }
     }
 
+    /**
+     * scrolls screen left by 4 pixels
+     * or 2 pixels in lores mode
+     */
     public void scrollLeft() {
         int amount = scrollBy(4);
 

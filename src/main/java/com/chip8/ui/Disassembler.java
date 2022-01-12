@@ -131,6 +131,9 @@ public class Disassembler extends ListView {
             case 0x00C0: // 00CN -- Super chip
                 this.seekString = "00CN: Scroll down display by " + n + " pixels.";
                 return;
+            case 0x00D0: // 00DN -- XO chip
+                this.seekString = "00DN: Scroll up display by " + n + " pixels.";
+                return;
         }
         switch (opcode & 0xF0FF) {
             case 0xE09E: // EX9E

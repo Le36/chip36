@@ -46,45 +46,55 @@ public class DecodeDetails {
     public String scrollRight() {
         if (resolutionMode) {
             return "Scrolls display right by 4 pixels.\nHigh resolution mode." +
-                    "\nSuper-chip extended instruction";
+                    "\nSuper-Chip extended instruction";
         } else {
             return "Scrolls display right by 2 pixels.\nLow resolution mode" +
-                    "\nSuper-chip extended instruction";
+                    "\nSuper-Chip extended instruction";
         }
     }
 
     public String scrollLeft() {
         if (resolutionMode) {
             return "Scrolls display left by 4 pixels.\nHigh resolution mode." +
-                    "\nSuper-chip extended instruction";
+                    "\nSuper-Chip extended instruction";
         } else {
             return "Scrolls display left by 2 pixels.\nLow resolution mode" +
-                    "\nSuper-chip extended instruction";
+                    "\nSuper-Chip extended instruction";
         }
     }
 
     public String exit() {
         return "Emulator has been exited.\nReset rom to continue\nor load a new one." +
-                "\nSuper-chip extended instruction";
+                "\nSuper-Chip extended instruction";
     }
 
     public String lores() {
         return "Screen resolution set to 64x32\nLow resolution mode." +
-                "\nSuper-chip extended instruction";
+                "\nSuper-Chip extended instruction";
     }
 
     public String hires() {
         return "Screen resolution set to 128x64\nHigh resolution mode." +
-                "\nSuper-chip extended instruction";
+                "\nSuper-Chip extended instruction";
     }
 
     public String scrollDown() {
         if (resolutionMode) {
             return "Scrolls display down by " + this.n + " pixels.\nHigh resolution mode." +
-                    "\nSuper-chip extended instruction";
+                    "\nSuper-Chip extended instruction";
         } else {
             return "Scrolls display down by " + (opcode & 0x000F) / 2 + " pixels.\nLow resolution mode" +
-                    "\nSuper-chip extended instruction";
+                    "\nSuper-Chip extended instruction";
+        }
+    }
+
+    public String scrollUp() {
+        if (resolutionMode) {
+            return "Scrolls display up by " + this.n + " pixels.\nHigh resolution mode." +
+                    "\nXO-Chip extended instruction";
+        } else {
+            return "Scrolls display up by " + (opcode & 0x000F) / 2 + " pixels.\nLow resolution mode" +
+                    "\nXO-Chip extended instruction";
         }
     }
 

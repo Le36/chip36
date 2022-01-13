@@ -155,6 +155,9 @@ public class Decoder {
             case 0x5000: // 5XY0
                 this.skipIfEqualRegisters();
                 return;
+            case 0x5002: // 5XY2 -- XO-Chip
+                this.dumpVxToVy();
+                return;
             case 0x5003: // 5XY3 -- XO-Chip
                 this.fillVxToVy();
                 return;
@@ -287,6 +290,17 @@ public class Decoder {
             d.setState(true);
         }
         this.detailed = d.detailSkipIfEqualReg();
+    }
+
+    private void dumpVxToVy() {
+        // dump registers from Vx to Vy to ram at I
+        int tempI = m.getI();
+        byte[] ram = m.getRam();
+        for (int i = (opcode & 0x0F00) >> 8; i <= ((opcode & 0x00F0) >> 4); i++, tempI++) {
+            ram[tempI] = m.getV()[i];
+        }
+        m.setRam(ram);
+        this.detailed = d.dumpVxToVy();
     }
 
     private void fillVxToVy() {

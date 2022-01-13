@@ -189,9 +189,6 @@ public class Disassembler extends ListView {
             case 0x4000: // 4XNN
                 this.seekString = "4XNN: Skip next instruction if V[" + this.x + "] != 0x" + this.nn;
                 return;
-            case 0x5000: // 5XY0
-                this.seekString = "5XY0: Skip next instruction if V[" + this.x + "] == V[" + this.y + "]";
-                return;
             case 0x6000: // 6XNN
                 this.seekString = "6XNN: Set V[" + this.x + "] to 0x" + this.nn;
                 return;
@@ -215,6 +212,15 @@ public class Disassembler extends ListView {
                 return;
         }
         switch (opcode & 0xF00F) {
+            case 0x5000: // 5XY0
+                this.seekString = "5XY0: Skip next instruction if V[" + this.x + "] == V[" + this.y + "]";
+                return;
+            case 0x5002: // 5XY2 -- XO-Chip
+                this.seekString = "5XY2: Dump registers V[" + this.x + "] - V[" + this.y + "] to index locations";
+                return;
+            case 0x5003: // 5XY3 -- XO-Chip
+                this.seekString = "5XY3: Fill registers V[" + this.x + "] - V[" + this.y + "] from index locations";
+                return;
             case 0x8000: // 8XY0
                 this.seekString = "8XY0: Set V[" + this.x + "] to V[" + this.y + "]";
                 return;

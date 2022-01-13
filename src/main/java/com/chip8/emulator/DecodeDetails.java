@@ -151,6 +151,12 @@ public class DecodeDetails {
                 "\nSkip happened: " + state;
     }
 
+    public String dumpVxToVy() {
+        return "Dumps registers from V[" + this.x + "] to V[" + this.y +
+                "].\nThese are dumped to ram pointed by\nindex register" +
+                " at locations starting\nat i, i+1, i+2 etc..";
+    }
+
     public String fillVxToVy() {
         return "Fills registers from V[" + this.x + "] to V[" + this.y +
                 "].\nThese are filled from ram pointed by\nindex register" +

@@ -129,9 +129,6 @@ public class Decoder {
             case 0x4000: // 4XNN
                 this.skipIfNotEqual();
                 return;
-            case 0x5000: // 5XY0
-                this.skipIfEqualRegisters();
-                return;
             case 0x6000: // 6XNN
                 this.setVarReg();
                 return;
@@ -155,6 +152,12 @@ public class Decoder {
                 return;
         }
         switch (opcode & 0xF00F) {
+            case 0x5000: // 5XY0
+                this.skipIfEqualRegisters();
+                return;
+            case 0x5003: // 5XY3 -- XO-Chip
+                this.fillVxToVy();
+                return;
             case 0x8000: // 8XY0
                 this.setVxToVy();
                 return;
@@ -284,6 +287,16 @@ public class Decoder {
             d.setState(true);
         }
         this.detailed = d.detailSkipIfEqualReg();
+    }
+
+    private void fillVxToVy() {
+        // fill registers Vx to Vy from ram at I
+        int tempI = m.getI();
+        byte[] ram = m.getRam();
+        for (int i = (opcode & 0x0F00) >> 8; i <= ((opcode & 0x00F0) >> 4); i++, tempI++) {
+            m.varReg(i, ram[tempI]);
+        }
+        this.detailed = d.fillVxToVy();
     }
 
     private void setVarReg() {

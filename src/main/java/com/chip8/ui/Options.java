@@ -41,7 +41,7 @@ public class Options extends Stage {
         HBox hBoxBottom = new HBox(10, setDefault, saveChanges, applyChanges);
 
         Rebinds rebinds = new Rebinds(keys);
-        VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.LABEL), rebinds);
+        VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.TOOLBAR), rebinds, uiElements.makeLabel("Quirks: ", LabelType.TOOLBAR));
 
         ColorPicker spriteColor = uiElements.colorPicker();
         ColorPicker bgColor = uiElements.colorPicker();

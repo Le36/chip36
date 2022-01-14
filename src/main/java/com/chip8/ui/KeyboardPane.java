@@ -61,7 +61,9 @@ public class KeyboardPane extends GridPane {
                 String layout = new DefaultValues().getMouseKbLayout();
                 buttons.add(new UiElements().makeButton(layout.substring(i, i + 1)));
             } else {
-                tButtons.add(new UiElements().makeToggleButton(keys.getBinds()[i]));
+                ToggleButton tButton = new UiElements().makeToggleButton(keys.getBinds()[i]);
+                tButton.setMinSize(55, 20);
+                tButtons.add(tButton);
             }
         }
     }

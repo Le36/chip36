@@ -206,8 +206,9 @@ public class EmulatorUi extends Stage {
 
         selectRom.setOnAction(e -> {
             selectedFile = fileChooser.showOpenDialog(this);
-            // 4096 total memory, - 512 reserved = 3584 max
-            if (selectedFile == null || selectedFile.length() > 3584 || selectedFile.length() < 2) return;
+            // 4096 total memory, - 512 reserved = 3584 max in regular chip8 / s-chip
+            // in XO there is 65536 total memory, 512 still reserved so = 65024 max in xo-chip
+            if (selectedFile == null || selectedFile.length() > 65024 || selectedFile.length() < 2) return;
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys, configs);
             pixels.setResolutionMode(false);
             fileChosen = true;

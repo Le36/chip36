@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.util.Random;
 
+import static java.lang.Short.toUnsignedInt;
+
 /**
  * decodes given opcode and acts accordingly
  */
@@ -244,14 +246,16 @@ public class Decoder {
 
     private void largeIndex() {
         // F000 NNNN double wide XO-Chip special, sets index to 16-bit NNNN
-        // value that is at pc + 2 ...
-        m.setI(fetcher.seek((short) (m.getPc() + 2)));
+        // value that is at pc (it was incremented already when fetched)
+        m.setI(fetcher.seek(m.getPc()));
         fetcher.incrementPC();
     }
 
     private void skipIfNextLargeIndex() {
-        // this is not instruction, just a helper method
-        if (fetcher.seek((short) (m.getPc() + 2)) == (short) 0xF000) {
+        // this is not instruction, just a helper method.
+        // when skipping an instruction checks if next one is the double wide F000 NNNN
+        // instruction, and if it is then it also skips the NNNN part by incrementing PC here
+        if (fetcher.seek(m.getPc()) == (short) 0xF000) {
             fetcher.incrementPC();
         }
     }
@@ -315,10 +319,10 @@ public class Decoder {
 
     private void dumpVxToVy() {
         // dump registers from Vx to Vy to ram at I
-        int tempI = m.getI();
+        short tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = (opcode & 0x0F00) >> 8; i <= ((opcode & 0x00F0) >> 4); i++, tempI++) {
-            ram[tempI] = m.getV()[i];
+            ram[toUnsignedInt(tempI)] = m.getV()[i];
         }
         m.setRam(ram);
         this.detailed = d.dumpVxToVy();
@@ -326,10 +330,10 @@ public class Decoder {
 
     private void fillVxToVy() {
         // fill registers Vx to Vy from ram at I
-        int tempI = m.getI();
+        short tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = (opcode & 0x0F00) >> 8; i <= ((opcode & 0x00F0) >> 4); i++, tempI++) {
-            m.varReg(i, ram[tempI]);
+            m.varReg(i, ram[toUnsignedInt(tempI)]);
         }
         this.detailed = d.fillVxToVy();
     }
@@ -525,7 +529,7 @@ public class Decoder {
         pixels.setSpriteHeight(opcode & 0x000F);
         for (int i = 0; i < pixels.getSpriteHeight(); i++) {
             // gets sprite row data from ram
-            byte spriteData = m.getRam()[m.getI() + i];
+            byte spriteData = m.getRam()[toUnsignedInt(m.getI()) + i];
             for (int j = 0; j < 8; j++) {
                 // using binary mask to check each bit in sprite if that bit should be drawn or not
                 if ((spriteData & (0b10000000 >> j)) != 0) {
@@ -549,7 +553,7 @@ public class Decoder {
         pixels.setSpriteHeight(-1);
         for (int i = 0, spriteIndex = 0; i < 16; i++, spriteIndex += 2) {
             // gets sprite row data from ram
-            int spriteData = (short) (((m.getRam()[m.getI() + spriteIndex] << 8) & 0xFF00) | (m.getRam()[m.getI() + spriteIndex + 1] & 0x00FF));
+            int spriteData = (short) (((m.getRam()[toUnsignedInt((short) (m.getI() + spriteIndex))] << 8) & 0xFF00) | (m.getRam()[toUnsignedInt((short) (m.getI() + spriteIndex + 1))] & 0x00FF));
             for (int j = 0; j < 16; j++) {
                 // using binary mask to check each bit in sprite if that bit should be drawn or not
                 if ((spriteData & (0x8000 >> j)) != 0) {
@@ -653,11 +657,11 @@ public class Decoder {
         // first decimal going to I + 2, second to I + 1 and third to I
         int decimal = Byte.toUnsignedInt(m.getV()[((opcode & 0x0F00) >> 8)]);
         byte[] ram = m.getRam();
-        ram[m.getI() + 2] = (byte) (decimal % 10);
+        ram[toUnsignedInt(m.getI()) + 2] = (byte) (decimal % 10);
         decimal = decimal / 10;
-        ram[m.getI() + 1] = (byte) (decimal % 10);
+        ram[toUnsignedInt(m.getI()) + 1] = (byte) (decimal % 10);
         decimal = decimal / 10;
-        ram[m.getI()] = (byte) (decimal % 10);
+        ram[toUnsignedInt(m.getI())] = (byte) (decimal % 10);
         m.setRam(ram);
         this.detailed = d.detailBcd(decimal);
     }
@@ -665,10 +669,10 @@ public class Decoder {
     private void registerDump() {
         // dump registers from V0 to Vx to ram at I
         // if quirk enabled then also increments I
-        int tempI = m.getI();
+        short tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
-            ram[tempI] = m.getV()[i];
+            ram[toUnsignedInt(tempI)] = m.getV()[i];
             if (c.isQuirkIncrementIndex()) {
                 m.setI((short) ((short) tempI + 1));
             }
@@ -680,10 +684,10 @@ public class Decoder {
     private void registerFill() {
         // fill registers V0 to Vx from ram at I
         // if quirk enabled then also increments I
-        int tempI = m.getI();
+        short tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
-            m.varReg(i, ram[tempI]);
+            m.varReg(i, ram[toUnsignedInt(tempI)]);
             if (c.isQuirkIncrementIndex()) {
                 m.setI((short) ((short) tempI + 1));
             }

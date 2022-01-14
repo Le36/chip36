@@ -20,6 +20,9 @@ public class DefaultValues {
     private boolean glow;
     private double blurValue;
     private double glowValue;
+    private boolean quirkShift;
+    private boolean quirkJump;
+    private boolean quirkIndex;
 
     /**
      * edit these if you want to change some default values
@@ -37,5 +40,8 @@ public class DefaultValues {
         this.glow = false;
         this.blurValue = 0.0;
         this.glowValue = 0.0;
+        this.quirkShift = false;
+        this.quirkJump = false;
+        this.quirkIndex = false;
     }
 }

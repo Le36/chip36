@@ -34,6 +34,10 @@ public class Configs {
             this.glow = configsSaver.loadState("glow:");
             this.blurValue = configsSaver.loadValue("blurValue:");
             this.glowValue = configsSaver.loadValue("glowValue:");
+            QuirkSaver quirkSaver = new QuirkSaver();
+            this.quirkShift = quirkSaver.loadState("quirkShift:");
+            this.quirkJump = quirkSaver.loadState("quirkJump:");
+            this.quirkIncrementIndex = quirkSaver.loadState("quirkIndex:");
         } catch (Exception ignored) {
             DefaultValues d = new DefaultValues();
             this.printToConsole = d.isPrintToConsole();

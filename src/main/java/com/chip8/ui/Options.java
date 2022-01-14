@@ -41,8 +41,11 @@ public class Options extends Stage {
         Rebinds rebinds = new Rebinds(keys);
 
         CheckBox quirkShift = uiElements.makeCheckBox("Shift instructions");
+        quirkShift.setSelected(configs.isQuirkShift());
         CheckBox quirkJump = uiElements.makeCheckBox("Jump (BNNN)");
+        quirkJump.setSelected(configs.isQuirkJump());
         CheckBox quirkIncrementIndex = uiElements.makeCheckBox("FX55, FX65");
+        quirkIncrementIndex.setSelected(configs.isQuirkIncrementIndex());
 
         VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.TOOLBAR), rebinds, uiElements.makeLabel("Quirks: ", LabelType.TOOLBAR), quirkShift, quirkJump, quirkIncrementIndex);
 
@@ -107,6 +110,9 @@ public class Options extends Stage {
             glowEnabled.setSelected(d.isGlow());
             blurSlider.setValue(d.getBlurValue());
             glowSlider.setValue(d.getGlowValue());
+            quirkShift.setSelected(d.isQuirkShift());
+            quirkJump.setSelected(d.isQuirkJump());
+            quirkIncrementIndex.setSelected(d.isQuirkIndex());
         });
 
         saveChanges.setOnAction(e -> {
@@ -118,6 +124,8 @@ public class Options extends Stage {
                 colorSaver.save(bgColor.getValue(), spriteColor.getValue());
                 ConfigsSaver configsSaver = new ConfigsSaver();
                 configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected(), roundPixels.isSelected(), blurEnabled.isSelected(), glowEnabled.isSelected(), blurSlider.getValue(), glowSlider.getValue());
+                QuirkSaver quirkSaver = new QuirkSaver();
+                quirkSaver.save(quirkShift.isSelected(), quirkJump.isSelected(), quirkIncrementIndex.isSelected());
             } catch (Exception ignored) {
             }
             // apply it too

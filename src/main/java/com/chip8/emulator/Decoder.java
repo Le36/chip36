@@ -440,7 +440,8 @@ public class Decoder {
     private void shiftRight() {
         // shifts v[x] 1 bit to right, if the shifted bit was 1 then sets v[0xF] to 1
         // else to 0, after this v[x] is divided by 2
-        byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x0F00) >> 8 : (opcode & 0x00F0) >> 4];
+        // if quirk enabled sets v[y] into v[x] before anything
+        byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x00F0) >> 4 : (opcode & 0x0F00) >> 8];
         m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) / 2);
         if ((x & 0x1) == 1) {
             m.varReg(0xF, 1);
@@ -455,7 +456,8 @@ public class Decoder {
     private void shiftLeft() {
         // shifts v[x] 1 bit to left, if the shifted bit was 1 then sets v[0xF] to 1
         // else to 0, after this v[x] is multiplied with 2
-        byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x0F00) >> 8 : (opcode & 0x00F0) >> 4];
+        // if quirk enabled sets v[y] into v[x] before anything
+        byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x00F0) >> 4 : (opcode & 0x0F00) >> 8];
         m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) * 2);
         if ((x & 0b10000000) >> 7 == 1) {
             d.setState(true);
@@ -484,7 +486,8 @@ public class Decoder {
 
     private void jumpWithOffset() {
         // jumps to NNN + v[0] | BNNN
-        m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[c.isQuirkJump() ? (opcode & 0x0F00) >> 8 : 0])));
+        // if quirk enabled jumps to XNN + v[x] | BXNN
+        m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[c.isQuirkJump() ? 0 : (opcode & 0x0F00) >> 8])));
         this.detailed = d.detailJumpWithOff();
     }
 
@@ -661,6 +664,7 @@ public class Decoder {
 
     private void registerDump() {
         // dump registers from V0 to Vx to ram at I
+        // if quirk enabled then also increments I
         int tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
@@ -675,6 +679,7 @@ public class Decoder {
 
     private void registerFill() {
         // fill registers V0 to Vx from ram at I
+        // if quirk enabled then also increments I
         int tempI = m.getI();
         byte[] ram = m.getRam();
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {

@@ -63,6 +63,9 @@ public class Decoder {
             case 0x00FF: // 00FF -- Super-Chip
                 this.hires();
                 return;
+            case (short) 0xF000: // F000 -- XO-Chip
+                this.largeIndex();
+                return;
         }
         switch (opcode & 0xFFF0) {
             case 0x00C0: // 00CN -- Super-Chip
@@ -240,6 +243,20 @@ public class Decoder {
         this.detailed = d.hires();
     }
 
+    private void largeIndex() {
+        // F000 NNNN double wide XO-Chip special, sets index to 16-bit NNNN
+        // value that is at pc + 2 ...
+        m.setI(fetcher.seek((short) (m.getPc() + 2)));
+        fetcher.incrementPC();
+    }
+    
+    private void skipIfNextLargeIndex() {
+        // this is not instruction, just a helper method
+        if (fetcher.seek((short) (m.getPc() + 2)) == (short) 0xF000) {
+            fetcher.incrementPC();
+        }
+    }
+
     private void scrollDown() {
         // scrolls pixels down by 00C(n) amount
         pixels.scrollDown(opcode & 0x000F);
@@ -272,6 +289,7 @@ public class Decoder {
         if (m.getV()[(opcode & 0x0F00) >> 8] == (byte) (opcode & 0x0FF)) {
             fetcher.incrementPC();
             d.setState(true);
+            this.skipIfNextLargeIndex();
         }
         this.detailed = d.detailSkipIfEqual();
     }
@@ -281,6 +299,7 @@ public class Decoder {
         if (m.getV()[(opcode & 0x0F00) >> 8] != (byte) (opcode & 0x0FF)) {
             fetcher.incrementPC();
             d.setState(true);
+            this.skipIfNextLargeIndex();
         }
         this.detailed = d.detailSkipIfNotEqual();
     }
@@ -290,6 +309,7 @@ public class Decoder {
         if (m.getV()[(opcode & 0x0F00) >> 8] == m.getV()[(opcode & 0x0F0) >> 4]) {
             fetcher.incrementPC();
             d.setState(true);
+            this.skipIfNextLargeIndex();
         }
         this.detailed = d.detailSkipIfEqualReg();
     }
@@ -452,6 +472,7 @@ public class Decoder {
         if (m.getV()[(opcode & 0x0F00) >> 8] != m.getV()[(opcode & 0x0F0) >> 4]) {
             fetcher.incrementPC();
             d.setState(true);
+            this.skipIfNextLargeIndex();
         }
         this.detailed = d.detailSkipIfNotEqReg();
     }
@@ -550,6 +571,7 @@ public class Decoder {
         if (keys.getKeys()[m.getV()[(opcode & 0x0F00) >> 8]]) {
             fetcher.incrementPC();
             d.setState(true);
+            this.skipIfNextLargeIndex();
         }
         this.detailed = d.detailSkipIfKeyEq();
     }
@@ -559,6 +581,7 @@ public class Decoder {
         if (!keys.getKeys()[m.getV()[(opcode & 0x0F00) >> 8]]) {
             fetcher.incrementPC();
             d.setState(true);
+            this.skipIfNextLargeIndex();
         }
         this.detailed = d.detailSkipIfKeyNotEq();
     }

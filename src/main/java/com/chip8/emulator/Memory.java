@@ -35,7 +35,7 @@ public class Memory {
      * @param b       byte content for ram
      */
     public void initializeMemory(short address, byte b) {
-        this.ram[address] = b;
+        this.ram[address & 0xFFFF] = b;
     }
 
     /**

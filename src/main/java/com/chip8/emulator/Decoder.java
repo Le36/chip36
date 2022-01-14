@@ -188,7 +188,6 @@ public class Decoder {
                 return;
             case 0x800E: // 8XYE
                 this.shiftLeft();
-                return;
         }
     }
 
@@ -249,7 +248,7 @@ public class Decoder {
         m.setI(fetcher.seek((short) (m.getPc() + 2)));
         fetcher.incrementPC();
     }
-    
+
     private void skipIfNextLargeIndex() {
         // this is not instruction, just a helper method
         if (fetcher.seek((short) (m.getPc() + 2)) == (short) 0xF000) {
@@ -390,12 +389,12 @@ public class Decoder {
         byte x = m.getV()[(opcode & 0x0F00) >> 8];
         byte y = m.getV()[(opcode & 0x00F0) >> 4];
         if (Byte.toUnsignedInt(x) + Byte.toUnsignedInt(y) > Byte.toUnsignedInt((byte) 0xFF)) {
-            m.varReg(0xF, 1);
             m.varReg((opcode & 0x0F00) >> 8, (x + y) & 0xFF);
+            m.varReg(0xF, 1);
             d.setState(true);
         } else {
-            m.varReg(0xF, 0);
             m.varReg((opcode & 0x0F00) >> 8, x + y);
+            m.varReg(0xF, 0);
         }
         this.detailed = d.detailAddVxVy(x, y);
     }
@@ -412,13 +411,13 @@ public class Decoder {
 
     private void subtract5(byte x, byte y) {
         // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
+        m.varReg((opcode & 0x0F00) >> 8, x - y);
         if (Byte.toUnsignedInt(x) >= Byte.toUnsignedInt(y)) {
             m.varReg(0xF, 1);
             d.setState(true);
         } else {
             m.varReg(0xF, 0);
         }
-        m.varReg((opcode & 0x0F00) >> 8, x - y);
         String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
         String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
         this.detailed = d.detailSubtract5(y, x, yValue, xValue);
@@ -426,13 +425,13 @@ public class Decoder {
 
     private void subtract7(byte x, byte y) {
         // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
+        m.varReg((opcode & 0x0F00) >> 8, y - x);
         if (Byte.toUnsignedInt(y) >= Byte.toUnsignedInt(x)) {
             m.varReg(0xF, 1);
             d.setState(true);
         } else {
             m.varReg(0xF, 0);
         }
-        m.varReg((opcode & 0x0F00) >> 8, y - x);
         String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
         String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
         this.detailed = d.detailSubtract7(x, y, xValue, yValue);
@@ -441,14 +440,14 @@ public class Decoder {
     private void shiftRight() {
         // shifts v[x] 1 bit to right, if the shifted bit was 1 then sets v[0xF] to 1
         // else to 0, after this v[x] is divided by 2
-        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x0F00) >> 8 : (opcode & 0x00F0) >> 4];
+        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) / 2);
         if ((x & 0x1) == 1) {
             m.varReg(0xF, 1);
             d.setState(true);
         } else {
             m.varReg(0xF, 0);
         }
-        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) / 2);
         this.detailed = d.detailShiftRight(x);
     }
 
@@ -456,14 +455,14 @@ public class Decoder {
     private void shiftLeft() {
         // shifts v[x] 1 bit to left, if the shifted bit was 1 then sets v[0xF] to 1
         // else to 0, after this v[x] is multiplied with 2
-        byte x = m.getV()[(opcode & 0x0F00) >> 8];
+        byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x0F00) >> 8 : (opcode & 0x00F0) >> 4];
+        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) * 2);
         if ((x & 0b10000000) >> 7 == 1) {
             d.setState(true);
             m.varReg(0xF, 1);
         } else {
             m.varReg(0xF, 0);
         }
-        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) * 2);
         this.detailed = d.detailShiftLeft(x);
     }
 
@@ -485,7 +484,7 @@ public class Decoder {
 
     private void jumpWithOffset() {
         // jumps to NNN + v[0] | BNNN
-        m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[0])));
+        m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[c.isQuirkJump() ? (opcode & 0x0F00) >> 8 : 0])));
         this.detailed = d.detailJumpWithOff();
     }
 
@@ -666,6 +665,9 @@ public class Decoder {
         byte[] ram = m.getRam();
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
             ram[tempI] = m.getV()[i];
+            if (c.isQuirkIncrementIndex()) {
+                m.setI((short) ((short) tempI + 1));
+            }
         }
         m.setRam(ram);
         this.detailed = d.detailRegisterDump();
@@ -677,6 +679,9 @@ public class Decoder {
         byte[] ram = m.getRam();
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
             m.varReg(i, ram[tempI]);
+            if (c.isQuirkIncrementIndex()) {
+                m.setI((short) ((short) tempI + 1));
+            }
         }
         this.detailed = d.detailRegisterFill();
     }

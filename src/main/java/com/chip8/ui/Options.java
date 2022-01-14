@@ -7,8 +7,6 @@ import javafx.geometry.Insets;
 import javafx.scene.AccessibleAction;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.GaussianBlur;
-import javafx.scene.effect.Glow;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -41,7 +39,12 @@ public class Options extends Stage {
         HBox hBoxBottom = new HBox(10, setDefault, saveChanges, applyChanges);
 
         Rebinds rebinds = new Rebinds(keys);
-        VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.TOOLBAR), rebinds, uiElements.makeLabel("Quirks: ", LabelType.TOOLBAR));
+
+        CheckBox quirkShift = uiElements.makeCheckBox("Shift instructions");
+        CheckBox quirkJump = uiElements.makeCheckBox("Jump (BNNN)");
+        CheckBox quirkIncrementIndex = uiElements.makeCheckBox("FX55, FX65");
+
+        VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.TOOLBAR), rebinds, uiElements.makeLabel("Quirks: ", LabelType.TOOLBAR), quirkShift, quirkJump, quirkIncrementIndex);
 
         ColorPicker spriteColor = uiElements.colorPicker();
         ColorPicker bgColor = uiElements.colorPicker();
@@ -138,6 +141,10 @@ public class Options extends Stage {
             configs.setGlow(glowEnabled.isSelected());
             configs.setBlurValue(blurSlider.getValue());
             configs.setGlowValue(glowSlider.getValue());
+
+            configs.setQuirkJump(quirkJump.isSelected());
+            configs.setQuirkShift(quirkShift.isSelected());
+            configs.setQuirkIncrementIndex(quirkIncrementIndex.isSelected());
         });
 
         this.setScene(new Scene(root, 700, 310));

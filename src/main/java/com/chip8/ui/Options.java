@@ -40,11 +40,14 @@ public class Options extends Stage {
 
         Rebinds rebinds = new Rebinds(keys);
 
-        CheckBox quirkShift = uiElements.makeCheckBox("Shift instructions");
+        CheckBox quirkShift = uiElements.makeCheckBox("Shift left / right quirk");
+        quirkShift.setTooltip(uiElements.tooltip("Changes how shift left and right instructions work. When enabled v[x] is first copied from v[y]."));
         quirkShift.setSelected(configs.isQuirkShift());
-        CheckBox quirkJump = uiElements.makeCheckBox("Jump (BNNN)");
+        CheckBox quirkJump = uiElements.makeCheckBox("Jump with offset quirk");
+        quirkJump.setTooltip(uiElements.tooltip("Changes jump with offset instruction bnnn to bxnn, where it will jump to xnn + v[x]"));
         quirkJump.setSelected(configs.isQuirkJump());
-        CheckBox quirkIncrementIndex = uiElements.makeCheckBox("FX55, FX65");
+        CheckBox quirkIncrementIndex = uiElements.makeCheckBox("Increment index on dump / fill");
+        quirkIncrementIndex.setTooltip(uiElements.tooltip("Changes how FX55 and FX65 instructions work. Enabling this will increment index register when using these instructions."));
         quirkIncrementIndex.setSelected(configs.isQuirkIncrementIndex());
 
         VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.TOOLBAR), rebinds, uiElements.makeLabel("Quirks: ", LabelType.TOOLBAR), quirkShift, quirkJump, quirkIncrementIndex);

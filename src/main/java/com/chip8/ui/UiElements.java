@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.util.Duration;
 
 /**
  * class used to generate all the ui elements used by this emulator ui
@@ -154,5 +155,11 @@ public class UiElements {
         ColorPicker cp = new ColorPicker();
         cp.getStylesheets().add("colorpicker.css");
         return cp;
+    }
+
+    public Tooltip tooltip(String s) {
+        Tooltip t = new Tooltip(s);
+        t.setShowDuration(Duration.INDEFINITE);
+        return t;
     }
 }

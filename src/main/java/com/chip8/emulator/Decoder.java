@@ -491,7 +491,7 @@ public class Decoder {
     private void jumpWithOffset() {
         // jumps to NNN + v[0] | BNNN
         // if quirk enabled jumps to XNN + v[x] | BXNN
-        m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[c.isQuirkJump() ? 0 : (opcode & 0x0F00) >> 8])));
+        m.setPc((short) ((opcode & 0x0FFF) + Byte.toUnsignedInt(m.getV()[c.isQuirkJump() ? (opcode & 0x0F00) >> 8 : 0])));
         this.detailed = d.detailJumpWithOff();
     }
 

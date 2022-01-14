@@ -48,6 +48,9 @@ public class Configs {
             this.glow = d.isGlow();
             this.blurValue = d.getBlurValue();
             this.glowValue = d.getGlowValue();
+            this.quirkShift = d.isQuirkShift();
+            this.quirkJump = d.isQuirkJump();
+            this.quirkIncrementIndex = d.isQuirkIndex();
         }
         this.spriteExtracting = false;
     }

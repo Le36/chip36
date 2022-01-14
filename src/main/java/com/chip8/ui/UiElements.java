@@ -157,6 +157,12 @@ public class UiElements {
         return cp;
     }
 
+    /**
+     * tooltip with indefinite duration
+     *
+     * @param s text for the tooltip
+     * @return returns the tooltip with indefinite duration
+     */
     public Tooltip tooltip(String s) {
         Tooltip t = new Tooltip(s);
         t.setShowDuration(Duration.INDEFINITE);

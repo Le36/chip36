@@ -72,9 +72,9 @@ public class DecoderTest {
         m.varReg(0x0, 0xA); // insert A character into V[0x0]
 
         decoder.decode((short) 0xF029); // make I point to character A location, V[0] holds A
-        // since fonts are loaded into ram from address 0x50 to 0x9F
-        // we can expect I to be pointing into 0x82 because thats where A is loaded in RAM
-        assertEquals(0x82, m.getI());
+        // since fonts are loaded into ram from address 0x0 to 0x50
+        // we can expect I to be pointing into 0x32 because thats where A is loaded in RAM
+        assertEquals(0x32, m.getI());
         // 0xF0, 0x90, 0xF0, 0x90, 0x90 is font data for A so we can expect to find these from RAM pointed by I
         assertEquals((byte) 0xF0, m.getRam()[m.getI()]);
         assertEquals((byte) 0x90, m.getRam()[m.getI() + 1]);
@@ -84,7 +84,7 @@ public class DecoderTest {
 
         m.varReg(0xC, 0x5); // insert 5 character into V[0xC]
         decoder.decode((short) 0xFC29);
-        assertEquals(0x69, m.getI()); // 5's location in RAM
+        assertEquals(0x19, m.getI()); // 5's location in RAM
 
         // 0xF0, 0x80, 0xF0, 0x10, 0xF0 font data for 5
         assertEquals((byte) 0xF0, m.getRam()[m.getI()]);

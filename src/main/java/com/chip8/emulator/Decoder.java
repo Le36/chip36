@@ -228,6 +228,7 @@ public class Decoder {
         // normal resolution mode
         this.resolutionMode = false;
         pixels.setResolutionMode(false);
+        pixels.clearDisplay();
         this.detailed = d.lores();
     }
 
@@ -235,6 +236,7 @@ public class Decoder {
         // set resolution mode for 128x64
         this.resolutionMode = true;
         pixels.setResolutionMode(true);
+        pixels.clearDisplay();
         this.detailed = d.hires();
     }
 

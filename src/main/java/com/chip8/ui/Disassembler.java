@@ -126,6 +126,13 @@ public class Disassembler extends ListView {
                 return;
             case 0x0230: // 0230 -- hires mode clear screen
                 this.seekString = "0230: Clear display HiRes mode";
+                return;
+            case (short) 0xF000: // F000 -- XO-Chip
+                this.seekString = "F000: Set next opcode to index register.";
+                return;
+            case (short) 0xF002: // F002 -- XO-Chip
+                this.seekString = "F002: Fill audio buffer.";
+                return;
         }
         switch (opcode & 0xFFF0) {
             case 0x00C0: // 00CN -- Super chip

@@ -68,6 +68,9 @@ public class Decoder {
             case (short) 0xF000: // F000 -- XO-Chip
                 this.largeIndex();
                 return;
+            case (short) 0xF002: // F002 -- XO-Chip
+                this.audioBuffer();
+                return;
         }
         switch (opcode & 0xFFF0) {
             case 0x00C0: // 00CN -- Super-Chip
@@ -258,6 +261,17 @@ public class Decoder {
         if (fetcher.seek(m.getPc()) == (short) 0xF000) {
             fetcher.incrementPC();
         }
+    }
+
+    private void audioBuffer() {
+        // used by XO-Chip audio, fills audio buffer from ram
+        // pointed by the index register
+        byte[] audioBuffer = m.getAudio();
+        for (int i = 0; i < 16; i++) {
+            audioBuffer[i] = m.getRam()[toUnsignedInt(m.getI()) + i];
+        }
+        m.setAudio(audioBuffer);
+        this.detailed = d.detailAudioBuffer();
     }
 
     private void scrollDown() {
@@ -648,7 +662,7 @@ public class Decoder {
         // then I is set ram address that contains data for that character
         int x = ((opcode & 0x0F00) >> 8); // 0 - F
         m.setI((short) (0x60 + (10 * m.getV()[x])));
-        this.detailed = d.detailFont();
+        this.detailed = d.detailLargeFont();
     }
 
     private void bcd() {

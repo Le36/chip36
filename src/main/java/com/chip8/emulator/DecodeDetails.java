@@ -289,9 +289,17 @@ public class DecodeDetails {
     public String detailFont() {
         return "Sets index register to font data location" +
                 "\npointed by character in V[" + this.x + "]." +
-                "Font data\nlocation starts at 0x50, which contains 0." +
-                "\nEach font data is 5 bytes, so 1 would be\nat 0x55" +
-                "and 2 at 0x60 etc.";
+                "Font data\nlocation starts at 0x0, which contains 0." +
+                "\nEach font data is 5 bytes, so 1 would be\nat 0x05" +
+                "and 2 at 0x10 etc.";
+    }
+
+    public String detailLargeFont() {
+        return "Sets index to large font data location" +
+                "\npointed by character in V[" + this.x + "]." +
+                "Font data\nlocation starts at 0x60, which contains 0." +
+                "\nEach font data is 10 bytes, so 1 would be\nat 0x70" +
+                "and 2 at 0x80 etc.";
     }
 
     public String detailBcd(int decimal) {
@@ -322,5 +330,9 @@ public class DecodeDetails {
         return "Fills registers from V[0] to V[" + this.x +
                 "].\nThese are filled from\nrpl user flags\nRPL[0] to RPL[" + this.x +
                 "]\nSuper-chip extended instruction";
+    }
+
+    public String detailAudioBuffer() {
+        return "Fills audio buffer with values pointed\nby the index register.";
     }
 }

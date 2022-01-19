@@ -335,4 +335,8 @@ public class DecodeDetails {
     public String detailAudioBuffer() {
         return "Fills audio buffer with values pointed\nby the index register.";
     }
+
+    public String pitch() {
+        return "Sets value in V[" + this.x + "] to\npitch register.\nXO-Chip special instruction.";
+    }
 }

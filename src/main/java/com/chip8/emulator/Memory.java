@@ -3,6 +3,7 @@ package com.chip8.emulator;
 import lombok.Data;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 
 /**
  * memory for emulator, contains every register and ram
@@ -13,6 +14,7 @@ public class Memory {
     private byte[] v; // 16x 8-bit variable registers
     private byte[] rpl; // used by Super-chip, emulate HP-48 rpl user flags
     private byte[] audio; // 16-byte audio buffer used by XO-Chip
+    private short pitch; // pitch register for XO-Chip audio
     private short i; // 16-bit index register
     private short pc; // program counter
     private byte[] ram; // 64 kB memory, 0x0 - 0x1FF reserved for font data etc.
@@ -29,7 +31,9 @@ public class Memory {
         this.v = new byte[16];
         this.stack = new ArrayDeque<>();
         this.rpl = new byte[16];
-        this.audio = new byte[16];
+        this.pitch = 64; // default value
+        this.audio = new byte[]{0x00, 0x00, 0x00, 0x20, 0x40, 0x20, 0x00, 0x20, 0x40, 0x20,
+                0x00, 0x20, 0x40, 0x20, 0x00, 0x00}; // default value for non xo-chip
     }
 
     /**

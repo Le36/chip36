@@ -15,15 +15,13 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.sound.sampled.LineUnavailableException;
 import java.awt.*;
 import java.io.File;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -38,6 +36,9 @@ public class EmulatorUi extends Stage {
     private double gameSpeed;
     final int width = 128;
     final int height = 64;
+    private volatile boolean audioPlaying;
+    private volatile int prevAudioTone;
+    private volatile int prevSoundDelay;
 
     /**
      * generates ui for emulator
@@ -250,9 +251,7 @@ public class EmulatorUi extends Stage {
             }
         });
 
-        options.setOnAction(e -> {
-            new Options(keys, romDisplay, configs);
-        });
+        options.setOnAction(e -> new Options(keys, romDisplay, configs));
 
         forceOpcodeButton.setOnAction(e -> {
             if (selectedFile == null) return;
@@ -287,9 +286,7 @@ public class EmulatorUi extends Stage {
             }
         });
 
-        spriteExtract.setOnAction(e -> {
-            new SpriteExtractor(configs, spriteDisplay);
-        });
+        spriteExtract.setOnAction(e -> new SpriteExtractor(configs, spriteDisplay));
 
         extDisassembler.setOnAction(e -> {
             if (selectedFile == null) return;
@@ -301,10 +298,32 @@ public class EmulatorUi extends Stage {
             new ExtendedStack(executer);
         });
 
-        URL path = getClass().getClassLoader().getResource("beep.mp3");
-        Media beep = new Media(path.toString());
-        MediaPlayer mediaPlayer = new MediaPlayer(beep);
+        Audio audio = new Audio();
 
+        // thread for audio handling
+        new Thread(() -> {
+            while (true) {
+                if (audioPlaying) {
+                    if (executer.getMemory().getSoundTimer() == 0) prevSoundDelay = 0;
+                    if (prevSoundDelay > executer.getMemory().getSoundTimer()) {
+                        if (prevAudioTone == executer.getMemory().getPitch()) {
+                            continue;
+                        }
+                    }
+                    try {
+                        int pitch = executer.getMemory().getPitch();
+                        int timer = Math.max(1, Byte.toUnsignedInt(executer.getMemory().getSoundTimer()));
+                        audio.tone(pitch, executer.getMemory().getAudio());
+                        this.prevAudioTone = pitch;
+                        this.prevSoundDelay = timer;
+                    } catch (LineUnavailableException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+
+        // thread for everything else
         new Thread(() -> {
             while (true) {
                 try {
@@ -338,10 +357,7 @@ public class EmulatorUi extends Stage {
                         pixels.fade(); // fades all pixels that have been erased
 
                         if (!fileChosen) return;
-                        if (executer.getMemory().getSoundTimer() != (byte) 0x0) {
-                            mediaPlayer.stop();
-                            mediaPlayer.play();
-                        }
+                        audioPlaying = executer.getMemory().getSoundTimer() != (byte) 0x0;
 
                         if (mode) {
                             updateLabels(currentInstruction, indexRegister, programCounter, delayTimer, soundTimer, registerLabels, currentDetailed, stackSize, stackPeek);

@@ -111,6 +111,9 @@ public class Decoder {
             case 0xF033: // FX33
                 this.bcd();
                 return;
+            case 0xF03A: // FX3A
+                this.pitch();
+                return;
             case 0xF055: // FX55
                 this.registerDump();
                 return;
@@ -678,6 +681,12 @@ public class Decoder {
         ram[toUnsignedInt(m.getI())] = (byte) (decimal % 10);
         m.setRam(ram);
         this.detailed = d.detailBcd(decimal);
+    }
+
+    private void pitch() {
+        // sets pitch register to value in v[x]
+        m.setPitch((short) Byte.toUnsignedInt(m.getV()[(opcode & 0x0F00) >> 8]));
+        this.detailed = d.pitch();
     }
 
     private void registerDump() {

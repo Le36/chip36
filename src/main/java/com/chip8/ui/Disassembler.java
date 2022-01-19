@@ -113,10 +113,10 @@ public class Disassembler extends ListView {
                 this.seekString = "00EE: Returns from a subroutine";
                 return;
             case 0x00FB: // 00FB -- Super chip
-                this.seekString = "00FB: Scroll right display by 4 pixels.";
+                this.seekString = "00FB: Scroll right display by 4 pixels";
                 return;
             case 0x00FC: // 00FC -- Super chip
-                this.seekString = "00FC: Scroll left display by 4 pixels.";
+                this.seekString = "00FC: Scroll left display by 4 pixels";
                 return;
             case 0x00FE: // 00FE -- Super chip
                 this.seekString = "00FE: Set LoRes mode";
@@ -128,18 +128,18 @@ public class Disassembler extends ListView {
                 this.seekString = "0230: Clear display HiRes mode";
                 return;
             case (short) 0xF000: // F000 -- XO-Chip
-                this.seekString = "F000: Set next opcode to index register.";
+                this.seekString = "F000: Set next opcode to index register";
                 return;
             case (short) 0xF002: // F002 -- XO-Chip
-                this.seekString = "F002: Fill audio buffer.";
+                this.seekString = "F002: Fill audio buffer";
                 return;
         }
         switch (opcode & 0xFFF0) {
             case 0x00C0: // 00CN -- Super chip
-                this.seekString = "00CN: Scroll down display by " + n + " pixels.";
+                this.seekString = "00CN: Scroll down display by " + n + " pixels";
                 return;
             case 0x00D0: // 00DN -- XO chip
-                this.seekString = "00DN: Scroll up display by " + n + " pixels.";
+                this.seekString = "00DN: Scroll up display by " + n + " pixels";
                 return;
         }
         switch (opcode & 0xF0FF) {
@@ -169,6 +169,9 @@ public class Disassembler extends ListView {
                 return;
             case 0xF033: // FX33
                 this.seekString = "FX33: BCD, store BCD in V[" + this.x + "] to index locations";
+                return;
+            case 0xF03A: // FX3A
+                this.seekString = "FX3A: Set pitch register to V[" + this.x + "]";
                 return;
             case 0xF055: // FX55
                 this.seekString = "FX55: Dump registers V[0] - V[" + this.x + "] to index locations";

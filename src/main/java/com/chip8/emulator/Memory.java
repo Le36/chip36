@@ -3,7 +3,6 @@ package com.chip8.emulator;
 import lombok.Data;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 
 /**
  * memory for emulator, contains every register and ram

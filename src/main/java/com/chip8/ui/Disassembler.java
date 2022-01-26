@@ -118,6 +118,9 @@ public class Disassembler extends ListView {
             case 0x00FC: // 00FC -- Super chip
                 this.seekString = "00FC: Scroll left display by 4 pixels";
                 return;
+            case 0x00FD: // 00FD -- Super chip
+                this.seekString = "00FD: Exit emulator";
+                return;
             case 0x00FE: // 00FE -- Super chip
                 this.seekString = "00FE: Set LoRes mode";
                 return;

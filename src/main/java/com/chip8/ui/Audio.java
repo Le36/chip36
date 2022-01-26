@@ -2,8 +2,18 @@ package com.chip8.ui;
 
 import javax.sound.sampled.*;
 
+/**
+ * Audio handler for emulator
+ */
 public class Audio {
 
+    /**
+     * play tones
+     *
+     * @param pitch  pitch register value
+     * @param buffer audio buffer values
+     * @throws LineUnavailableException
+     */
     public void tone(int pitch, byte[] buffer) throws LineUnavailableException {
         tone(freq(pitch), buffer);
     }

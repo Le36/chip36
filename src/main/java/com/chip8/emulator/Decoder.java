@@ -21,7 +21,6 @@ public class Decoder {
     private String detailed;
     private DecodeDetails d;
     private Configs c;
-    private boolean resolutionMode; // true = hires, false = lores
 
 
     public Decoder(Memory m, Fetcher fetcher, PixelManager pixels, Keys keys, Configs c) {
@@ -31,7 +30,6 @@ public class Decoder {
         this.keys = keys;
         this.d = new DecodeDetails();
         this.c = c;
-        this.resolutionMode = false;
     }
 
     /**
@@ -40,7 +38,7 @@ public class Decoder {
      * @param opcode opcode given by the fetcher
      */
     public void decode(short opcode) {
-        d.update(opcode, m.getPc(), m.getI(), resolutionMode);
+        d.update(opcode, m.getPc(), m.getI(), pixels.isResolutionMode());
         this.opcode = opcode;
         switch (opcode) {
             case 0x00E0: // 00E0
@@ -86,6 +84,9 @@ public class Decoder {
                 return;
             case 0xE0A1: // EXA1
                 this.skipIfKeyNotEqual();
+                return;
+            case 0xF001: // FN01
+                this.drawingPlane();
                 return;
             case 0xF007: // FX07
                 this.setVxToDelay();
@@ -236,7 +237,6 @@ public class Decoder {
 
     private void lores() {
         // normal resolution mode
-        this.resolutionMode = false;
         pixels.setResolutionMode(false);
         pixels.clearDisplay();
         this.detailed = d.lores();
@@ -244,7 +244,6 @@ public class Decoder {
 
     private void hires() {
         // set resolution mode for 128x64
-        this.resolutionMode = true;
         pixels.setResolutionMode(true);
         pixels.clearDisplay();
         this.detailed = d.hires();
@@ -530,7 +529,7 @@ public class Decoder {
         // variable register VF (V[15]) keeps track if there were any pixels erased, reset here
         m.varReg(0xF, 0);
         // in hires with n=0 it means sprite is 16x16
-        if (resolutionMode && (opcode & 0x000F) == 0) {
+        if (pixels.isResolutionMode() && (opcode & 0x000F) == 0) {
             draw16x16(x, y);
         } else {
             draw(x, y);
@@ -607,6 +606,14 @@ public class Decoder {
             this.skipIfNextLargeIndex();
         }
         this.detailed = d.detailSkipIfKeyNotEq();
+    }
+
+    private void drawingPlane() {
+        // sets drawing plane to n, xo-chip instruction
+        if ((opcode & 0x0F00) >> 8 >= 3) {
+            pixels.setCurrentPlane((opcode & 0x0F00) >> 8);
+        }
+        this.detailed = d.drawingPlane();
     }
 
     private void setVxToDelay() {

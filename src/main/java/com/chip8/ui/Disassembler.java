@@ -152,6 +152,9 @@ public class Disassembler extends ListView {
             case 0xE0A1: // EXA1
                 this.seekString = "EXA1: Skip if key contained in V[" + this.x + "] not pressed";
                 return;
+            case 0xF001: // FN01
+                this.seekString = "FN01: Set drawing plane to " + this.x;
+                return;
             case 0xF007: // FX07
                 this.seekString = "FX07: Set V[" + this.x + "] to Delay timer value";
                 return;

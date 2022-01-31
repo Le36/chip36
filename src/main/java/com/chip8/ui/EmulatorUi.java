@@ -387,7 +387,6 @@ public class EmulatorUi extends Stage {
      */
     private void specialHires(PixelManager pixels) {
         if (executer.getMemory().getRam()[0x200] == 0x12 && executer.getMemory().getRam()[0x201] == 0x60) {
-            executer.getDecoder().setResolutionMode(true);
             pixels.setResolutionMode(true);
             executer.getMemory().setPc((short) 0x2c0);
         }

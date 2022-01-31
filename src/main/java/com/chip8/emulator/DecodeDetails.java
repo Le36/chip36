@@ -333,10 +333,14 @@ public class DecodeDetails {
     }
 
     public String detailAudioBuffer() {
-        return "Fills audio buffer with values pointed\nby the index register.";
+        return "Fills audio buffer with values pointed\nby the index register.\nXO-Chip special instruction.";
     }
 
     public String pitch() {
         return "Sets value in V[" + this.x + "] to\npitch register.\nXO-Chip special instruction.";
+    }
+
+    public String drawingPlane() {
+        return "Set drawing plane to " + this.x + "\nXO-Chip special instruction.";
     }
 }

@@ -19,6 +19,7 @@ public class PixelManager {
     private boolean[][] spriteViewer;
     private int spriteHeight;
     private boolean resolutionMode; // true = hires, false = lores
+    private int currentPlane; // 0 no plane, 1 first, 2 second, 3 both
 
     /**
      * @param width  screen width
@@ -37,6 +38,7 @@ public class PixelManager {
         this.display = new boolean[width][height];
         this.spriteViewer = new boolean[16][16];
         this.spriteHeight = 0;
+        this.currentPlane = 1; // default plane
     }
 
     /**

@@ -260,7 +260,7 @@ public class Decoder {
         // this is not instruction, just a helper method.
         // when skipping an instruction checks if next one is the double wide F000 NNNN
         // instruction, and if it is then it also skips the NNNN part by incrementing PC here
-        if (fetcher.seek(m.getPc()) == (short) 0xF000) {
+        if (fetcher.seek((short) (m.getPc() - 2)) == (short) 0xF000) {
             fetcher.incrementPC();
         }
     }

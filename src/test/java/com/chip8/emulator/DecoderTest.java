@@ -24,6 +24,27 @@ public class DecoderTest {
     }
 
     @Test
+    public void doubleWideSkip() {
+        // test if skip works when skipping F000 NNNN
+        byte[] ram = m.getRam();
+        // insert instruction skip if equal v0
+        ram[0x200] = 0x30;
+        ram[0x201] = 0x20;
+        // set v0 to 0x20 and
+        m.varReg(0, 0x20);
+        // then next instruction F000
+        ram[0x202] = (byte) 0xF0;
+        ram[0x203] = 0x00;
+        ram[0x204] = 0x11;
+        ram[0x205] = 0x11;
+        m.setRam(ram);
+        fetcher.fetch();
+        decoder.decode(fetcher.getOpcode());
+        assertEquals(0x206, m.getPc());
+        assertNotEquals(0x204, m.getPc());
+    }
+
+    @Test
     public void BCDFx33() {
         decoder.decode((short) 0x609F); // set 0x9F (0d159) to V[0]
         decoder.decode((short) 0xA411); // Index to 0x411

@@ -21,14 +21,14 @@ public class PixelManagerTest {
         // then erase it
         pixels.draw(0, 0, 1);
         // now it should have fade value
-        assertEquals(0.95, pixels.getFadeMap().get(0).get(0), 0.01);
+        assertEquals(0.95, pixels.getFadeMap().get(0).get(0).getFade(), 0.01);
         // set fade speed to 0.05
         pixels.setFadeSpeed(0.05);
         pixels.fade();
-        assertEquals(0.90, pixels.getFadeMap().get(0).get(0), 0.01);
+        assertEquals(0.90, pixels.getFadeMap().get(0).get(0).getFade(), 0.01);
         for (int i = 0; i < 10; i++) {
             pixels.fade();
         }
-        assertEquals(0.40, pixels.getFadeMap().get(0).get(0), 0.01);
+        assertEquals(0.40, pixels.getFadeMap().get(0).get(0).getFade(), 0.01);
     }
 }

@@ -1,5 +1,6 @@
 package com.chip8.emulator;
 
+import com.chip8.ui.FadePixel;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.HashMap;
 @Data
 public class PixelManager {
 
-    private HashMap<Integer, HashMap<Integer, Double>> fadeMap;
+    private HashMap<Integer, HashMap<Integer, FadePixel>> fadeMap;
     private boolean[][][] display;
     private int x = 0;
     private int y = 0;
@@ -33,7 +34,7 @@ public class PixelManager {
         for (int x = 0; x < width; x++) {
             this.fadeMap.putIfAbsent(x, new HashMap<>());
             for (int y = 0; y < height; y++) {
-                this.fadeMap.get(x).put(y, 0.0);
+                this.fadeMap.get(x).put(y, new FadePixel(0.0, (byte) 1));
             }
         }
         this.display = new boolean[width][height][2]; // 0 is xo and 1 is default planet
@@ -49,11 +50,8 @@ public class PixelManager {
     public void fade() {
         for (int x = 0; x < this.fadeMap.size(); x++) {
             for (int y = 0; y < this.fadeMap.get(x).size(); y++) {
-                double d = this.fadeMap.get(x).get(y);
-                if (d > 0) {
-                    d -= fadeSpeed; // basically how fast the fade is
-                }
-                this.fadeMap.get(x).put(y, d);
+                double d = this.fadeMap.get(x).get(y).getFade();
+                this.fadeMap.get(x).get(y).setFade(d - fadeSpeed);
             }
         }
     }
@@ -67,11 +65,7 @@ public class PixelManager {
      * @param i plane
      */
     public void draw(int x, int y, int i) {
-        if (this.display[x][y][i] && fade) {
-            this.x = x;
-            this.y = y;
-            this.fadeMap.get(this.x).put(this.y, 0.95);
-        }
+        if (fade) fader(x, y);
         this.display[x][y][i] = !this.display[x][y][i];
     }
 
@@ -123,10 +117,8 @@ public class PixelManager {
      * @param symbol symbol that is used to print rom to console
      */
     public void printDisplay(String symbol) {
-        int xlim = resolutionMode ? 128 : 64;
-        int ylim = resolutionMode ? 64 : 32;
-        for (int y = 0; y < ylim; y++) {
-            for (int x = 0; x < xlim; x++) {
+        for (int y = 0; y < (resolutionMode ? 64 : 32); y++) {
+            for (int x = 0; x < (resolutionMode ? 128 : 64); x++) {
                 if (this.display[x][y][1]) {
                     System.out.print(symbol);
                 } else {
@@ -140,10 +132,8 @@ public class PixelManager {
     }
 
     private void drawScrolling(int x, int y, int amount, Scroll dir) {
+        if (fade) fader(x, y);
         for (int i = (currentPlane > 1 ? 0 : 1); i < (currentPlane == 3 || currentPlane == 1 ? 2 : 1); i++) {
-            if (this.display[x][y][i] && fade) {
-                this.fadeMap.get(x).put(y, 0.95);
-            }
             if (dir == Scroll.DOWN) {
                 this.display[x][y][i] = display[x][y - amount][i];
             } else if (dir == Scroll.LEFT) {
@@ -153,6 +143,18 @@ public class PixelManager {
             } else if (dir == Scroll.UP) {
                 this.display[x][y][i] = display[x][y + amount][i];
             }
+        }
+    }
+
+    private void fader(int x, int y) {
+        if ((currentPlane == 2 || currentPlane == 3) && this.display[x][y][0]) {
+            this.fadeMap.get(x).put(y, new FadePixel(0.95, (byte) 2));
+        }
+        if ((currentPlane == 1 || currentPlane == 3) && this.display[x][y][1]) {
+            this.fadeMap.get(x).put(y, new FadePixel(0.95, (byte) 1));
+        }
+        if (currentPlane == 3 && this.display[x][y][1] && this.display[x][y][0]) {
+            this.fadeMap.get(x).put(y, new FadePixel(0.95, (byte) 3));
         }
     }
 

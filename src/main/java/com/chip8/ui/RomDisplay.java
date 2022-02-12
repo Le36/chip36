@@ -75,12 +75,18 @@ public class RomDisplay extends Canvas {
     }
 
     private void drawFading() {
-        HashMap<Integer, HashMap<Integer, Double>> fadeMap = pixels.getFadeMap();
+        HashMap<Integer, HashMap<Integer, FadePixel>> fadeMap = pixels.getFadeMap();
         for (int x = 0; x < fadeMap.size(); x++) {
             for (int y = 0; y < fadeMap.get(x).size(); y++) {
-                if (fadeMap.get(x).get(y) > 0.0) {
-                    double fading = Math.min(0.95, fadeMap.get(x).get(y));
+                if (fadeMap.get(x).get(y).getFade() > 0.0) {
+                    double fading = Math.min(0.95, fadeMap.get(x).get(y).getFade());
+                    int plane = fadeMap.get(x).get(y).getPlane();
                     Color color = Color.web(spriteColor, fading);
+                    if (plane == 2) {
+                        color = Color.web(planeColor, fading);
+                    } else if (plane == 3) {
+                        color = Color.web(bothColor, fading);
+                    }
                     painter.setFill(color);
                     paint(x, y);
                 }

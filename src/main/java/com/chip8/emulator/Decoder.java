@@ -85,7 +85,7 @@ public class Decoder {
             case 0xE0A1: // EXA1
                 this.skipIfKeyNotEqual();
                 return;
-            case 0xF001: // FN01
+            case 0xF001: // FN01 -- XO-Chip
                 this.drawingPlane();
                 return;
             case 0xF007: // FX07
@@ -543,22 +543,28 @@ public class Decoder {
     private void draw(byte x, byte y) {
         // first nibble indicating height of the sprite
         pixels.setSpriteHeight(opcode & 0x000F);
-        for (int i = 0; i < pixels.getSpriteHeight(); i++) {
-            // gets sprite row data from ram
-            byte spriteData = m.getRam()[toUnsignedInt(m.getI()) + i];
-            for (int j = 0; j < 8; j++) {
-                // using binary mask to check each bit in sprite if that bit should be drawn or not
-                if ((spriteData & (0b10000000 >> j)) != 0) {
-                    // modulo to wrap sprites around the screen
-                    int xx = Math.abs((x + j) % 128);
-                    int yy = Math.abs((y + i) % 64);
-                    // if we erased pixel then set VF register to 1
-                    if (pixels.getPixel(xx, yy)) {
-                        m.varReg(0xF, 1);
+        for (int p = 0; p < (pixels.getCurrentPlane() == 3 ? 2 : 1); p++) {
+            for (int i = 0; i < pixels.getSpriteHeight(); i++) {
+                // gets sprite row data from ram
+                byte spriteData = m.getRam()[toUnsignedInt(m.getI()) + i + (p == 1 ? pixels.getSpriteHeight() : 0)];
+                for (int j = 0; j < 8; j++) {
+                    // using binary mask to check each bit in sprite if that bit should be drawn or not
+                    if ((spriteData & (0b10000000 >> j)) != 0) {
+                        // modulo to wrap sprites around the screen
+                        int xx = Math.abs((x + j) % 128);
+                        int yy = Math.abs((y + i) % 64);
+                        // if we erased pixel then set VF register to 1
+                        if (pixels.getPixel(xx, yy, pixels.getCurrentPlane() == 2 ? 0 : 1)) {
+                            m.varReg(0xF, 1);
+                        }
+                        // draws pixel by flipping it
+                        if (pixels.getCurrentPlane() == 3) {
+                            pixels.draw(xx, yy, (p == 1 ? 0 : 1));
+                        } else {
+                            pixels.draw(xx, yy, pixels.getCurrentPlane() == 2 ? 0 : 1);
+                        }
+                        pixels.drawSprite(j, i);
                     }
-                    // draws pixel by flipping it
-                    pixels.draw(xx, yy);
-                    pixels.drawSprite(j, i);
                 }
             }
         }
@@ -567,25 +573,34 @@ public class Decoder {
     private void draw16x16(byte x, byte y) {
         // special value to detect 16x16 sprite
         pixels.setSpriteHeight(-1);
-        for (int i = 0, spriteIndex = 0; i < 16; i++, spriteIndex += 2) {
-            // gets sprite row data from ram
-            int spriteData = (short) (((m.getRam()[toUnsignedInt((short) (m.getI() + spriteIndex))] << 8) & 0xFF00) | (m.getRam()[toUnsignedInt((short) (m.getI() + spriteIndex + 1))] & 0x00FF));
-            for (int j = 0; j < 16; j++) {
-                // using binary mask to check each bit in sprite if that bit should be drawn or not
-                if ((spriteData & (0x8000 >> j)) != 0) {
-                    // modulo to wrap sprites around the screen
-                    int xx = Math.abs((x + j) % 128);
-                    int yy = Math.abs((y + i) % 64);
-                    // if we erased pixel then set VF register to 1
-                    if (pixels.getPixel(xx, yy)) {
-                        m.varReg(0xF, 1);
+        for (int p = 0; p < (pixels.getCurrentPlane() == 3 ? 2 : 1); p++) {
+            for (int i = 0, spriteIndex = 0; i < 16; i++, spriteIndex += 2) {
+                // gets sprite row data from ram
+                int spriteData = (short) (((m.getRam()[toUnsignedInt((short)
+                        (m.getI() + spriteIndex + (p == 1 ? 32 : 0)))] << 8) & 0xFF00) |
+                        (m.getRam()[toUnsignedInt((short) (m.getI() + spriteIndex + 1 + (p == 1 ? 32 : 0)))] & 0x00FF));
+                for (int j = 0; j < 16; j++) {
+                    // using binary mask to check each bit in sprite if that bit should be drawn or not
+                    if ((spriteData & (0x8000 >> j)) != 0) {
+                        // modulo to wrap sprites around the screen
+                        int xx = Math.abs((x + j) % 128);
+                        int yy = Math.abs((y + i) % 64);
+                        // if we erased pixel then set VF register to 1
+                        if (pixels.getPixel(xx, yy, pixels.getCurrentPlane() == 2 ? 0 : 1)) {
+                            m.varReg(0xF, 1);
+                        }
+                        // draws pixel by flipping it
+                        if (pixels.getCurrentPlane() == 3) {
+                            pixels.draw(xx, yy, (p == 1 ? 0 : 1));
+                        } else {
+                            pixels.draw(xx, yy, pixels.getCurrentPlane() == 2 ? 0 : 1);
+                        }
+                        pixels.drawSprite(j, i);
                     }
-                    // draws pixel by flipping it
-                    pixels.draw(xx, yy);
-                    pixels.drawSprite(j, i);
                 }
             }
         }
+
     }
 
     private void skipIfKeyEqual() {
@@ -610,9 +625,8 @@ public class Decoder {
 
     private void drawingPlane() {
         // sets drawing plane to n, xo-chip instruction
-        if ((opcode & 0x0F00) >> 8 >= 3) {
-            pixels.setCurrentPlane((opcode & 0x0F00) >> 8);
-        }
+        pixels.setCurrentPlane((opcode & 0x0F00) >> 8 & 0b11);
+        pixels.setXoMode(true);
         this.detailed = d.drawingPlane();
     }
 

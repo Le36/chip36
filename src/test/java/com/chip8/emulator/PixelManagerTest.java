@@ -17,9 +17,9 @@ public class PixelManagerTest {
     @Test
     public void fading() {
         // draw pixel to 0, 0
-        pixels.draw(0, 0);
+        pixels.draw(0, 0, 1);
         // then erase it
-        pixels.draw(0, 0);
+        pixels.draw(0, 0, 1);
         // now it should have fade value
         assertEquals(0.95, pixels.getFadeMap().get(0).get(0), 0.01);
         // set fade speed to 0.05

@@ -27,7 +27,7 @@ public class ExecuterTest {
         fw.write(testFileContents);
         fw.close();
 
-        this.executer = new Executer("executerTest.txt", new PixelManager(1, 1), new Keys(), new Configs());
+        this.executer = new Executer("executerTest.txt", new PixelManager(128, 64), new Keys(), new Configs());
         // since empty mock rom, lets initialize some ram for tests
         byte[] ram = this.executer.getMemory().getRam();
         ram[0x200] = (byte) 0x00;

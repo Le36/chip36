@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class PixelManager {
 
     private HashMap<Integer, HashMap<Integer, Double>> fadeMap;
-    private boolean[][] display;
+    private boolean[][][] display;
     private int x = 0;
     private int y = 0;
     private boolean fade;
@@ -20,6 +20,7 @@ public class PixelManager {
     private int spriteHeight;
     private boolean resolutionMode; // true = hires, false = lores
     private int currentPlane; // 0 no plane, 1 first, 2 second, 3 both
+    private boolean xoMode; // true = uses extended colors
 
     /**
      * @param width  screen width
@@ -35,7 +36,7 @@ public class PixelManager {
                 this.fadeMap.get(x).put(y, 0.0);
             }
         }
-        this.display = new boolean[width][height];
+        this.display = new boolean[width][height][2]; // 0 is xo and 1 is default planet
         this.spriteViewer = new boolean[16][16];
         this.spriteHeight = 0;
         this.currentPlane = 1; // default plane
@@ -63,14 +64,15 @@ public class PixelManager {
      *
      * @param x coordinate x
      * @param y coordinate y
+     * @param i plane
      */
-    public void draw(int x, int y) {
-        if (this.display[x][y] && fade) {
+    public void draw(int x, int y, int i) {
+        if (this.display[x][y][i] && fade) {
             this.x = x;
             this.y = y;
             this.fadeMap.get(this.x).put(this.y, 0.95);
         }
-        this.display[x][y] = !this.display[x][y];
+        this.display[x][y][i] = !this.display[x][y][i];
     }
 
     /**
@@ -79,9 +81,7 @@ public class PixelManager {
     public void clearDisplay() {
         for (int x = 0; x < 128; x++) {
             for (int y = 0; y < 64; y++) {
-                if (this.display[x][y]) {
-                    this.draw(x, y);
-                }
+                erase(x, y);
             }
         }
     }
@@ -108,12 +108,13 @@ public class PixelManager {
     }
 
     /**
-     * @param x x coordinate
-     * @param y y coordinate
+     * @param x     x coordinate
+     * @param y     y coordinate
+     * @param plane which plane to get pixel
      * @return state of that pixel
      */
-    public boolean getPixel(int x, int y) {
-        return this.display[x][y];
+    public boolean getPixel(int x, int y, int plane) {
+        return this.display[x][y][plane];
     }
 
     /**
@@ -126,7 +127,7 @@ public class PixelManager {
         int ylim = resolutionMode ? 64 : 32;
         for (int y = 0; y < ylim; y++) {
             for (int x = 0; x < xlim; x++) {
-                if (this.display[x][y]) {
+                if (this.display[x][y][1]) {
                     System.out.print(symbol);
                 } else {
                     for (int n = 0; n < symbol.length(); n++) {
@@ -139,27 +140,33 @@ public class PixelManager {
     }
 
     private void drawScrolling(int x, int y, int amount, Scroll dir) {
-        if (this.display[x][y] && fade) {
-            this.fadeMap.get(x).put(y, 0.95);
-        }
-        switch (dir) {
-            case DOWN:
-                this.display[x][y] = display[x][y - amount];
-                return;
-            case LEFT:
-                this.display[x][y] = display[x + amount][y];
-                return;
-            case RIGHT:
-                this.display[x][y] = display[x - amount][y];
-                return;
-            case UP:
-                this.display[x][y] = display[x][y + amount];
+        for (int i = (currentPlane > 1 ? 0 : 1); i < (currentPlane == 3 || currentPlane == 1 ? 2 : 1); i++) {
+            if (this.display[x][y][i] && fade) {
+                this.fadeMap.get(x).put(y, 0.95);
+            }
+            if (dir == Scroll.DOWN) {
+                this.display[x][y][i] = display[x][y - amount][i];
+            } else if (dir == Scroll.LEFT) {
+                this.display[x][y][i] = display[x + amount][y][i];
+            } else if (dir == Scroll.RIGHT) {
+                this.display[x][y][i] = display[x - amount][y][i];
+            } else if (dir == Scroll.UP) {
+                this.display[x][y][i] = display[x][y + amount][i];
+            }
         }
     }
 
     private void erase(int x, int y) {
-        if (display[x][y]) {
-            this.draw(x, y);
+        if (currentPlane == 3) {
+            for (int i = 0; i < 2; i++) {
+                if (this.display[x][y][i]) {
+                    draw(x, y, i);
+                }
+            }
+        } else {
+            if (this.display[x][y][currentPlane == 2 ? 0 : 1]) {
+                this.draw(x, y, currentPlane == 2 ? 0 : 1);
+            }
         }
     }
 

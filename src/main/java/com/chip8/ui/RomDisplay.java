@@ -21,7 +21,9 @@ public class RomDisplay extends Canvas {
     private boolean fadeSelected;
     private int scale;
     private String bgColor;
-    private String spriteColor;
+    private String spriteColor; // default plane
+    private String planeColor; // xo plane
+    private String bothColor; // both planes overlap
     private boolean roundPixels;
 
     public RomDisplay(PixelManager pixels, int width, int height) {
@@ -31,6 +33,8 @@ public class RomDisplay extends Canvas {
         this.width = width;
         this.height = height;
         this.scale = width / 128;
+        this.planeColor = "0xFF0000";
+        this.bothColor = "0xFFFF00";
         try {
             ColorSaver cs = new ColorSaver();
             this.spriteColor = cs.loadColor("spriteColor:");
@@ -53,11 +57,17 @@ public class RomDisplay extends Canvas {
         if (fadeSelected) {
             this.drawFading();
         }
-        boolean[][] display = pixels.getDisplay();
-        painter.setFill(Color.web(spriteColor));
+        boolean[][][] display = pixels.getDisplay();
         for (int x = 0; x < height / scale; x++) {
             for (int y = 0; y < width / scale; y++) {
-                if (display[y][x]) {
+                if (pixels.isXoMode() && display[y][x][0] && display[y][x][1]) {
+                    painter.setFill(Color.web(bothColor));
+                    paint(y, x);
+                } else if (pixels.isXoMode() && display[y][x][0]) {
+                    painter.setFill(Color.web(planeColor));
+                    paint(y, x);
+                } else if (display[y][x][1]) {
+                    painter.setFill(Color.web(spriteColor));
                     paint(y, x);
                 }
             }

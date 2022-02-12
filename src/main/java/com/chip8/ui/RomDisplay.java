@@ -122,12 +122,28 @@ public class RomDisplay extends Canvas {
         this.spriteColor = spriteColor;
     }
 
+    public void setPlaneColor(String planeColor) {
+        this.planeColor = planeColor;
+    }
+
+    public void setBothColor(String bothColor) {
+        this.bothColor = bothColor;
+    }
+
     public String getBgColor() {
         return bgColor;
     }
 
     public String getSpriteColor() {
         return spriteColor;
+    }
+
+    public String getPlaneColor() {
+        return planeColor;
+    }
+
+    public String getBothColor() {
+        return bothColor;
     }
 
     public void setRoundPixels(boolean roundPixels) {

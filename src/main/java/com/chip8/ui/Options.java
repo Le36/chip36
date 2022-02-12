@@ -54,12 +54,17 @@ public class Options extends Stage {
 
         ColorPicker spriteColor = uiElements.colorPicker();
         ColorPicker bgColor = uiElements.colorPicker();
+        ColorPicker planeColor = uiElements.colorPicker();
+        ColorPicker bothColor = uiElements.colorPicker();
 
         spriteColor.setValue(Color.web(romDisplay.getSpriteColor()));
         bgColor.setValue(Color.web(romDisplay.getBgColor()));
+        planeColor.setValue(Color.web(romDisplay.getPlaneColor()));
+        bothColor.setValue(Color.web(romDisplay.getBothColor()));
         // colors so we can restore them if not applied / saved
         configs.setSpriteColor(romDisplay.getSpriteColor());
         configs.setBgColor(romDisplay.getBgColor());
+
 
         CheckBox printConsole = uiElements.makeCheckBox("Print to console");
         CheckBox disableUiUpdates = uiElements.makeCheckBox("Disable ui updates");
@@ -69,8 +74,8 @@ public class Options extends Stage {
         printableSymbol.setText(configs.getPrintSymbol());
 
         VBox vBoxRight = new VBox(10, uiElements.makeLabel("Sprite color:", LabelType.TOOLBAR), spriteColor,
-                uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor, printConsole,
-                new HBox(5, uiElements.makeLabel("Print symbol:", LabelType.SMALL), printableSymbol), disableUiUpdates);
+                uiElements.makeLabel("Bg color:", LabelType.TOOLBAR), bgColor, uiElements.makeLabel("Plane color:", LabelType.TOOLBAR),
+                planeColor, uiElements.makeLabel("Both color:", LabelType.TOOLBAR), bothColor);
 
         CheckBox roundPixels = uiElements.makeCheckBox("Round pixels");
         roundPixels.setSelected(configs.isRoundPixels());
@@ -87,7 +92,8 @@ public class Options extends Stage {
         CheckBox glowEnabled = uiElements.makeCheckBox("Enable glow");
         glowEnabled.setSelected(configs.isGlow());
 
-        VBox effects = new VBox(10, blurLabel, blurSlider, blurEnabled, glowLabel, glowSlider, glowEnabled, roundPixels);
+        VBox effects = new VBox(10, blurLabel, blurSlider, blurEnabled, glowLabel, glowSlider, glowEnabled, roundPixels, printConsole,
+                new HBox(5, uiElements.makeLabel("Print symbol:", LabelType.SMALL), printableSymbol), disableUiUpdates);
         effects.setPadding(new Insets(0, 10, 10, 10));
 
         root.setCenter(effects);
@@ -137,7 +143,7 @@ public class Options extends Stage {
 
         applyChanges.setOnAction(e -> {
             applyKeys(keys, rebinds);
-            applyColor(romDisplay, spriteColor, bgColor);
+            applyColor(romDisplay, spriteColor, bgColor, planeColor, bothColor);
             configs.setSpriteColor(romDisplay.getSpriteColor());
             configs.setBgColor(romDisplay.getBgColor());
 
@@ -174,7 +180,7 @@ public class Options extends Stage {
                     effectController.removeEffects();
                 }
                 effectController.roundPixels(roundPixels.isSelected());
-                applyColor(romDisplay, spriteColor, bgColor);
+                applyColor(romDisplay, spriteColor, bgColor, planeColor, bothColor);
             }
         };
 
@@ -208,10 +214,14 @@ public class Options extends Stage {
      * @param romDisplay  display to set colors to
      * @param spriteColor color for sprite
      * @param bgColor     color for background
+     * @param planeColor  color for xo-chip plane
+     * @param bothColor   color for xo-chip overlap color
      */
-    private void applyColor(RomDisplay romDisplay, ColorPicker spriteColor, ColorPicker bgColor) {
+    private void applyColor(RomDisplay romDisplay, ColorPicker spriteColor, ColorPicker bgColor, ColorPicker planeColor, ColorPicker bothColor) {
         romDisplay.setSpriteColor(spriteColor.getValue().toString());
         romDisplay.setBgColor(bgColor.getValue().toString());
+        romDisplay.setPlaneColor(planeColor.getValue().toString());
+        romDisplay.setBothColor(bothColor.getValue().toString());
     }
 
     /**

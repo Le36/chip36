@@ -368,6 +368,8 @@ public class EmulatorUi extends Stage {
                             if (randomColors.isSelected()) {
                                 romDisplay.setBgColor(new RandomColors().getColor());
                                 romDisplay.setSpriteColor(new RandomColors().getColor());
+                                romDisplay.setPlaneColor(new RandomColors().getColor());
+                                romDisplay.setBothColor(new RandomColors().getColor());
                             }
                         }
                     } else {

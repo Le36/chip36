@@ -79,10 +79,10 @@ public class EmulatorUi extends Stage {
         Button extStack = uiElements.makeButton("Extended Stack");
         ToggleButton randomColors = uiElements.makeToggleButton("Random");
         Label multiplierLabel = uiElements.makeLabel("ROM Speed Multiplier: ", LabelType.TOOLBAR);
-        Slider multiplier = uiElements.makeSlider(1, 50, 1);
+        Slider multiplier = uiElements.makeSlider(1, 500, 1);
         HBox hboxBotLeft = new HBox(4, extDisassembler, extStack, randomColors);
         HBox hboxBotRight = new HBox(4, multiplierLabel, multiplier);
-        HBox toolbarHBoxBottom = new HBox(210, hboxBotLeft, hboxBotRight);
+        HBox toolbarHBoxBottom = new HBox(372, hboxBotLeft, hboxBotRight);
         VBox toolbarVBox = new VBox(5, toolbarHBoxTop, toolbarHBoxBottom);
         ToolBar toolBar = new ToolBar();
 

@@ -43,6 +43,8 @@ Sprite data can then be easily copied and used in Octo assembler.
 
 ## How to run ##
 
+Requires Java 11 or newer to run.
+
 ### Start
 
 Clone project and use this command when in root folder to launch the program

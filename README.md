@@ -44,19 +44,19 @@ Sprite data can then be easily copied and used in Octo assembler.
 
 ### Start
 
-Use this command when in root folder to launch the program
+Clone project and use this command when in root folder to launch the program
 
 Linux ```mvn compile exec:java -Dexec.mainClass=com.chip8.Main```
 
 Windows ```mvn compile exec:java -D"exec.mainClass"="com.chip8.Main"```
 
-or build
+or you can build with
 
 ```
 mvn package
 ```
 
-or get the prebuilt .jar file from releases.
+or get the prebuilt .jar file from [releases.](https://github.com/Le36/chip36/releases/tag/v1.0)
 
 ### Testing
 

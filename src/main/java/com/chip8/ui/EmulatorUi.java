@@ -67,7 +67,7 @@ public class EmulatorUi extends Stage {
         Button options = uiElements.makeButton("Options");
 
         Slider fadeSlider = uiElements.makeSlider(0.0001, 0.05, 0.05);
-        Slider slider = uiElements.makeSlider(-20, 20, 1);
+        Slider slider = uiElements.makeSlider(-20, 40, 1);
         Label gameSpeedLabel = uiElements.makeLabel("ROM Speed: ", LabelType.TOOLBAR);
         Label fadeSpeedLabel = uiElements.makeLabel("Fade Speed: ", LabelType.TOOLBAR);
 
@@ -88,7 +88,7 @@ public class EmulatorUi extends Stage {
 
         FpsCounter fps = new FpsCounter();
         Label currentFpsLabel = uiElements.makeLabel("0", LabelType.FPS);
-        DecimalFormat df = new DecimalFormat("+#,###0.00;-#");
+        DecimalFormat df = new DecimalFormat("+####0.00;-#");
         Label currentSpeedLabel = uiElements.makeLabel(df.format(gameSpeed), LabelType.FPS);
         VBox fpsCounter = new VBox(uiElements.makeLabel("FPS:", LabelType.FPS), currentFpsLabel, uiElements.makeLabel("Speed:", LabelType.FPS), currentSpeedLabel);
         if (mode) {

@@ -72,6 +72,21 @@ public class DecoderTest {
     }
 
     @Test
+    public void dumpRplFx75() {
+        // insert 3 different values into variable registers
+        // they are v[0] = 0d30, v[2] = 0d60, v[5] = 0d11
+        m.varReg(0, 30);
+        m.varReg(2, 60);
+        m.varReg(5, 11);
+        decoder.decode((short) 0xF775);
+        // instruction 0xF775 -> dump registers v[0] - v[6] to rpl registers
+        assertEquals(30, m.getRpl()[0]);
+        assertEquals(0, m.getRpl()[1]);
+        assertEquals(60, m.getRpl()[2]);
+        assertEquals(11, m.getRpl()[5]);
+    }
+
+    @Test
     public void fillRegistersFx65() {
         // insert 3 different values into ram
         // that are 0x50, 0x30, 0x1F
@@ -86,6 +101,46 @@ public class DecoderTest {
         assertEquals(0x50, m.getV()[0]);
         assertEquals(0x30, m.getV()[1]);
         assertEquals(0x1F, m.getV()[2]);
+    }
+
+    @Test
+    public void fillRplFx85() {
+        // insert 3 different values into rpl
+        // that are 0x50, 0x30, 0x1F
+        byte[] rpl = m.getRpl();
+        rpl[0] = 0x50;
+        rpl[1] = 0x30;
+        rpl[2] = 0x1F;
+        m.setRpl(rpl);
+        decoder.decode((short) 0xF385);
+        // now check if variable registers are filled properly
+        assertEquals(0x50, m.getV()[0]);
+        assertEquals(0x30, m.getV()[1]);
+        assertEquals(0x1F, m.getV()[2]);
+    }
+
+    @Test
+    public void dumpVxToVy() {
+        m.varReg(3, 0x20);
+        m.varReg(4, 0x22);
+        m.setI((short) 0x592);
+        decoder.decode((short) 0x5342);
+        assertEquals(0x20, m.getRam()[0x592]);
+        assertEquals(0x22, m.getRam()[0x593]);
+    }
+
+    @Test
+    public void fillVxToVy() {
+        byte[] RAM = m.getRam();
+        RAM[0xBB8] = 0x50;
+        RAM[0xBB9] = 0x30;
+        RAM[0xBBA] = 0x1F;
+        m.setRam(RAM);
+        m.setI((short) 0xBB8);
+        decoder.decode((short) 0x5AC3);
+        assertEquals(0x50, m.getV()[0xA]);
+        assertEquals(0x30, m.getV()[0xB]);
+        assertEquals(0x1F, m.getV()[0xC]);
     }
 
     @Test

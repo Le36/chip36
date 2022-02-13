@@ -30,7 +30,7 @@ public class ConfigsSaver {
         StringBuilder file = new StringBuilder();
         Scanner sc = new Scanner(configFile);
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 24; i++) {
             file.append(sc.nextLine()).append("\n");
         }
 

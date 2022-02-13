@@ -64,6 +64,8 @@ public class Options extends Stage {
         // colors so we can restore them if not applied / saved
         configs.setSpriteColor(romDisplay.getSpriteColor());
         configs.setBgColor(romDisplay.getBgColor());
+        configs.setPlaneColor(romDisplay.getPlaneColor());
+        configs.setBothColor(romDisplay.getBothColor());
 
 
         CheckBox printConsole = uiElements.makeCheckBox("Print to console");
@@ -111,6 +113,8 @@ public class Options extends Stage {
             rebinds.setDefault();
             bgColor.setValue(Color.web(d.getBgColor()));
             spriteColor.setValue(Color.web(d.getSpriteColor()));
+            planeColor.setValue(Color.web(d.getPlaneColor()));
+            bothColor.setValue(Color.web(d.getBothColor()));
             printConsole.setSelected(d.isPrintToConsole());
             disableUiUpdates.setSelected(d.isDisableUiUpdates());
             printableSymbol.setText(d.getPrintSymbol());
@@ -130,7 +134,7 @@ public class Options extends Stage {
                 KeybindSaver keybindSaver = new KeybindSaver();
                 keybindSaver.save(binds);
                 ColorSaver colorSaver = new ColorSaver();
-                colorSaver.save(bgColor.getValue(), spriteColor.getValue());
+                colorSaver.save(bgColor.getValue(), spriteColor.getValue(), planeColor.getValue(), bothColor.getValue());
                 ConfigsSaver configsSaver = new ConfigsSaver();
                 configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected(), roundPixels.isSelected(), blurEnabled.isSelected(), glowEnabled.isSelected(), blurSlider.getValue(), glowSlider.getValue());
                 QuirkSaver quirkSaver = new QuirkSaver();

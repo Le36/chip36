@@ -19,6 +19,8 @@ public class Configs {
     private double glowValue;
     private String bgColor;
     private String spriteColor;
+    private String planeColor;
+    private String bothColor;
     private boolean quirkShift;
     private boolean quirkJump;
     private boolean quirkIncrementIndex;

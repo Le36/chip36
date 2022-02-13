@@ -12,6 +12,8 @@ public class DefaultValues {
     private String mouseKbLayout;
     private String bgColor;
     private String spriteColor;
+    private String planeColor;
+    private String bothColor;
     private String printSymbol;
     private boolean printToConsole;
     private boolean disableUiUpdates;
@@ -32,6 +34,8 @@ public class DefaultValues {
         this.mouseKbLayout = "123C456D789EA0BF";
         this.bgColor = "0x000000";
         this.spriteColor = "0xFFFFFF";
+        this.planeColor = "0x00FF00";
+        this.bothColor = "0x4D4D4D";
         this.printSymbol = "█#";
         this.printToConsole = false;
         this.disableUiUpdates = false;

@@ -25,7 +25,7 @@ public class FileSavingTest {
         // create config file with some settings
         Keys keys = new Keys();
         this.keybindSaver.save(keys.getBinds());
-        this.colorSaver.save(Color.BLACK, Color.WHITE);
+        this.colorSaver.save(Color.BLACK, Color.WHITE, Color.LIME, Color.web(new DefaultValues().getBothColor()));
         this.configsSaver.save(false, "*", false, false, false, false, 0.0, 0.0);
     }
 

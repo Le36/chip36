@@ -16,11 +16,13 @@ public class ColorSaver {
     /**
      * saves colors to a file, uses keybinds in same file
      *
-     * @param bg color of background
+     * @param bg     color of background
      * @param sprite color of sprite
+     * @param plane  color of xo plane
+     * @param both   color of xo overlap
      * @throws IOException exception if found file in wrong format
      */
-    public void save(Color bg, Color sprite) throws IOException {
+    public void save(Color bg, Color sprite, Color plane, Color both) throws IOException {
         File configFile = new File("chip8-configs.txt");
 
         if (!configFile.exists()) {
@@ -34,7 +36,7 @@ public class ColorSaver {
             file.append(sc.nextLine()).append("\n");
         }
 
-        String colors = file + "bgColor:\n" + bg.toString() + "\nspriteColor:\n" + sprite.toString();
+        String colors = file + "bgColor:\n" + bg.toString() + "\nspriteColor:\n" + sprite.toString() + "\nplaneColor:\n" + plane.toString() + "\nbothColor:\n" + both.toString();
         FileWriter fw = new FileWriter("chip8-configs.txt");
         fw.write(colors);
         fw.close();

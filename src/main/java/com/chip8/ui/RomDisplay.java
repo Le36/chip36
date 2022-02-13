@@ -33,17 +33,19 @@ public class RomDisplay extends Canvas {
         this.width = width;
         this.height = height;
         this.scale = width / 128;
-        this.planeColor = "0xFF0000";
-        this.bothColor = "0xFFFF00";
         try {
             ColorSaver cs = new ColorSaver();
             this.spriteColor = cs.loadColor("spriteColor:");
             this.bgColor = cs.loadColor("bgColor:");
+            this.planeColor = cs.loadColor("planeColor:");
+            this.bothColor = cs.loadColor("bothColor:");
             EffectController effectController = new EffectController(this);
             effectController.onLoad();
         } catch (Exception ignored) {
             this.spriteColor = new DefaultValues().getSpriteColor();
             this.bgColor = new DefaultValues().getBgColor();
+            this.bothColor = new DefaultValues().getBothColor();
+            this.planeColor = new DefaultValues().getPlaneColor();
             this.roundPixels = new DefaultValues().isRoundPixels();
         }
     }

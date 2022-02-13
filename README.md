@@ -25,7 +25,8 @@ Keyboard is rebindable, so you can truly make them ROMs feel good no matter whic
 
 ![Options](/misc/options.png)
 
-ROMs can be played from terminal and combined for example with [cool-retro-term](https://github.com/Swordfish90/cool-retro-term) you can play CHIP-8 ROMs like it's 1970.
+ROMs can be played from terminal and combined for example with [cool-retro-term](https://github.com/Swordfish90/cool-retro-term) 
+you can play ROMs like it's 1970. With XO-CHIP ROMs only the default plane will be printed to terminal.
 
 ![Console](/misc/console.gif)
 

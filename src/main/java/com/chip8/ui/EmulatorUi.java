@@ -215,7 +215,7 @@ public class EmulatorUi extends Stage {
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys, configs);
             pixels.setResolutionMode(false);
             fileChosen = true;
-            pixels.clearDisplay();
+            clearDisplay(pixels);
             hexDumpArea.setText(executer.getLoader().hexDump());
             this.setTitle("Chip8 Emulator | Loaded ROM: " + selectedFile.getName());
 
@@ -227,7 +227,7 @@ public class EmulatorUi extends Stage {
             if (selectedFile == null) return;
             this.executer = new Executer(selectedFile.getAbsolutePath(), pixels, keys, configs);
             fileChosen = true;
-            pixels.clearDisplay();
+            clearDisplay(pixels);
             specialHires(pixels);
         });
 
@@ -383,6 +383,12 @@ public class EmulatorUi extends Stage {
         }).start();
 
         this.show();
+    }
+
+    private void clearDisplay(PixelManager pixels) {
+        pixels.setCurrentPlane(3);
+        pixels.clearDisplay();
+        pixels.setCurrentPlane(1);
     }
 
     /**

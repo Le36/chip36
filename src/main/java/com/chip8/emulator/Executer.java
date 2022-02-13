@@ -25,9 +25,6 @@ public class Executer {
 
         this.fetcher = new Fetcher(memory);
         this.decoder = new Decoder(memory, fetcher, pixels, keys, c);
-        pixels.setCurrentPlane(3);
-        pixels.clearDisplay();
-        pixels.setCurrentPlane(1);
     }
 
     /**

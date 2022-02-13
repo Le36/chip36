@@ -767,4 +767,54 @@ public class DecoderTest {
         decoder.decode((short) 0xF101);
         assertEquals(1, decoder.getPixels().getCurrentPlane());
     }
+
+    @Test
+    public void pitch() {
+        // add 0x30 to v0
+        m.varReg(0, 0x30);
+        // set v0 to pitch register
+        decoder.decode((short) 0xF03A);
+        assertEquals(0x30, m.getPitch());
+    }
+
+    @Test
+    public void audioBuffer() {
+        byte[] ram = m.getRam();
+        // insert values to ram
+        ram[0x200] = 0x30;
+        ram[0x201] = 0x20;
+        ram[0x202] = (byte) 0xF0;
+        ram[0x203] = 0x00;
+        ram[0x204] = 0x11;
+        ram[0x205] = 0x11;
+        m.setRam(ram);
+        // set i to 0x200
+        m.setI((short) 0x200);
+        // load audio buffer
+        decoder.decode((short) 0xF002);
+        // test the values from audio buffer
+        assertEquals(0x30, m.getAudio()[0]);
+        assertEquals(0x20, m.getAudio()[1]);
+        assertEquals((byte) 0xF0, m.getAudio()[2]);
+        assertEquals(0x00, m.getAudio()[3]);
+        assertEquals(0x11, m.getAudio()[4]);
+        assertEquals(0x11, m.getAudio()[5]);
+        // rest should be empty
+        assertEquals(0x0, m.getAudio()[6]);
+        assertEquals(0x0, m.getAudio()[7]);
+        assertEquals(0x0, m.getAudio()[8]);
+        assertEquals(0x0, m.getAudio()[15]);
+    }
+
+    @Test
+    public void resMode() {
+        // default its on lores
+        assertFalse(decoder.getPixels().isResolutionMode());
+        // set to hires
+        decoder.decode((short) 0x00FF);
+        assertTrue(decoder.getPixels().isResolutionMode());
+        // set back to lores
+        decoder.decode((short) 0x00FE);
+        assertFalse(decoder.getPixels().isResolutionMode());
+    }
 }

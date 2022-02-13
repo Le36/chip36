@@ -48,6 +48,7 @@ public class RomDisplay extends Canvas {
             this.planeColor = new DefaultValues().getPlaneColor();
             this.roundPixels = new DefaultValues().isRoundPixels();
         }
+        this.init();
     }
 
     /**
@@ -116,6 +117,17 @@ public class RomDisplay extends Canvas {
         painter.fillRect(0, 0, width, height);
         painter.setFill(Color.web(spriteColor));
         painter.fillText("Ui updates have been disabled\nenable them in options menu", 50, 50);
+    }
+
+    private void init() {
+        painter.setFill(Color.web(bgColor));
+        painter.fillRect(0, 0, width, height);
+        painter.setFill(Color.web(spriteColor));
+        painter.fillText("Welcome to CHIP-36 Emulator.\n\nSelect ROM to start.\n\n" +
+                "Emulator supports CHIP-8, S-CHIP and XO-CHIP ROM's.\n" +
+                "ROM not working? Try adjusting quirks in settings.\n\n" +
+                "Source available: https://github.com/Le36/chip36" +
+                "", 50, 50);
     }
 
     public void setFadeSelected(boolean fadeSelected) {

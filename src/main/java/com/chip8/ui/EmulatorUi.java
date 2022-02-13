@@ -49,7 +49,7 @@ public class EmulatorUi extends Stage {
     EmulatorUi(boolean mode, int scale) {
         UiElements uiElements = new UiElements();
 
-        this.setTitle("Chip8 Emulator");
+        this.setTitle("CHIP-36 Emulator");
         PixelManager pixels = new PixelManager(width, height);
         FileChooser fileChooser = new FileChooser();
         Keys keys = new Keys();
@@ -217,7 +217,7 @@ public class EmulatorUi extends Stage {
             fileChosen = true;
             clearDisplay(pixels);
             hexDumpArea.setText(executer.getLoader().hexDump());
-            this.setTitle("Chip8 Emulator | Loaded ROM: " + selectedFile.getName());
+            this.setTitle("CHIP-36 Emulator | Loaded ROM: " + selectedFile.getName());
 
             // check here if its 64x64 rom for hires mode
             specialHires(pixels);
@@ -351,7 +351,6 @@ public class EmulatorUi extends Stage {
                     currentFpsLabel.setText(String.format("%.0f", fps.update(System.nanoTime())));
 
                     if (!configs.isDisableUiUpdates()) {
-                        romDisplay.draw();
                         if (mode) {
                             spriteDisplay.draw();
                             currentSpeedLabel.setText(df.format(gameSpeed));
@@ -360,6 +359,7 @@ public class EmulatorUi extends Stage {
                         pixels.fade(); // fades all pixels that have been erased
 
                         if (!fileChosen) return;
+                        romDisplay.draw();
                         audioPlaying = executer.getMemory().getSoundTimer() != (byte) 0x0;
 
                         if (mode) {

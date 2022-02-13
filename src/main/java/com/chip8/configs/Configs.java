@@ -24,6 +24,7 @@ public class Configs {
     private boolean quirkShift;
     private boolean quirkJump;
     private boolean quirkIncrementIndex;
+    private boolean quirkOrder;
 
     public Configs() {
         try {
@@ -40,6 +41,7 @@ public class Configs {
             this.quirkShift = quirkSaver.loadState("quirkShift:");
             this.quirkJump = quirkSaver.loadState("quirkJump:");
             this.quirkIncrementIndex = quirkSaver.loadState("quirkIndex:");
+            this.quirkOrder = quirkSaver.loadState("quirkOrder:");
         } catch (Exception ignored) {
             DefaultValues d = new DefaultValues();
             this.printToConsole = d.isPrintToConsole();
@@ -53,6 +55,7 @@ public class Configs {
             this.quirkShift = d.isQuirkShift();
             this.quirkJump = d.isQuirkJump();
             this.quirkIncrementIndex = d.isQuirkIndex();
+            this.quirkOrder = d.isQuirkOrder();
         }
         this.spriteExtracting = false;
     }

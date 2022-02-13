@@ -19,7 +19,7 @@ public class QuirkSaver {
      * @param index if quirk is used for dump and fill instructions
      * @throws IOException
      */
-    public void save(boolean shift, boolean jump, boolean index) throws IOException {
+    public void save(boolean shift, boolean jump, boolean index, boolean order) throws IOException {
         File configFile = new File("chip8-configs.txt");
 
         if (!configFile.exists()) {
@@ -33,7 +33,7 @@ public class QuirkSaver {
             file.append(sc.nextLine()).append("\n");
         }
 
-        String configs = file + "quirkShift:\n" + shift + "\nquirkJump:\n" + jump + "\nquirkIndex:\n" + index;
+        String configs = file + "quirkShift:\n" + shift + "\nquirkJump:\n" + jump + "\nquirkIndex:\n" + index + "\nquirkOrder:\n" + order;
         FileWriter fw = new FileWriter("chip8-configs.txt");
         fw.write(configs);
         fw.close();

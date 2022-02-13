@@ -25,6 +25,7 @@ public class DefaultValues {
     private boolean quirkShift;
     private boolean quirkJump;
     private boolean quirkIndex;
+    private boolean quirkOrder;
 
     /**
      * edit these if you want to change some default values
@@ -47,5 +48,6 @@ public class DefaultValues {
         this.quirkShift = false;
         this.quirkJump = false;
         this.quirkIndex = false;
+        this.quirkOrder = false;
     }
 }

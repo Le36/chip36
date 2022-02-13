@@ -49,8 +49,11 @@ public class Options extends Stage {
         CheckBox quirkIncrementIndex = uiElements.makeCheckBox("Increment index on dump / fill");
         quirkIncrementIndex.setTooltip(uiElements.tooltip("Changes how FX55 and FX65 instructions work. Enabling this will increment index register when using these instructions."));
         quirkIncrementIndex.setSelected(configs.isQuirkIncrementIndex());
+        CheckBox quirkOrder = uiElements.makeCheckBox("Swap VF order");
+        quirkOrder.setTooltip(uiElements.tooltip("Swaps the order when accessing VF and other variable register (insert v[f] then v[x] OR insert v[x] then v[f])"));
+        quirkOrder.setSelected(configs.isQuirkOrder());
 
-        VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.TOOLBAR), rebinds, uiElements.makeLabel("Quirks: ", LabelType.TOOLBAR), quirkShift, quirkJump, quirkIncrementIndex);
+        VBox vBoxBinds = new VBox(10, uiElements.makeLabel("Rebind your keys: ", LabelType.TOOLBAR), rebinds, uiElements.makeLabel("Quirks: ", LabelType.TOOLBAR), quirkShift, quirkJump, quirkIncrementIndex, quirkOrder);
 
         ColorPicker spriteColor = uiElements.colorPicker();
         ColorPicker bgColor = uiElements.colorPicker();
@@ -126,6 +129,7 @@ public class Options extends Stage {
             quirkShift.setSelected(d.isQuirkShift());
             quirkJump.setSelected(d.isQuirkJump());
             quirkIncrementIndex.setSelected(d.isQuirkIndex());
+            quirkOrder.setSelected(d.isQuirkOrder());
         });
 
         saveChanges.setOnAction(e -> {
@@ -138,7 +142,7 @@ public class Options extends Stage {
                 ConfigsSaver configsSaver = new ConfigsSaver();
                 configsSaver.save(printConsole.isSelected(), printableSymbol.getText(), disableUiUpdates.isSelected(), roundPixels.isSelected(), blurEnabled.isSelected(), glowEnabled.isSelected(), blurSlider.getValue(), glowSlider.getValue());
                 QuirkSaver quirkSaver = new QuirkSaver();
-                quirkSaver.save(quirkShift.isSelected(), quirkJump.isSelected(), quirkIncrementIndex.isSelected());
+                quirkSaver.save(quirkShift.isSelected(), quirkJump.isSelected(), quirkIncrementIndex.isSelected(), quirkOrder.isSelected());
             } catch (Exception ignored) {
             }
             // apply it too
@@ -166,6 +170,7 @@ public class Options extends Stage {
             configs.setQuirkJump(quirkJump.isSelected());
             configs.setQuirkShift(quirkShift.isSelected());
             configs.setQuirkIncrementIndex(quirkIncrementIndex.isSelected());
+            configs.setQuirkOrder(quirkOrder.isSelected());
         });
 
         this.setScene(new Scene(root, 700, 340));

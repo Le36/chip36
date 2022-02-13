@@ -431,13 +431,9 @@ public class Decoder {
 
     private void subtract5(byte x, byte y) {
         // sets v[x] to v[x] - v[y], if v[x] > v[y] then v[0xF] set to 1, else 0
-        m.varReg((opcode & 0x0F00) >> 8, x - y);
-        if (Byte.toUnsignedInt(x) >= Byte.toUnsignedInt(y)) {
-            m.varReg(0xF, 1);
-            d.setState(true);
-        } else {
-            m.varReg(0xF, 0);
-        }
+        boolean state = Byte.toUnsignedInt(x) >= Byte.toUnsignedInt(y);
+        d.setState(state);
+        this.vfOrder((opcode & 0x0F00) >> 8, x - y, state ? 1 : 0);
         String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
         String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
         this.detailed = d.detailSubtract5(y, x, yValue, xValue);
@@ -445,13 +441,9 @@ public class Decoder {
 
     private void subtract7(byte x, byte y) {
         // sets v[x] to v[y] - v[x], if v[y] > v[x] then v[0xF] set to 1, else 0
-        m.varReg((opcode & 0x0F00) >> 8, y - x);
-        if (Byte.toUnsignedInt(y) >= Byte.toUnsignedInt(x)) {
-            m.varReg(0xF, 1);
-            d.setState(true);
-        } else {
-            m.varReg(0xF, 0);
-        }
+        boolean state = Byte.toUnsignedInt(y) >= Byte.toUnsignedInt(x);
+        d.setState(state);
+        this.vfOrder((opcode & 0x0F00) >> 8, y - x, state ? 1 : 0);
         String xValue = Integer.toHexString((x & 0xFF)).toUpperCase();
         String yValue = Integer.toHexString((y & 0xFF)).toUpperCase();
         this.detailed = d.detailSubtract7(x, y, xValue, yValue);
@@ -462,13 +454,8 @@ public class Decoder {
         // else to 0, after this v[x] is divided by 2
         // if quirk enabled sets v[y] into v[x] before anything
         byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x00F0) >> 4 : (opcode & 0x0F00) >> 8];
-        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) / 2);
-        if ((x & 0x1) == 1) {
-            m.varReg(0xF, 1);
-            d.setState(true);
-        } else {
-            m.varReg(0xF, 0);
-        }
+        d.setState((x & 0x1) == 1);
+        this.vfOrder((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) / 2, (x & 0x1) == 1 ? 1 : 0);
         this.detailed = d.detailShiftRight(x);
     }
 
@@ -478,14 +465,20 @@ public class Decoder {
         // else to 0, after this v[x] is multiplied with 2
         // if quirk enabled sets v[y] into v[x] before anything
         byte x = m.getV()[c.isQuirkShift() ? (opcode & 0x00F0) >> 4 : (opcode & 0x0F00) >> 8];
-        m.varReg((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) * 2);
-        if ((x & 0b10000000) >> 7 == 1) {
-            d.setState(true);
-            m.varReg(0xF, 1);
-        } else {
-            m.varReg(0xF, 0);
-        }
+        d.setState((x & 0b10000000) >> 7 == 1);
+        this.vfOrder((opcode & 0x0F00) >> 8, Byte.toUnsignedInt(x) * 2, (x & 0b10000000) >> 7 == 1 ? 1 : 0);
         this.detailed = d.detailShiftLeft(x);
+    }
+
+    private void vfOrder(int varReg, int varValue, int vf) {
+        // this is helper method for vf order quirk
+        if (c.isQuirkOrder()) {
+            m.varReg(0xF, vf);
+            m.varReg(varReg, varValue);
+        } else {
+            m.varReg(varReg, varValue);
+            m.varReg(0xF, vf);
+        }
     }
 
     private void skipIfNotEqualRegisters() {

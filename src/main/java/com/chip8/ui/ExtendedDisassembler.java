@@ -29,7 +29,7 @@ public class ExtendedDisassembler extends Stage {
         ToggleButton follow = uiElements.makeToggleButton("Follow program counter");
         Label text = uiElements.makeLabel("Graphic symbol: ", LabelType.SMALL);
         TextField symbol = uiElements.makeTextField();
-        symbol.setText("██");
+        symbol.setText("##");
         HBox hBox = new HBox(10, follow, text, symbol);
 
         Disassembler disassembler = new Disassembler();

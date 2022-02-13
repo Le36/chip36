@@ -37,7 +37,7 @@ public class DefaultValues {
         this.spriteColor = "0xFFFFFF";
         this.planeColor = "0x00FF00";
         this.bothColor = "0x4D4D4D";
-        this.printSymbol = "█#";
+        this.printSymbol = "#";
         this.printToConsole = false;
         this.disableUiUpdates = false;
         this.roundPixels = false;

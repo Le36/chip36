@@ -116,6 +116,29 @@ public class DecoderTest {
     }
 
     @Test
+    public void largeFontFx30() {
+        // test super-chip fonts
+        m.varReg(0x0, 0xA); // insert A character into V[0x0]
+
+        decoder.decode((short) 0xF030); // make I point to character A location, V[0] holds A
+        // since large fonts are loaded into ram from address 0x60 to 0xFE
+        // we can expect I to be pointing into 0xC4 because thats where A is loaded in RAM
+        assertEquals(0xC4, m.getI());
+        // 0b00110000, 0b01111000, 0b11001100, 0b11001100, 0b11001100, 0b11111100, 0b11001100, 0b11001100, 0b11001100, 0b00000000
+        // is font data for A so we can expect to find these from RAM pointed by I
+        assertEquals((byte) 0b00110000, m.getRam()[m.getI()]);
+        assertEquals((byte) 0b01111000, m.getRam()[m.getI() + 1]);
+        assertEquals((byte) 0b11001100, m.getRam()[m.getI() + 2]);
+        assertEquals((byte) 0b11001100, m.getRam()[m.getI() + 3]);
+        assertEquals((byte) 0b11001100, m.getRam()[m.getI() + 4]);
+        assertEquals((byte) 0b11111100, m.getRam()[m.getI() + 5]);
+        assertEquals((byte) 0b11001100, m.getRam()[m.getI() + 6]);
+        assertEquals((byte) 0b11001100, m.getRam()[m.getI() + 7]);
+        assertEquals((byte) 0b11001100, m.getRam()[m.getI() + 8]);
+        assertEquals((byte) 0b00000000, m.getRam()[m.getI() + 9]);
+    }
+
+    @Test
     public void skipIfEqual3XNN() {
         // set pc to 0x400
         m.setPc((short) 0x400);
@@ -716,5 +739,32 @@ public class DecoderTest {
         m.varReg(0xB, 0xFF);
         decoder.decode((short) 0xFB1E);
         assertEquals(0x24F, m.getI());
+
+        // check if overflow check works
+        m.setI((short) 0xFFF);
+        m.varReg(0x5, 0x1);
+        decoder.decode((short) 0xF51E);
+        // vf should be 1
+        assertEquals(1, m.getV()[0xF]);
+        // check if we went over 4096
+        assertEquals(0x1000, m.getI());
+    }
+
+    @Test
+    public void drawingPlane() {
+        // default plane should be 1
+        assertEquals(1, decoder.getPixels().getCurrentPlane());
+        // change plane to 2
+        decoder.decode((short) 0xF201);
+        assertEquals(2, decoder.getPixels().getCurrentPlane());
+        decoder.decode((short) 0xF301);
+        assertEquals(3, decoder.getPixels().getCurrentPlane());
+        // try to go 4 which doesn't exist, should stay reset plane to 0
+        decoder.decode((short) 0xF401);
+        assertEquals(0, decoder.getPixels().getCurrentPlane());
+        assertNotEquals(4, decoder.getPixels().getCurrentPlane());
+        // back to 1
+        decoder.decode((short) 0xF101);
+        assertEquals(1, decoder.getPixels().getCurrentPlane());
     }
 }

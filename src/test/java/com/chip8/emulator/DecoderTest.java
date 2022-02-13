@@ -872,4 +872,32 @@ public class DecoderTest {
         decoder.decode((short) 0x00FE);
         assertFalse(decoder.getPixels().isResolutionMode());
     }
+
+    @Test
+    public void exit() {
+        // test exiting emulator
+        // decrements pc, negating fetchers increment
+        // staying in same instruction until reset
+        decoder.decode((short) 0x00FD);
+        assertEquals(0x1FE, m.getPc());
+        fetcher.fetch();
+        decoder.decode((short) 0x00FD);
+        assertEquals(0x1FE, m.getPc());
+    }
+
+    @Test
+    public void doubleWide() {
+        // test the xo special double wide
+        byte[] ram = m.getRam();
+        // insert values to ram
+        ram[0x200] = 0x30;
+        ram[0x201] = 0x20;
+        m.setRam(ram);
+        decoder.decode((short) 0xF000);
+        // now I should be at 0x3020
+        assertEquals((short) 0x3020, m.getI());
+        // pc should have been incremented past the address part
+        // so fetcher doesn't fetch it
+        assertEquals(0x202, m.getPc());
+    }
 }

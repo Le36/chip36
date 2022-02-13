@@ -164,7 +164,7 @@ public class Options extends Stage {
             configs.setQuirkIncrementIndex(quirkIncrementIndex.isSelected());
         });
 
-        this.setScene(new Scene(root, 700, 310));
+        this.setScene(new Scene(root, 700, 340));
         this.show();
 
         AnimationTimer liveChanges = new AnimationTimer() {

@@ -57,7 +57,6 @@ public class EmulatorUi extends Stage {
         Border border = new Border(new BorderStroke(Color.rgb(35, 255, 0),
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
 
-
         Disassembler disassembler = uiElements.makeDisassembler();
 
         Button selectRom = uiElements.makeButton("Select ROM");
@@ -74,23 +73,26 @@ public class EmulatorUi extends Stage {
 
         HBox hboxLeft = new HBox(4, selectRom, resetRom, pause, nextStep, fadeButton, options);
         HBox hboxRight = new HBox(4, fadeSpeedLabel, fadeSlider, gameSpeedLabel, slider);
-        HBox toolbarHBoxTop = new HBox(105, hboxLeft, hboxRight);
-
+        HBox toolbarHBoxTop = new HBox(45, hboxLeft, hboxRight);
 
         Button extDisassembler = uiElements.makeButton("Extended Disassembler");
         Button extStack = uiElements.makeButton("Extended Stack");
         ToggleButton randomColors = uiElements.makeToggleButton("Random");
         Label multiplierLabel = uiElements.makeLabel("ROM Speed Multiplier: ", LabelType.TOOLBAR);
         Slider multiplier = uiElements.makeSlider(1, 50, 1);
-        DecimalFormat df = new DecimalFormat("+#,###0.00;-#");
-        Label currentSpeedLabel = uiElements.makeLabel("Current speed: " + df.format(gameSpeed), LabelType.TOOLBAR);
         HBox hboxBotLeft = new HBox(4, extDisassembler, extStack, randomColors);
-        HBox hboxBotRight = new HBox(4, multiplierLabel, multiplier, currentSpeedLabel);
-        HBox toolbarHBoxBottom = new HBox(270, hboxBotLeft, hboxBotRight);
+        HBox hboxBotRight = new HBox(4, multiplierLabel, multiplier);
+        HBox toolbarHBoxBottom = new HBox(210, hboxBotLeft, hboxBotRight);
         VBox toolbarVBox = new VBox(5, toolbarHBoxTop, toolbarHBoxBottom);
         ToolBar toolBar = new ToolBar();
+
+        FpsCounter fps = new FpsCounter();
+        Label currentFpsLabel = uiElements.makeLabel("0", LabelType.FPS);
+        DecimalFormat df = new DecimalFormat("+#,###0.00;-#");
+        Label currentSpeedLabel = uiElements.makeLabel(df.format(gameSpeed), LabelType.FPS);
+        VBox fpsCounter = new VBox(uiElements.makeLabel("FPS:", LabelType.FPS), currentFpsLabel, uiElements.makeLabel("Speed:", LabelType.FPS), currentSpeedLabel);
         if (mode) {
-            toolBar.getItems().add(toolbarVBox);
+            toolBar.getItems().add(new HBox(5, toolbarVBox, fpsCounter));
         } else {
             toolBar.getItems().add(toolbarHBoxTop);
         }
@@ -346,12 +348,13 @@ public class EmulatorUi extends Stage {
                     pixels.setFadeSpeed(fadeSlider.getValue());
                     romDisplay.setFadeSelected(!fadeButton.isSelected());
                     gameSpeed *= multiplier.getValue();
+                    currentFpsLabel.setText(String.format("%.0f", fps.update(System.nanoTime())));
 
                     if (!configs.isDisableUiUpdates()) {
                         romDisplay.draw();
                         if (mode) {
                             spriteDisplay.draw();
-                            currentSpeedLabel.setText("Current speed: " + df.format(gameSpeed));
+                            currentSpeedLabel.setText(df.format(gameSpeed));
                         }
 
                         pixels.fade(); // fades all pixels that have been erased

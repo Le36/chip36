@@ -1,0 +1,6 @@
+.label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Inconsolata SemiExpanded";
+    -fx-text-fill: rgb(35, 255, 0);
+}

@@ -79,6 +79,10 @@ public class UiElements {
                 label.setAlignment(Pos.CENTER);
                 label.setPadding(new Insets(5, 0, 0, 0));
                 return label;
+            case FPS:
+                label.getStylesheets().add("fps-labels.css");
+                label.setPadding(new Insets(0, 3, 0, 3));
+                return label;
         }
         return label;
     }

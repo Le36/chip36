@@ -718,7 +718,7 @@ public class Decoder {
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
             ram[toUnsignedInt(tempI)] = m.getV()[i];
             if (c.isQuirkIncrementIndex()) {
-                m.setI((short) ((short) tempI + 1));
+                m.setI((short) (tempI + 1));
             }
         }
         m.setRam(ram);
@@ -733,7 +733,7 @@ public class Decoder {
         for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++, tempI++) {
             m.varReg(i, ram[toUnsignedInt(tempI)]);
             if (c.isQuirkIncrementIndex()) {
-                m.setI((short) ((short) tempI + 1));
+                m.setI((short) (tempI + 1));
             }
         }
         this.detailed = d.detailRegisterFill();
